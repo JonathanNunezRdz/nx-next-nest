@@ -1,0 +1,142 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  alias     String
+  firstName String
+  lastName  String
+  uid       String @unique
+  hash      String
+  email     String @unique
+
+  image      UserImage?
+  knownMedia KnownMedia[]
+  waifus     Waifu[]
+}
+
+model UserImage {
+  user   User @relation(references: [id], fields: [userId])
+  userId Int  @unique
+
+  image   Image @relation(references: [id], fields: [imageId])
+  imageId Int   @unique
+
+  @@id([userId, imageId])
+}
+
+model Image {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  format ImageFormat
+
+  user  UserImage?
+  media MediaImage?
+  waifu WaifuImage?
+}
+
+model MediaImage {
+  media   Media @relation(references: [id], fields: [mediaId])
+  mediaId Int   @unique
+
+  image   Image @relation(references: [id], fields: [imageId])
+  imageId Int   @unique
+
+  @@id([mediaId, imageId])
+}
+
+model Media {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  title String    @unique
+  type  MediaType
+
+  image   MediaImage?
+  knownBy KnownMedia[]
+  waifus  Waifu[]
+}
+
+model KnownMedia {
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+
+  media   Media @relation(fields: [mediaId], references: [id])
+  mediaId Int
+
+  knownAt DateTime
+
+  @@id([userId, mediaId])
+}
+
+model Waifu {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name  String
+  level WaifuLevel
+  since DateTime
+
+  image   WaifuImage?
+  media   Media       @relation(references: [id], fields: [mediaId])
+  mediaId Int
+  user    User        @relation(references: [id], fields: [userId])
+  userId  Int
+
+
+  @@unique([name, mediaId])
+}
+
+model WaifuImage {
+  waifu   Waifu @relation(references: [id], fields: [waifuId])
+  waifuId Int   @unique
+
+  image   Image @relation(references: [id], fields: [imageId])
+  imageId Int   @unique
+
+  @@id([waifuId, imageId])
+}
+
+enum MediaType {
+  anime
+  manga
+  videogame
+}
+
+enum WaifuLevel {
+  topWaifu
+  jonin
+  chunin
+  genin
+  freeAgent
+}
+
+enum ImageFormat {
+  apng
+  avif
+  gif
+  jpg
+  jpeg
+  jfif
+  pjpeg
+  pjp
+  png
+  svg
+  webp
+}
