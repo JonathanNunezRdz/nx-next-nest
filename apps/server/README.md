@@ -1,21 +1,31 @@
 # TODO
 
+### Legend
+
+-   ?: Feature complete but no testing
+-   x: Feature complete and tested
+
 ## Auth
 
 -   [x] Sign up
 -   [x] Sign in
 
+## User
+
+-   [x] Get current user
+-   [?] Edit user
+
 ## Media
 
--   [x] Create media
--   [x] Get all media w/filters
--   [x] Know media
--   [x] Edit/update media
--   [x] Delete media
+-   [?] Create media
+-   [?] Get all media w/filters
+-   [?] Know media
+-   [?] Edit/update media
+-   [?] Delete media
 
 ## Waifu
 
--   [x] Create waifu
+-   [?] Create waifu
 -   [?] Get all waifus w/filters
 -   [ ] Get waifus for a media
 -   [ ] Edit/update waifu

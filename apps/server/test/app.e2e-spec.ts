@@ -160,8 +160,18 @@ describe('App e2e', () => {
 
 	describe('User', () => {
 		describe('Get me', () => {
-			it.todo('should throw if auth header is not present');
-			it.todo('should get current user');
+			it('should throw if auth header is not present', () => {
+				return pactum.spec().get('/user/me').expectStatus(401);
+			});
+			it('should get current user', () => {
+				return pactum
+					.spec()
+					.get('/user/me')
+					.withHeaders({
+						Authorization: `Bearer $S{${userAt}}`,
+					})
+					.expectStatus(200);
+			});
 		});
 		describe('Edit user', () => {
 			it.todo('should edit user');
