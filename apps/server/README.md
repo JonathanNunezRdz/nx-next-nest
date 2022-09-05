@@ -13,7 +13,7 @@
 ## User
 
 -   [x] Get current user
--   [?] Edit user
+-   [x] Edit user
 
 ## Media
 

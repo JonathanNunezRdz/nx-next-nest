@@ -1,5 +1,5 @@
-import { Prisma } from '@prisma/client';
-import { EditUserDto } from '../app/user/dto';
+import type { Prisma } from '@prisma/client';
+import type { EditUserDto } from '../app/user/dto';
 
 export const upsertUserImage = (
 	dto: EditUserDto

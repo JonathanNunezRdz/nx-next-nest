@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { upsertUserImage } from '../../utils';
 import { PrismaService } from '../prisma/prisma.service';
-import { EditUserDto } from './dto';
+import type { EditUserDto } from './dto';
 
 @Injectable()
 export class UserService {
 	constructor(private prisma: PrismaService) {}
 
 	async editUser(userId: number, dto: EditUserDto) {
-		const { alias, firstName, lastName, imageFormat, password } = dto;
+		const { alias, firstName, lastName } = dto;
 		const upsertUserImageOptions = upsertUserImage(dto);
 		const user = await this.prisma.user.update({
 			where: {

@@ -4,6 +4,7 @@ import * as pactum from 'pactum';
 import { AppModule } from '../src/app/app.module';
 import { SignInDto, SignUpDto } from '../src/app/auth/dto';
 import { PrismaService } from '../src/app/prisma/prisma.service';
+import { EditUserDto } from '../src/app/user/dto';
 
 const userAt = 'userAT';
 
@@ -153,7 +154,7 @@ describe('App e2e', () => {
 					.post('/auth/signin')
 					.withBody(signInDto)
 					.expectStatus(200)
-					.stores(userAt, 'access_token');
+					.stores(userAt, 'accessToken');
 			});
 		});
 	});
@@ -173,8 +174,23 @@ describe('App e2e', () => {
 					.expectStatus(200);
 			});
 		});
+
+		const editUserDto: EditUserDto = {
+			alias: 'Johny',
+		};
+
 		describe('Edit user', () => {
-			it.todo('should edit user');
+			it('should edit user', () => {
+				return pactum
+					.spec()
+					.patch('/user')
+					.withHeaders({
+						Authorization: `Bearer $S{${userAt}}`,
+					})
+					.withBody(editUserDto)
+					.expectStatus(200)
+					.inspect();
+			});
 		});
 	});
 });
