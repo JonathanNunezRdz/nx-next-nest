@@ -2,8 +2,9 @@
 
 ### Legend
 
--   ?: Feature complete but no testing
--   x: Feature complete and tested
+-   ?: Feature coded but no testing
+-   x: Feature coded and tested
+-   ~: Task in progress
 
 ## Auth
 
@@ -28,5 +29,6 @@
 -   [?] Create waifu
 -   [?] Get all waifus w/filters
 -   [ ] Get waifus for a media
+    -   [~] dto
 -   [ ] Edit/update waifu
 -   [ ] Delete waifu
