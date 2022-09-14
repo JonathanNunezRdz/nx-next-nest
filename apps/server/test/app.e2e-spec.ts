@@ -176,7 +176,7 @@ describe('App e2e', () => {
 		});
 
 		const editUserDto: EditUserDto = {
-			alias: 'Johny',
+			alias: 'Johni',
 		};
 
 		describe('Edit user', () => {

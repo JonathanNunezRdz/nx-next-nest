@@ -1,20 +1,38 @@
+// {
+// 	"extends": [
+// 		"plugin:@nrwl/nx/react-typescript",
+// 		"../../.eslintrc.json",
+// 		"next",
+// 		"next/core-web-vitals"
+// 	],
+// 	"ignorePatterns": ["!**/*"],
+// 	"overrides": [
+// 		{
+// 			"files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
+// 			"rules": {
+// 				"@next/next/no-html-link-for-pages": ["error", "apps/client/pages"]
+// 			}
+// 		}
+// 	],
+// 	"env": {
+// 		"jest": true
+// 	}
+// }
+
 {
 	"extends": [
-		"plugin:@nrwl/nx/react-typescript",
-		"../../.eslintrc.json",
-		"next",
-		"next/core-web-vitals"
+		"sznm/react",
+		"plugin:react/jsx-runtime",
+		"plugin:@next/next/recommended"
 	],
-	"ignorePatterns": ["!**/*"],
-	"overrides": [
-		{
-			"files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
-			"rules": {
-				"@next/next/no-html-link-for-pages": ["error", "apps/client/pages"]
+	"rules": {
+		"prettier/prettier": [
+			"error",
+			{
+				"singleQuote": true,
+				"jsxSingleQuote": true
 			}
-		}
-	],
-	"env": {
-		"jest": true
+		],
+		"no-param-reassign": ["error", { "props": false }]
 	}
 }

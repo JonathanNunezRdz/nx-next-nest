@@ -4,13 +4,12 @@ import type { AppProps } from 'next/app';
 import Head from 'next/head';
 
 import Layout from '../lib/components/layout';
-import customTheme from '../lib/styles/customTheme';
 import '../lib/styles/globals.css';
 import defaultSEOConfig from '../next-seo.config';
 
 function CustomApp({ Component, pageProps }: AppProps) {
 	return (
-		<ChakraProvider theme={customTheme}>
+		<ChakraProvider>
 			<Head>
 				<meta
 					name='viewport'
