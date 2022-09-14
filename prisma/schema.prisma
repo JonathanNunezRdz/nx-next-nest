@@ -2,7 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
 datasource db {
@@ -98,7 +99,6 @@ model Waifu {
   mediaId Int
   user    User        @relation(references: [id], fields: [userId])
   userId  Int
-
 
   @@unique([name, mediaId])
 }
