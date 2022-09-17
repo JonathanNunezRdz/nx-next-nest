@@ -1,15 +1,17 @@
-import { ChakraProvider } from '@chakra-ui/react';
 import { DefaultSeo } from 'next-seo';
 import type { AppProps } from 'next/app';
 import Head from 'next/head';
+import { Provider } from 'react-redux';
+import Chakra from '../lib/components/Chakra';
 
 import Layout from '../lib/components/layout';
+import { store } from '../lib/redux/store';
 import '../lib/styles/globals.css';
 import defaultSEOConfig from '../next-seo.config';
 
 function CustomApp({ Component, pageProps }: AppProps) {
 	return (
-		<ChakraProvider>
+		<Chakra>
 			<Head>
 				<meta
 					name='viewport'
@@ -17,10 +19,12 @@ function CustomApp({ Component, pageProps }: AppProps) {
 				/>
 			</Head>
 			<DefaultSeo {...defaultSEOConfig} />
-			<Layout>
-				<Component {...pageProps} />
-			</Layout>
-		</ChakraProvider>
+			<Provider store={store}>
+				<Layout>
+					<Component {...pageProps} />
+				</Layout>
+			</Provider>
+		</Chakra>
 	);
 }
 
