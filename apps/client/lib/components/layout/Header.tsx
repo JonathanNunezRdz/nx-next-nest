@@ -1,7 +1,10 @@
 import { Box, Flex, Heading, Link } from '@chakra-ui/react';
 import NextLink from 'next/link';
+import HeaderLinks from '../header/HeaderLinks';
 
 import ThemeToggle from './ThemeToggle';
+
+const links = ['/medias', '/waifus'];
 
 const Header = () => {
 	return (
@@ -12,12 +15,7 @@ const Header = () => {
 				</NextLink>
 			</Heading>
 			<Box marginLeft='auto'>
-				<NextLink href='media' passHref>
-					<Link mr='1rem'>medias</Link>
-				</NextLink>
-				<NextLink href='media' passHref>
-					<Link mr='1rem'>waifus</Link>
-				</NextLink>
+				<HeaderLinks links={links} />
 				<ThemeToggle />
 			</Box>
 		</Flex>

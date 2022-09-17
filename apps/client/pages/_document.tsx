@@ -6,7 +6,7 @@ import Document, {
 	NextScript,
 	type DocumentContext,
 } from 'next/document';
-import customTheme from '../lib/styles/customTheme';
+import customTheme from '../lib/styles/theme';
 
 const APP_NAME = 'wia';
 
