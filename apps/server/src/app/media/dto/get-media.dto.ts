@@ -1,4 +1,5 @@
 import { MediaType, User } from '@prisma/client';
+import { Transform } from 'class-transformer';
 import {
 	ArrayNotEmpty,
 	IsArray,
@@ -17,11 +18,13 @@ export class GetMediaDto {
 	@IsNotEmpty()
 	cursor: string;
 
+	@Transform(({ value }) => parseInt(value, 10))
 	@IsInt()
 	@Max(20)
 	@Min(1)
 	limit: number;
 
+	@Transform(({ value }) => JSON.parse(value))
 	@IsArray()
 	@ArrayNotEmpty()
 	@IsOptional()

@@ -9,6 +9,7 @@ import {
 	ParseIntPipe,
 	Patch,
 	Post,
+	Query,
 	UseGuards,
 } from '@nestjs/common';
 import { GetUser } from '../auth/decorator';
@@ -33,7 +34,9 @@ export class MediaController {
 	}
 
 	@Get('')
-	getMedias(@Body() dto: GetMediaDto) {
+	getMedias(@Query() dto: GetMediaDto) {
+		console.log({ dto });
+
 		return this.mediaService.getMedias(dto);
 	}
 
