@@ -12,11 +12,15 @@ import useBoundStore from '../../store';
 
 const SignIn: FC = () => {
 	const [email, setEmail] = useState('');
+	const [password, setPassword] = useState('');
 	const { loggedIn, signIn, signOut } = useBoundStore((state) => ({
 		loggedIn: state.loggedIn,
 		signIn: state.signIn,
 		signOut: state.signOut,
 	}));
+	const handleSignIn = () => {
+		signIn(email, password);
+	};
 	return (
 		<Box
 			display={{ md: 'flex' }}
@@ -47,7 +51,13 @@ const SignIn: FC = () => {
 
 				<FormControl>
 					<FormLabel>Password</FormLabel>
-					<Input type='password' variant='filled' bg='teal.500' />
+					<Input
+						type='password'
+						variant='filled'
+						bg='teal.500'
+						value={password}
+						onChange={(e) => setPassword(e.currentTarget.value)}
+					/>
 				</FormControl>
 
 				<Box>
@@ -56,7 +66,7 @@ const SignIn: FC = () => {
 							Sign Out
 						</Button>
 					) : (
-						<Button bg='gray.700' onClick={signIn}>
+						<Button bg='gray.700' onClick={handleSignIn}>
 							Sign In
 						</Button>
 					)}
