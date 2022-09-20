@@ -7,20 +7,43 @@ import {
 	Text,
 	VStack,
 } from '@chakra-ui/react';
-import { type FC, useState } from 'react';
-import useStore from '../../store';
+import { NextSeo } from 'next-seo';
+import { type FC, useState, useEffect } from 'react';
+
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+	getUser,
+	selectSignInStatus,
+	selectUserStatus,
+	signIn,
+	signOut,
+} from '../../store/user';
 
 const SignIn: FC = () => {
+	const dispatch = useAppDispatch();
+	const signInStatus = useAppSelector(selectSignInStatus);
+	const userStatus = useAppSelector(selectUserStatus);
+
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
-	const { loggedIn, signIn, signOut } = useStore((state) => ({
-		loggedIn: state.loggedIn,
-		signIn: state.signIn,
-		signOut: state.signOut,
-	}));
+
 	const handleSignIn = () => {
-		signIn(email, password);
+		dispatch(signIn({ email, password }));
 	};
+
+	const handleSignOut = () => {
+		dispatch(signOut());
+	};
+
+	useEffect(() => {
+		if (
+			signInStatus.status === 'succeeded' &&
+			userStatus.status === 'idle'
+		) {
+			dispatch(getUser());
+		}
+	}, [signInStatus.status, userStatus.status, dispatch]);
+
 	return (
 		<Box
 			display={{ md: 'flex' }}
@@ -31,6 +54,7 @@ const SignIn: FC = () => {
 			mb={8}
 			w='full'
 		>
+			<NextSeo title='sign in' />
 			<VStack
 				bg='teal.400'
 				borderRadius='lg'
@@ -61,8 +85,8 @@ const SignIn: FC = () => {
 				</FormControl>
 
 				<Box>
-					{loggedIn ? (
-						<Button bg='gray.700' onClick={signOut}>
+					{signInStatus.status === 'succeeded' ? (
+						<Button bg='gray.700' onClick={handleSignOut}>
 							Sign Out
 						</Button>
 					) : (
@@ -72,7 +96,10 @@ const SignIn: FC = () => {
 					)}
 				</Box>
 				<Box>
-					<Text>Signed in: {loggedIn ? 'true' : 'false'}</Text>
+					<Text>
+						Signed in:{' '}
+						{signInStatus.status === 'succeeded' ? 'true' : 'false'}
+					</Text>
 				</Box>
 			</VStack>
 		</Box>

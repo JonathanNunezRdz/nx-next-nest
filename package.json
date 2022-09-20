@@ -29,6 +29,7 @@
 		"core-js": "^3.6.5",
 		"env-cmd": "^10.1.0",
 		"framer-motion": "^6",
+		"immer": "^9.0.15",
 		"next": "12.2.5",
 		"next-seo": "^5.4.0",
 		"passport": "^0.5.2",

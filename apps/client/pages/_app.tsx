@@ -1,10 +1,12 @@
 import { DefaultSeo } from 'next-seo';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
+import { Provider } from 'react-redux';
 
 import defaultSEOConfig from '../next-seo.config';
 import Chakra from '../src/Chakra';
 import Layout from '../src/components/layout';
+import { store } from '../src/store';
 
 function CustomApp({ Component, pageProps }: AppProps) {
 	return (
@@ -16,9 +18,11 @@ function CustomApp({ Component, pageProps }: AppProps) {
 				/>
 			</Head>
 			<DefaultSeo {...defaultSEOConfig} />
-			<Layout>
-				<Component {...pageProps} />
-			</Layout>
+			<Provider store={store}>
+				<Layout>
+					<Component {...pageProps} />
+				</Layout>
+			</Provider>
 		</Chakra>
 	);
 }

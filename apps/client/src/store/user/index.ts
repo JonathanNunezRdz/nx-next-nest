@@ -1,26 +1,40 @@
-import { HttpError, Status } from '@nx-next-nest/types';
+import {
+	HttpError,
+	SignInDto,
+	SignInResponse,
+	UserState,
+} from '@nx-next-nest/types';
 import type { User } from '@prisma/client';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { AxiosError } from 'axios';
+import { RootState } from '..';
 import api from '../api';
 import userService from './service';
 
-export interface UserState {
-	user: User;
-	signIn: {
-		status: Status;
-		error: string | undefined;
-	};
-}
+export const getUser = createAsyncThunk<User, void, { rejectValue: HttpError }>(
+	'user/getUser',
+	async (_, thunkApi) => {
+		try {
+			const res = await userService.getUser();
+			return res.data;
+		} catch (error) {
+			if (error instanceof AxiosError) {
+				const { response } = error as AxiosError<HttpError>;
+				return thunkApi.rejectWithValue(response.data);
+			}
+			throw error;
+		}
+	}
+);
 
 export const signIn = createAsyncThunk<
-	void,
-	{ email: string; password: string },
+	SignInResponse,
+	SignInDto,
 	{ rejectValue: HttpError }
 >('user/signIn', async ({ email, password }, thunkApi) => {
 	try {
-		const res = await userService.signIn(email, password);
-		api.defaults.headers.common['Authorization'] = res.data.accessToken;
+		const { data } = await userService.signIn(email, password);
+		return data;
 	} catch (error) {
 		if (error instanceof AxiosError) {
 			const { response } = error as AxiosError<HttpError>;
@@ -31,8 +45,16 @@ export const signIn = createAsyncThunk<
 });
 
 const initialState: UserState = {
-	user: {} as User,
+	user: {
+		status: 'idle',
+		error: undefined,
+	},
+	isLoggedIn: false,
 	signIn: {
+		status: 'idle',
+		error: undefined,
+	},
+	signOut: {
 		status: 'idle',
 		error: undefined,
 	},
@@ -41,20 +63,71 @@ const initialState: UserState = {
 export const userSlice = createSlice({
 	name: 'user',
 	initialState,
-	reducers: {},
+	reducers: {
+		signOut: (state) => {
+			state.signOut.status = 'loading';
+			api.defaults.headers.common['Authorization'] = '';
+			state.signOut.status = 'succeeded';
+			state.signOut.error = undefined;
+			state.isLoggedIn = false;
+			state.signIn.status = 'idle';
+			state.signIn.error = undefined;
+			state.user = {
+				status: 'idle',
+				error: undefined,
+			};
+		},
+	},
 	extraReducers(builder) {
 		builder
 			.addCase(signIn.pending, (state) => {
 				state.signIn.status = 'loading';
 			})
-			.addCase(signIn.fulfilled, (state) => {
+			.addCase(signIn.fulfilled, (state, action) => {
+				api.defaults.headers.common[
+					'Authorization'
+				] = `Bearer ${action.payload.accessToken}`;
 				state.signIn.status = 'succeeded';
+				state.isLoggedIn = true;
+				state.signIn.error = undefined;
 			})
 			.addCase(signIn.rejected, (state, action) => {
 				state.signIn.status = 'failed';
-				if ('length' in action.payload.message) {
-				}
 				state.signIn.error = action.payload.message;
+			})
+			.addCase(getUser.pending, (state) => {
+				state.user.status = 'loading';
+			})
+			.addCase(getUser.fulfilled, (state, action) => {
+				state.user = {
+					...action.payload,
+					status: 'succeeded',
+					error: undefined,
+				};
+			})
+			.addCase(getUser.rejected, (state, action) => {
+				state.user = {
+					status: 'failed',
+					error: action.payload.message,
+				};
 			});
 	},
 });
+
+const userReducer = userSlice.reducer;
+
+export const { signOut } = userSlice.actions;
+
+export const selectSignInStatus = (state: RootState) => state.user.signIn;
+
+export const selectUserStatus = (state: RootState) => ({
+	status: state.user.user.status,
+	error: state.user.user.error,
+});
+
+export const selectUser = (state: RootState): Partial<User> => {
+	const { status, error, ...user } = state.user.user;
+	return user;
+};
+
+export default userReducer;
