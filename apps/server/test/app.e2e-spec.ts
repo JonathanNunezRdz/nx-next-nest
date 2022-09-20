@@ -1,10 +1,9 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { EditUserDto, SignInDto, SignUpDto } from '@nx-next-nest/types';
 import * as pactum from 'pactum';
 import { AppModule } from '../src/app/app.module';
-import { SignInDto, SignUpDto } from '../src/app/auth/dto';
 import { PrismaService } from '../src/app/prisma/prisma.service';
-import { EditUserDto } from '../src/app/user/dto';
 
 const userAt = 'userAT';
 

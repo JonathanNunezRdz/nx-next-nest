@@ -1,5 +1,5 @@
+import type { SignUpDto } from '@nx-next-nest/types';
 import type { Prisma } from '@prisma/client';
-import type { SignUpDto } from '../app/auth/dto';
 
 export const createUserImage = (
 	dto: SignUpDto

@@ -1,5 +1,5 @@
+import type { EditUserDto } from '@nx-next-nest/types';
 import type { Prisma } from '@prisma/client';
-import type { EditUserDto } from '../app/user/dto';
 
 export const upsertUserImage = (
 	dto: EditUserDto

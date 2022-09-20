@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import { CreateWaifuDto, GetAllWaifusDto } from '@nx-next-nest/types';
 import { GetUser } from '../auth/decorator';
 import { JwtGuard } from '../auth/guard';
-import { CreateWaifuDto, GetAllWaifusDto } from './dto';
 import { WaifuService } from './waifu.service';
 
 @UseGuards(JwtGuard)

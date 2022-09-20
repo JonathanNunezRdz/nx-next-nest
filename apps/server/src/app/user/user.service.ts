@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import type { EditUserDto } from '@nx-next-nest/types';
+
 import { upsertUserImage } from '../../utils';
 import { PrismaService } from '../prisma/prisma.service';
-import type { EditUserDto } from './dto';
 
 @Injectable()
 export class UserService {

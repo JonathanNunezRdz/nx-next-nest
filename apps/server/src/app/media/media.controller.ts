@@ -12,10 +12,15 @@ import {
 	Query,
 	UseGuards,
 } from '@nestjs/common';
+import {
+	CreateMediaDto,
+	EditMediaDto,
+	GetMediaDto,
+	GetMediaResponse,
+	KnowMediaDto,
+} from '@nx-next-nest/types';
 import { GetUser } from '../auth/decorator';
 import { JwtGuard } from '../auth/guard';
-import { CreateMediaDto, EditMediaDto, KnowMediaDto } from './dto';
-import { GetMediaDto } from './dto/get-media.dto';
 import { MediaService } from './media.service';
 
 @UseGuards(JwtGuard)
@@ -34,14 +39,17 @@ export class MediaController {
 	}
 
 	@Get('')
-	getMedias(@Query() dto: GetMediaDto) {
+	getMedias(@Query() dto: GetMediaDto): Promise<GetMediaResponse[]> {
 		console.log({ dto });
 
 		return this.mediaService.getMedias(dto);
 	}
 
 	@Patch('')
-	editMedia(@GetUser('id') userId: number, @Body() dto: EditMediaDto) {
+	editMedia(
+		@GetUser('id') userId: number,
+		@Body() dto: EditMediaDto
+	): Promise<GetMediaResponse> {
 		return this.mediaService.editMedia(userId, dto);
 	}
 

@@ -1,8 +1,9 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
+import { CreateWaifuDto, GetAllWaifusDto } from '@nx-next-nest/types';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
+
 import { createWaifuImage } from '../../utils';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateWaifuDto, GetAllWaifusDto } from './dto';
 
 @Injectable()
 export class WaifuService {

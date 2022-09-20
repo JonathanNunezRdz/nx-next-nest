@@ -1,4 +1,10 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+	CreateMediaDto,
+	EditMediaDto,
+	GetMediaDto,
+	KnowMediaDto,
+} from '@nx-next-nest/types';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import {
 	createMediaImage,
@@ -6,7 +12,6 @@ import {
 	editMediaKnownAt,
 } from '../../utils';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateMediaDto, EditMediaDto, GetMediaDto, KnowMediaDto } from './dto';
 
 @Injectable()
 export class MediaService {
@@ -57,6 +62,16 @@ export class MediaService {
 							select: {
 								id: true,
 								alias: true,
+								image: {
+									include: {
+										image: {
+											select: {
+												id: true,
+												format: true,
+											},
+										},
+									},
+								},
 							},
 						},
 					},
@@ -65,7 +80,6 @@ export class MediaService {
 					include: {
 						image: {
 							select: {
-								id: true,
 								format: true,
 							},
 						},

@@ -8,17 +8,22 @@ import {
 	UserImage,
 } from '@prisma/client';
 
-// TODO: complete GetMediaResponseType from prisma client
-1;
-export type GetMediaResponseType = Media & {
+export * from './create-media.dto';
+export * from './edit-media.dto';
+export * from './get-media.dto';
+export * from './know-media.dto';
+
+export type GetMediaResponse = Media & {
 	image: MediaImage & {
-		format: ImageFormat;
+		image: {
+			format: ImageFormat;
+		};
 	};
-	knownBy: KnownMedia & {
+	knownBy: (KnownMedia & {
 		user: Pick<User, 'id' | 'alias'> & {
 			image: UserImage & {
 				image: Pick<Image, 'id' | 'format'>;
 			};
 		};
-	};
+	})[];
 };

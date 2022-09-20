@@ -1,4 +1,4 @@
-import { CreateMediaDto, EditMediaDto } from '../app/media/dto';
+import { CreateMediaDto, EditMediaDto } from '@nx-next-nest/types';
 
 export const createMediaImage = (dto: CreateMediaDto) => {
 	if (typeof dto.imageFormat === 'string') {

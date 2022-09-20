@@ -1,4 +1,4 @@
-import { CreateWaifuDto } from '../app/waifu/dto';
+import { CreateWaifuDto } from '@nx-next-nest/types';
 
 export const createWaifuImage = (dto: CreateWaifuDto) => {
 	const { imageFormat } = dto;

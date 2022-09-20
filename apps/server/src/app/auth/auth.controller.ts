@@ -6,8 +6,8 @@ import {
 	HttpStatus,
 	Post,
 } from '@nestjs/common';
+import { SignInDto, SignInResponse, SignUpDto } from '@nx-next-nest/types';
 import { AuthService } from './auth.service';
-import { SignInDto, SignUpDto } from './dto';
 
 @Controller('auth')
 export class AuthController {
@@ -25,7 +25,7 @@ export class AuthController {
 
 	@HttpCode(HttpStatus.OK)
 	@Post('signin')
-	signin(@Body() dto: SignInDto) {
+	signin(@Body() dto: SignInDto): Promise<SignInResponse> {
 		return this.authService.signin(dto);
 	}
 }
