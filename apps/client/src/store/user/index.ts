@@ -1,43 +1,41 @@
+import { HttpError, Status } from '@nx-next-nest/types';
 import type { User } from '@prisma/client';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-
-export interface UserSlice {
-	user: User;
-	loggedIn: boolean;
-	signIn: (email: string, password: string) => Promise<void>;
-	signOut: () => void;
-}
-
-const createUserSlice: StateCreator<UserSlice, [], [], UserSlice> = (set) => ({
-	user: {} as User,
-	loggedIn: false,
-	signIn: async (email, password) => {
-		try {
-			await signIn(email, password);
-			set(() => ({ loggedIn: true }));
-		} catch (error) {
-			if (isAxiosError<SignInError>(error)) {
-				console.log(error.response.data.message);
-			} else {
-				console.error(error);
-			}
-		}
-	},
-	signOut: () => set(() => ({ loggedIn: false })),
-});
-
-export default createUserSlice;
+import { AxiosError } from 'axios';
+import api from '../api';
+import userService from './service';
 
 export interface UserState {
 	user: User;
-	isLoggedIn: boolean;
+	signIn: {
+		status: Status;
+		error: string | undefined;
+	};
 }
 
-export const getMedia = createAsyncThunk
+export const signIn = createAsyncThunk<
+	void,
+	{ email: string; password: string },
+	{ rejectValue: HttpError }
+>('user/signIn', async ({ email, password }, thunkApi) => {
+	try {
+		const res = await userService.signIn(email, password);
+		api.defaults.headers.common['Authorization'] = res.data.accessToken;
+	} catch (error) {
+		if (error instanceof AxiosError) {
+			const { response } = error as AxiosError<HttpError>;
+			return thunkApi.rejectWithValue(response.data);
+		}
+		throw error;
+	}
+});
 
 const initialState: UserState = {
 	user: {} as User,
-	isLoggedIn: false,
+	signIn: {
+		status: 'idle',
+		error: undefined,
+	},
 };
 
 export const userSlice = createSlice({
@@ -45,6 +43,18 @@ export const userSlice = createSlice({
 	initialState,
 	reducers: {},
 	extraReducers(builder) {
-		builder.
-	}
-})
+		builder
+			.addCase(signIn.pending, (state) => {
+				state.signIn.status = 'loading';
+			})
+			.addCase(signIn.fulfilled, (state) => {
+				state.signIn.status = 'succeeded';
+			})
+			.addCase(signIn.rejected, (state, action) => {
+				state.signIn.status = 'failed';
+				if ('length' in action.payload.message) {
+				}
+				state.signIn.error = action.payload.message;
+			});
+	},
+});
