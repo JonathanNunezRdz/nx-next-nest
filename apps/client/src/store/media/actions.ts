@@ -13,7 +13,12 @@ export function isAxiosError<ResponseType>(
 	return axios.isAxiosError(error);
 }
 
-export const getMedia = async () => {
-	const res = await api.get('/media');
+export const getMedia = async (cursor: string, limit: number) => {
+	const res = await api.get('/media', {
+		params: {
+			cursor,
+			limit,
+		},
+	});
 	console.log({ res });
 };

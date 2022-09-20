@@ -4,7 +4,7 @@ import NextLink from 'next/link';
 import HeaderLinks from './HeaderLinks';
 import ThemeToggle from './ThemeToggle';
 
-const links = ['medias', 'waifus'];
+const links = ['media', 'waifus'];
 
 const Header: FC = () => {
 	return (

@@ -1,5 +1,6 @@
 import type { Media } from '@prisma/client';
 import { StateCreator } from 'zustand';
+import { StateType } from '..';
 import { getMedia } from './actions';
 
 export interface MediaSlice {
@@ -13,9 +14,9 @@ const createMediaSlice: StateCreator<MediaSlice, [], [], MediaSlice> = (
 	media: [],
 	getMedia: async () => {
 		try {
-			await getMedia();
+			await getMedia(new Date().toISOString(), 10);
 		} catch (error) {
-			log;
+			console.error(error);
 		}
 	},
 	// loggedIn: false,
@@ -33,5 +34,9 @@ const createMediaSlice: StateCreator<MediaSlice, [], [], MediaSlice> = (
 	// },
 	// signOut: () => set(() => ({ loggedIn: false })),
 });
+
+export const selectMedia = (state: StateType) => {
+	state.
+}
 
 export default createMediaSlice;

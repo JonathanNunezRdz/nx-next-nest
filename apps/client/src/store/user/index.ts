@@ -1,6 +1,5 @@
 import type { User } from '@prisma/client';
-import { StateCreator } from 'zustand';
-import { isAxiosError, signIn, SignInError } from './actions';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 export interface UserSlice {
 	user: User;
@@ -28,3 +27,24 @@ const createUserSlice: StateCreator<UserSlice, [], [], UserSlice> = (set) => ({
 });
 
 export default createUserSlice;
+
+export interface UserState {
+	user: User;
+	isLoggedIn: boolean;
+}
+
+export const getMedia = createAsyncThunk
+
+const initialState: UserState = {
+	user: {} as User,
+	isLoggedIn: false,
+};
+
+export const userSlice = createSlice({
+	name: 'user',
+	initialState,
+	reducers: {},
+	extraReducers(builder) {
+		builder.
+	}
+})

@@ -8,12 +8,12 @@ import {
 	VStack,
 } from '@chakra-ui/react';
 import { type FC, useState } from 'react';
-import useBoundStore from '../../store';
+import useStore from '../../store';
 
 const SignIn: FC = () => {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
-	const { loggedIn, signIn, signOut } = useBoundStore((state) => ({
+	const { loggedIn, signIn, signOut } = useStore((state) => ({
 		loggedIn: state.loggedIn,
 		signIn: state.signIn,
 		signOut: state.signOut,
