@@ -64,7 +64,24 @@ export const userSlice = createSlice({
 	name: 'user',
 	initialState,
 	reducers: {
+		getLoggedStatus: (state) => {
+			const jwt = localStorage.getItem(
+				process.env.NEXT_PUBLIC_JWT_LOCAL_STORAGE_KEY
+			);
+			if (jwt !== null) {
+				state.isLoggedIn = true;
+				api.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
+				state.signIn.status = 'succeeded';
+			} else {
+				state.isLoggedIn = false;
+				api.defaults.headers.common['Authorization'] = '';
+				state.signIn.status = 'failed';
+			}
+		},
 		signOut: (state) => {
+			localStorage.removeItem(
+				process.env.NEXT_PUBLIC_JWT_LOCAL_STORAGE_KEY
+			);
 			state.signOut.status = 'loading';
 			api.defaults.headers.common['Authorization'] = '';
 			state.signOut.status = 'succeeded';
@@ -84,6 +101,10 @@ export const userSlice = createSlice({
 				state.signIn.status = 'loading';
 			})
 			.addCase(signIn.fulfilled, (state, action) => {
+				localStorage.setItem(
+					process.env.NEXT_PUBLIC_JWT_LOCAL_STORAGE_KEY,
+					action.payload.accessToken
+				);
 				api.defaults.headers.common[
 					'Authorization'
 				] = `Bearer ${action.payload.accessToken}`;
@@ -92,6 +113,9 @@ export const userSlice = createSlice({
 				state.signIn.error = undefined;
 			})
 			.addCase(signIn.rejected, (state, action) => {
+				localStorage.removeItem(
+					process.env.NEXT_PUBLIC_JWT_LOCAL_STORAGE_KEY
+				);
 				state.signIn.status = 'failed';
 				state.signIn.error = action.payload.message;
 			})
@@ -116,7 +140,7 @@ export const userSlice = createSlice({
 
 const userReducer = userSlice.reducer;
 
-export const { signOut } = userSlice.actions;
+export const { signOut, getLoggedStatus } = userSlice.actions;
 
 export const selectSignInStatus = (state: RootState) => state.user.signIn;
 

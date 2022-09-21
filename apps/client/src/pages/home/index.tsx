@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, useEffect } from 'react';
 import { Box, Heading } from '@chakra-ui/react';
 import { NextSeo } from 'next-seo';
 import { useAppSelector } from '../../store/hooks';
@@ -6,6 +6,14 @@ import SignedInHome from './SignedInHome';
 
 const Home: FC = () => {
 	const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
+
+	useEffect(() => {
+		console.log({
+			env: localStorage.getItem(
+				process.env.NEXT_PUBLIC_JWT_LOCAL_STORAGE_KEY
+			),
+		});
+	}, []);
 	return (
 		<Box
 			display={{ md: 'flex' }}

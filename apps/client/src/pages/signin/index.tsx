@@ -8,21 +8,16 @@ import {
 	VStack,
 } from '@chakra-ui/react';
 import { NextSeo } from 'next-seo';
-import { type FC, useState, useEffect } from 'react';
+import { type FC, useState } from 'react';
 
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import {
-	getUser,
-	selectSignInStatus,
-	selectUserStatus,
-	signIn,
-	signOut,
-} from '../../store/user';
+import { selectSignInStatus, signIn, signOut } from '../../store/user';
+
+// TODO: redirect user when sign in is completed
 
 const SignIn: FC = () => {
 	const dispatch = useAppDispatch();
 	const signInStatus = useAppSelector(selectSignInStatus);
-	const userStatus = useAppSelector(selectUserStatus);
 
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
@@ -34,15 +29,6 @@ const SignIn: FC = () => {
 	const handleSignOut = () => {
 		dispatch(signOut());
 	};
-
-	useEffect(() => {
-		if (
-			signInStatus.status === 'succeeded' &&
-			userStatus.status === 'idle'
-		) {
-			dispatch(getUser());
-		}
-	}, [signInStatus.status, userStatus.status, dispatch]);
 
 	return (
 		<Box
