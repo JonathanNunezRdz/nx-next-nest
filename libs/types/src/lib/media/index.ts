@@ -7,6 +7,7 @@ import {
 	User,
 	UserImage,
 } from '@prisma/client';
+import { RequestStatus } from '../common';
 
 export * from './create-media.dto';
 export * from './edit-media.dto';
@@ -27,3 +28,9 @@ export type GetMediaResponse = Media & {
 		};
 	})[];
 };
+
+export interface MediaState {
+	media: {
+		data: GetMediaResponse[];
+	} & RequestStatus;
+}

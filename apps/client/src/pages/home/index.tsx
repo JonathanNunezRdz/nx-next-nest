@@ -1,38 +1,24 @@
-import React, { FC, useEffect } from 'react';
+import type { FC } from 'react';
 import { Box, Heading } from '@chakra-ui/react';
 import { NextSeo } from 'next-seo';
+
 import { useAppSelector } from '../../store/hooks';
-import SignedInHome from './SignedInHome';
+import Body from '../../components/layout/Body';
+import { selectUser, selectUserStatus } from '../../store/user';
 
 const Home: FC = () => {
-	const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
+	const { status } = useAppSelector(selectUserStatus);
+	const user = useAppSelector(selectUser);
 
-	useEffect(() => {
-		console.log({
-			env: localStorage.getItem(
-				process.env.NEXT_PUBLIC_JWT_LOCAL_STORAGE_KEY
-			),
-		});
-	}, []);
 	return (
-		<Box
-			display={{ md: 'flex' }}
-			alignItems='center'
-			justifyContent='center'
-			minHeight='60vh'
-			gap={8}
-			mb={8}
-			w='full'
-		>
+		<Body>
 			<NextSeo title='home' />
-			{isLoggedIn ? (
-				<SignedInHome />
-			) : (
-				<Box>
-					<Heading>Welcome user</Heading>
-				</Box>
-			)}
-		</Box>
+			<Box>
+				<Heading>
+					welcome {status === 'succeeded' ? user.alias : 'to the wia'}
+				</Heading>
+			</Box>
+		</Body>
 	);
 };
 

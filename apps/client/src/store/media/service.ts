@@ -1,11 +1,16 @@
+import { GetMediaDto, GetMediaResponse } from '@nx-next-nest/types';
 import api from '../api';
 
-export const getMedia = async (cursor: string, limit: number) => {
-	const res = await api.get('/media', {
+export const getMedias = (dto: GetMediaDto) => {
+	return api.get<GetMediaResponse[]>('/media', {
 		params: {
-			cursor,
-			limit,
+			...dto,
 		},
 	});
-	console.log({ res });
 };
+
+const mediaService = {
+	getMedias,
+};
+
+export default mediaService;

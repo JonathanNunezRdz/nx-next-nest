@@ -4,7 +4,6 @@ import { useAppSelector } from '../../store/hooks';
 import { selectUser } from '../../store/user';
 
 const SignedInHome: FC = () => {
-	// TODO: make user always available when isLoggedIn is true
 	const user = useAppSelector(selectUser);
 
 	return (

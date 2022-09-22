@@ -6,7 +6,9 @@ export * from './signin.dto';
 export * from './signup.dto';
 
 export interface UserState {
-	user: Partial<User> & RequestStatus;
+	user: {
+		data: User | undefined;
+	} & RequestStatus;
 	isLoggedIn: boolean;
 	signIn: RequestStatus;
 	signOut: RequestStatus;

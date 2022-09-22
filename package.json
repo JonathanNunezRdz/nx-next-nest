@@ -9,6 +9,7 @@
 	},
 	"private": true,
 	"dependencies": {
+		"@chakra-ui/icons": "^2.0.10",
 		"@chakra-ui/react": "2.3.4",
 		"@emotion/react": "11.10.4",
 		"@emotion/styled": "11.10.4",
@@ -28,6 +29,7 @@
 		"class-validator": "^0.13.2",
 		"core-js": "^3.6.5",
 		"env-cmd": "^10.1.0",
+		"formik": "^2.2.9",
 		"framer-motion": "^6",
 		"immer": "^9.0.15",
 		"next": "12.2.5",

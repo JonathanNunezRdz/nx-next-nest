@@ -1,5 +1,5 @@
 import { Box } from '@chakra-ui/react';
-import { FC, useEffect } from 'react';
+import { type FC, useEffect } from 'react';
 
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {

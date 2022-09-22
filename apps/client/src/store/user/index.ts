@@ -5,9 +5,10 @@ import {
 	UserState,
 } from '@nx-next-nest/types';
 import type { User } from '@prisma/client';
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AxiosError } from 'axios';
 import { RootState } from '..';
+import { invalidateJWT, setJWT, validateJWT } from '../../utils';
 import api from '../api';
 import userService from './service';
 
@@ -46,6 +47,7 @@ export const signIn = createAsyncThunk<
 
 const initialState: UserState = {
 	user: {
+		data: undefined,
 		status: 'idle',
 		error: undefined,
 	},
@@ -65,12 +67,12 @@ export const userSlice = createSlice({
 	initialState,
 	reducers: {
 		getLoggedStatus: (state) => {
-			const jwt = localStorage.getItem(
-				process.env.NEXT_PUBLIC_JWT_LOCAL_STORAGE_KEY
-			);
-			if (jwt !== null) {
+			const status = validateJWT();
+			if (status.valid) {
 				state.isLoggedIn = true;
-				api.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
+				api.defaults.headers.common[
+					'Authorization'
+				] = `Bearer ${status.jwt}`;
 				state.signIn.status = 'succeeded';
 			} else {
 				state.isLoggedIn = false;
@@ -78,21 +80,17 @@ export const userSlice = createSlice({
 				state.signIn.status = 'failed';
 			}
 		},
-		signOut: (state) => {
-			localStorage.removeItem(
-				process.env.NEXT_PUBLIC_JWT_LOCAL_STORAGE_KEY
-			);
-			state.signOut.status = 'loading';
+		signOut: (state, action: PayloadAction<CallableFunction>) => {
+			invalidateJWT();
 			api.defaults.headers.common['Authorization'] = '';
-			state.signOut.status = 'succeeded';
-			state.signOut.error = undefined;
-			state.isLoggedIn = false;
-			state.signIn.status = 'idle';
-			state.signIn.error = undefined;
-			state.user = {
-				status: 'idle',
-				error: undefined,
+			state = {
+				...initialState,
+				signOut: {
+					...initialState.signOut,
+					status: 'succeeded',
+				},
 			};
+			if (action.payload) action.payload();
 		},
 	},
 	extraReducers(builder) {
@@ -101,10 +99,7 @@ export const userSlice = createSlice({
 				state.signIn.status = 'loading';
 			})
 			.addCase(signIn.fulfilled, (state, action) => {
-				localStorage.setItem(
-					process.env.NEXT_PUBLIC_JWT_LOCAL_STORAGE_KEY,
-					action.payload.accessToken
-				);
+				setJWT(action.payload.accessToken);
 				api.defaults.headers.common[
 					'Authorization'
 				] = `Bearer ${action.payload.accessToken}`;
@@ -113,24 +108,24 @@ export const userSlice = createSlice({
 				state.signIn.error = undefined;
 			})
 			.addCase(signIn.rejected, (state, action) => {
-				localStorage.removeItem(
-					process.env.NEXT_PUBLIC_JWT_LOCAL_STORAGE_KEY
-				);
+				invalidateJWT();
 				state.signIn.status = 'failed';
 				state.signIn.error = action.payload.message;
+				state.user = { ...initialState.user };
 			})
 			.addCase(getUser.pending, (state) => {
 				state.user.status = 'loading';
 			})
 			.addCase(getUser.fulfilled, (state, action) => {
 				state.user = {
-					...action.payload,
+					data: { ...action.payload },
 					status: 'succeeded',
 					error: undefined,
 				};
 			})
 			.addCase(getUser.rejected, (state, action) => {
 				state.user = {
+					data: undefined,
 					status: 'failed',
 					error: action.payload.message,
 				};
@@ -149,9 +144,6 @@ export const selectUserStatus = (state: RootState) => ({
 	error: state.user.user.error,
 });
 
-export const selectUser = (state: RootState): Partial<User> => {
-	const { status, error, ...user } = state.user.user;
-	return user;
-};
+export const selectUser = (state: RootState): User => state.user.user.data;
 
 export default userReducer;
