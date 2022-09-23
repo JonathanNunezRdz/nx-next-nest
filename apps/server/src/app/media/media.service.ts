@@ -221,22 +221,31 @@ export class MediaService {
 					},
 				},
 				include: {
+					image: {
+						include: {
+							image: {
+								select: {
+									format: true,
+								},
+							},
+						},
+					},
 					knownBy: {
 						include: {
 							user: {
 								select: {
 									id: true,
 									alias: true,
-								},
-							},
-						},
-					},
-					image: {
-						include: {
-							image: {
-								select: {
-									id: true,
-									format: true,
+									image: {
+										include: {
+											image: {
+												select: {
+													id: true,
+													format: true,
+												},
+											},
+										},
+									},
 								},
 							},
 						},

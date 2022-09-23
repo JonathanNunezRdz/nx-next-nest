@@ -11,9 +11,11 @@ import {
 	Select,
 	VStack,
 } from '@chakra-ui/react';
-import type { FC } from 'react';
 import { CreateMediaDto } from '@nx-next-nest/types';
 import type { MediaType } from '@prisma/client';
+import useProtectedPage from '../../utils/useProtectedPage';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { addMedia, selectAddMediaStatus } from '../../store/media';
 
 const label: { [k in MediaType]: string } = {
 	anime: 'watch',
@@ -33,20 +35,22 @@ const formatDate = (dateString?: string) => {
 	return parsed;
 };
 
-const AddMedia: FC = () => {
+const AddMedia = () => {
+	useProtectedPage({ originalUrl: '/media/add' });
+	const dispatch = useAppDispatch();
+	const addMediaStatus = useAppSelector(selectAddMediaStatus);
 	const formik = useFormik<CreateMediaDto>({
 		initialValues: {
 			title: '',
 			type: 'anime',
 			knownAt: formatDate('2022-09-25T00:00:00.000Z'),
 		},
-		onSubmit: (values) => {
-			console.log({
-				values: {
-					...values,
-					knownAt: new Date(values.knownAt).toISOString(),
-				},
-			});
+		onSubmit: async (values) => {
+			const newValues = {
+				...values,
+				knownAt: new Date(values.knownAt).toISOString(),
+			};
+			await dispatch(addMedia(newValues));
 		},
 		validate: (values) => {
 			const errors: FormikErrors<CreateMediaDto> = {};
@@ -54,6 +58,8 @@ const AddMedia: FC = () => {
 			return errors;
 		},
 	});
+
+	console.log({ addMediaStatus });
 
 	return (
 		<Box minHeight='60vh' mb={8} w='full'>

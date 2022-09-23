@@ -18,6 +18,7 @@ import {
 	GetMediaDto,
 	GetMediaResponse,
 	KnowMediaDto,
+	PostMediaResponse,
 } from '@nx-next-nest/types';
 import { GetUser } from '../auth/decorator';
 import { JwtGuard } from '../auth/guard';
@@ -34,22 +35,23 @@ export class MediaController {
 	}
 
 	@Post('create')
-	createMedia(@GetUser('id') userId: number, @Body() dto: CreateMediaDto) {
+	createMedia(
+		@GetUser('id') userId: number,
+		@Body() dto: CreateMediaDto
+	): Promise<PostMediaResponse> {
 		return this.mediaService.createMedia(userId, dto);
 	}
 
+	// TODO: do not use jwt guard
 	@Get('')
-	getMedias(@Query() dto: GetMediaDto): Promise<GetMediaResponse[]> {
+	getMedias(@Query() dto: GetMediaDto): Promise<GetMediaResponse> {
 		console.log({ dto });
 
 		return this.mediaService.getMedias(dto);
 	}
 
 	@Patch('')
-	editMedia(
-		@GetUser('id') userId: number,
-		@Body() dto: EditMediaDto
-	): Promise<GetMediaResponse> {
+	editMedia(@GetUser('id') userId: number, @Body() dto: EditMediaDto) {
 		return this.mediaService.editMedia(userId, dto);
 	}
 

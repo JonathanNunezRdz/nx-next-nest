@@ -16,15 +16,19 @@ import { signIn } from '../../store/user';
 
 const SignIn: FC = () => {
 	const dispatch = useAppDispatch();
-
 	const router = useRouter();
-
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 
 	const handleSignIn = () => {
 		dispatch(signIn({ email, password })).then((action) => {
-			if (action.meta.requestStatus === 'fulfilled') router.push('/');
+			if (action.meta.requestStatus === 'fulfilled') {
+				if (router.query.redirect) {
+					router.push(router.query.redirect as string);
+				} else {
+					router.push('/');
+				}
+			}
 		});
 	};
 

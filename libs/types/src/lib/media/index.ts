@@ -14,7 +14,11 @@ export * from './edit-media.dto';
 export * from './get-media.dto';
 export * from './know-media.dto';
 
-export type GetMediaResponse = Media & {
+export type PostMediaResponse = MediaResponse;
+
+export type GetMediaResponse = MediaResponse[];
+
+export type MediaResponse = Media & {
 	image: MediaImage & {
 		image: {
 			format: ImageFormat;
@@ -29,8 +33,7 @@ export type GetMediaResponse = Media & {
 	})[];
 };
 
-export interface MediaState {
-	media: {
-		data: GetMediaResponse[];
-	} & RequestStatus;
+export interface MediaState extends RequestStatus {
+	data: GetMediaResponse;
+	add: RequestStatus;
 }
