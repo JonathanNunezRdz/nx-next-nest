@@ -101,11 +101,17 @@ const Media: FC = () => {
 									<Stat>
 										<StatLabel>{element.type}</StatLabel>
 										<StatNumber>{element.title}</StatNumber>
-										{element.knownBy.map(({ user }) => (
-											<StatHelpText key={user.id}>
-												{user.alias}
-											</StatHelpText>
-										))}
+										{element.knownBy.map(
+											({ user, knownAt }) => (
+												<StatHelpText key={user.id}>
+													{user.alias}
+													{' - '}
+													{new Date(
+														knownAt
+													).toDateString()}
+												</StatHelpText>
+											)
+										)}
 									</Stat>
 								</Box>
 							))

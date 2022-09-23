@@ -24,16 +24,17 @@ import { GetUser } from '../auth/decorator';
 import { JwtGuard } from '../auth/guard';
 import { MediaService } from './media.service';
 
-@UseGuards(JwtGuard)
 @Controller('media')
 export class MediaController {
 	constructor(private mediaService: MediaService) {}
 
+	@UseGuards(JwtGuard)
 	@Patch('know')
 	knowMedia(@GetUser('id') userId: number, @Body() dto: KnowMediaDto) {
 		return this.mediaService.knowMedia(userId, dto);
 	}
 
+	@UseGuards(JwtGuard)
 	@Post('create')
 	createMedia(
 		@GetUser('id') userId: number,
@@ -50,11 +51,13 @@ export class MediaController {
 		return this.mediaService.getMedias(dto);
 	}
 
+	@UseGuards(JwtGuard)
 	@Patch('')
 	editMedia(@GetUser('id') userId: number, @Body() dto: EditMediaDto) {
 		return this.mediaService.editMedia(userId, dto);
 	}
 
+	@UseGuards(JwtGuard)
 	@HttpCode(HttpStatus.NO_CONTENT)
 	@Delete(':id')
 	deleteMedia(

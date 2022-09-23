@@ -14,8 +14,9 @@ import {
 import { CreateMediaDto } from '@nx-next-nest/types';
 import type { MediaType } from '@prisma/client';
 import useProtectedPage from '../../utils/useProtectedPage';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { addMedia, selectAddMediaStatus } from '../../store/media';
+import { useAppDispatch } from '../../store/hooks';
+import { addMedia } from '../../store/media';
+import { useRouter } from 'next/router';
 
 const label: { [k in MediaType]: string } = {
 	anime: 'watch',
@@ -27,10 +28,12 @@ const formatDate = (dateString?: string) => {
 	const date = dateString ? new Date(dateString) : new Date();
 
 	const month =
-		date.getUTCMonth() + 1 < 10
-			? `0${date.getUTCMonth() + 1}`
-			: `${date.getUTCMonth() + 1}`;
-	const parsed = `${date.getUTCFullYear()}-${month}-${date.getUTCDate()}`;
+		date.getMonth() + 1 < 10
+			? `0${date.getMonth() + 1}`
+			: `${date.getMonth() + 1}`;
+
+	const day = date.getDate() < 10 ? `0${date.getDate()}` : date.getDate();
+	const parsed = `${date.getFullYear()}-${month}-${day}`;
 
 	return parsed;
 };
@@ -38,19 +41,20 @@ const formatDate = (dateString?: string) => {
 const AddMedia = () => {
 	useProtectedPage({ originalUrl: '/media/add' });
 	const dispatch = useAppDispatch();
-	const addMediaStatus = useAppSelector(selectAddMediaStatus);
+	const router = useRouter();
 	const formik = useFormik<CreateMediaDto>({
 		initialValues: {
 			title: '',
 			type: 'anime',
-			knownAt: formatDate('2022-09-25T00:00:00.000Z'),
+			knownAt: formatDate(),
 		},
 		onSubmit: async (values) => {
 			const newValues = {
 				...values,
-				knownAt: new Date(values.knownAt).toISOString(),
+				knownAt: new Date(`${values.knownAt}T00:00:00`).toISOString(),
 			};
-			await dispatch(addMedia(newValues));
+			const res = await dispatch(addMedia(newValues));
+			if (res.meta.requestStatus === 'fulfilled') router.push('/media');
 		},
 		validate: (values) => {
 			const errors: FormikErrors<CreateMediaDto> = {};
@@ -58,8 +62,6 @@ const AddMedia = () => {
 			return errors;
 		},
 	});
-
-	console.log({ addMediaStatus });
 
 	return (
 		<Box minHeight='60vh' mb={8} w='full'>
@@ -73,7 +75,7 @@ const AddMedia = () => {
 				<Box>
 					<form onSubmit={formik.handleSubmit}>
 						<VStack px='1.5rem' py='1rem' spacing='1rem'>
-							{/* TODO: finish add media form */}
+							{/* TODO: add loading and error states */}
 							<FormControl
 								isInvalid={
 									!!formik.errors.title &&
@@ -88,6 +90,7 @@ const AddMedia = () => {
 									variant='filled'
 									onChange={formik.handleChange}
 									value={formik.values.title}
+									autoFocus
 								/>
 								<FormErrorMessage>
 									{formik.errors.title}
