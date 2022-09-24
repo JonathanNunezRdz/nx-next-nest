@@ -1,27 +1,33 @@
+import { Text } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
-import type { ReactElement } from 'react';
+import { ReactNode, useEffect } from 'react';
 import { useAppSelector } from '../store/hooks';
 
 interface ProtectedPageProps {
-	url: string;
-	children: ReactElement;
+	originalUrl: string;
+	children: ReactNode;
 }
 
-const ProtectedPage = ({ url, children }: ProtectedPageProps) => {
+const ProtectedPage = ({ originalUrl, children }: ProtectedPageProps) => {
 	const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
 	const router = useRouter();
 
+	useEffect(() => {
+		if (!isLoggedIn) {
+			router.push({
+				pathname: '/signin',
+				query: {
+					redirect: originalUrl,
+				},
+			});
+		}
+	}, [isLoggedIn, router, originalUrl]);
+
 	if (!isLoggedIn) {
-		router.push({
-			pathname: '/signin',
-			query: {
-				redirect: url,
-			},
-		});
-		return null;
+		return <Text>unathorized user</Text>;
 	}
 
-	return children;
+	return <>{children}</>;
 };
 
 export default ProtectedPage;

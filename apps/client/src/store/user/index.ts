@@ -5,7 +5,7 @@ import {
 	UserState,
 } from '@nx-next-nest/types';
 import type { User } from '@prisma/client';
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { AxiosError } from 'axios';
 import { RootState } from '..';
 import { invalidateJWT, setJWT, validateJWT } from '../../utils';
@@ -47,7 +47,7 @@ export const signIn = createAsyncThunk<
 
 const initialState: UserState = {
 	user: {
-		data: undefined,
+		data: {} as User,
 		status: 'idle',
 		error: undefined,
 	},
@@ -80,17 +80,18 @@ export const userSlice = createSlice({
 				state.signIn.status = 'failed';
 			}
 		},
-		signOut: (state, action: PayloadAction<CallableFunction>) => {
+		signOut: (state) => {
 			invalidateJWT();
 			api.defaults.headers.common['Authorization'] = '';
-			state = {
-				...initialState,
-				signOut: {
-					...initialState.signOut,
-					status: 'succeeded',
-				},
-			};
-			if (action.payload) action.payload();
+
+			state.isLoggedIn = false;
+			state.user.data = {} as User;
+			state.user.error = undefined;
+			state.user.status = 'idle';
+			state.signIn.error = undefined;
+			state.signIn.status = 'idle';
+			state.signOut.error = undefined;
+			state.signOut.status = 'succeeded';
 		},
 	},
 	extraReducers(builder) {
@@ -111,21 +112,21 @@ export const userSlice = createSlice({
 				invalidateJWT();
 				state.signIn.status = 'failed';
 				state.signIn.error = action.payload.message;
-				state.user = { ...initialState.user };
+				state.user.data = {} as User;
 			})
 			.addCase(getUser.pending, (state) => {
 				state.user.status = 'loading';
 			})
 			.addCase(getUser.fulfilled, (state, action) => {
 				state.user = {
-					data: { ...action.payload },
+					data: action.payload,
 					status: 'succeeded',
 					error: undefined,
 				};
 			})
 			.addCase(getUser.rejected, (state, action) => {
 				state.user = {
-					data: undefined,
+					data: {} as User,
 					status: 'failed',
 					error: action.payload.message,
 				};
@@ -144,6 +145,6 @@ export const selectUserStatus = (state: RootState) => ({
 	error: state.user.user.error,
 });
 
-export const selectUser = (state: RootState): User => state.user.user.data;
+export const selectUser = (state: RootState) => state.user.user.data;
 
 export default userReducer;

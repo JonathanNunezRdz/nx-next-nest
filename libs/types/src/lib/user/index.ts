@@ -7,7 +7,7 @@ export * from './signup.dto';
 
 export interface UserState {
 	user: {
-		data: User | undefined;
+		data: User;
 	} & RequestStatus;
 	isLoggedIn: boolean;
 	signIn: RequestStatus;

@@ -21,18 +21,13 @@ const Layout: FC<LayoutProps> = ({ children }) => {
 	const userStatus = useAppSelector(selectUserStatus);
 
 	useEffect(() => {
-		if (
-			signInStatus.status === 'succeeded' &&
-			userStatus.status === 'idle'
-		) {
+		if (signInStatus.status === 'succeeded' && userStatus.status === 'idle')
 			dispatch(getUser());
-		}
 	}, [signInStatus.status, userStatus.status, dispatch]);
 
 	useEffect(() => {
-		if (signInStatus.status === 'idle' && userStatus.status === 'idle') {
+		if (signInStatus.status === 'idle' && userStatus.status === 'idle')
 			dispatch(getLoggedStatus());
-		}
 	}, [signInStatus.status, userStatus.status, dispatch]);
 
 	return (

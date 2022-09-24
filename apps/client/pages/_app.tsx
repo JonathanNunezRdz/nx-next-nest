@@ -2,6 +2,7 @@ import { DefaultSeo } from 'next-seo';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
 import { Provider } from 'react-redux';
+import { ValidatorProvider } from 'react-class-validator';
 
 import defaultSEOConfig from '../next-seo.config';
 import Chakra from '../src/Chakra';
@@ -19,9 +20,11 @@ function CustomApp({ Component, pageProps }: AppProps) {
 			</Head>
 			<DefaultSeo {...defaultSEOConfig} />
 			<Provider store={store}>
-				<Layout>
-					<Component {...pageProps} />
-				</Layout>
+				<ValidatorProvider options={{ resultType: 'map' }}>
+					<Layout>
+						<Component {...pageProps} />
+					</Layout>
+				</ValidatorProvider>
 			</Provider>
 		</Chakra>
 	);

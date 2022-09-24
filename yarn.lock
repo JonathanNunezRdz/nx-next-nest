@@ -5690,7 +5690,7 @@ class-transformer@^0.5.1:
   resolved "https://registry.yarnpkg.com/class-transformer/-/class-transformer-0.5.1.tgz#24147d5dffd2a6cea930a3250a677addf96ab336"
   integrity sha512-SQa1Ws6hUbfC98vKGxZH3KFY0Y1lm5Zm0SY8XX9zbK7FJCyVEac3ATW0RIpwzW+oOfmHE5PMPufDG9hCfoEOMw==
 
-class-validator@^0.13.2:
+class-validator@^0.13.1, class-validator@^0.13.2:
   version "0.13.2"
   resolved "https://registry.yarnpkg.com/class-validator/-/class-validator-0.13.2.tgz#64b031e9f3f81a1e1dcd04a5d604734608b24143"
   integrity sha512-yBUcQy07FPlGzUjoLuUfIOXzgynnQPPruyK1Ge2B74k9ROwnle1E+NxLWnUv5OLU8hA/qL5leAE9XnXq3byaBw==
@@ -10854,6 +10854,13 @@ raw-loader@^4.0.2:
   dependencies:
     loader-utils "^2.0.0"
     schema-utils "^3.0.0"
+
+react-class-validator@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/react-class-validator/-/react-class-validator-1.4.0.tgz#8bf142d35929b3e8e95bb1433ea6ab16b25b9cd0"
+  integrity sha512-beWEs2uryARxCoQOWArmbXjIop9TKY0wSqV01+9ZnVFxnmi5Bk5wYRUHTNCvbjm6+w7tuOJCNx7deG7ZeBTxEw==
+  dependencies:
+    class-validator "^0.13.1"
 
 react-clientside-effect@^1.2.6:
   version "1.2.6"
