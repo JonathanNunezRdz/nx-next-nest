@@ -14,7 +14,7 @@ const Header: FC = () => {
 					<Link>wia</Link>
 				</NextLink>
 			</Heading>
-			<Box ms='auto'>
+			<Box ms='auto' alignItems='center' display='flex'>
 				<HeaderLinks links={links} />
 				<ThemeToggle />
 			</Box>

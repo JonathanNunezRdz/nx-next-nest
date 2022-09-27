@@ -22,7 +22,7 @@ import { selectUser } from '../../store/user';
 
 const Media: FC = () => {
 	const dispatch = useAppDispatch();
-	const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
+	const { isLoggedIn } = useAppSelector((state) => state.user.auth);
 	const media = useAppSelector(selectMedia);
 	const user = useAppSelector(selectUser);
 

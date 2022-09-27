@@ -8,7 +8,7 @@ import {
 	KnowMediaResponse,
 	MediaState,
 } from '@nx-next-nest/types';
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AxiosError } from 'axios';
 import { RootState } from '..';
 import mediaService from './service';
@@ -85,6 +85,11 @@ export const mediaSlice = createSlice({
 		resetAddStatus: (state) => {
 			state.add.status = 'idle';
 			state.add.error = undefined;
+		},
+		getMediaToEdit: (state, action: PayloadAction<{ mediaId: number }>) => {
+			// TODO: get media from already loaded state, if there are no media loaded, get that one from server
+			// if (action.payload.mediaId === -1) {
+			// }
 		},
 	},
 	extraReducers(builder) {

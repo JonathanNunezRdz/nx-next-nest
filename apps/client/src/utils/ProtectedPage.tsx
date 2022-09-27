@@ -1,19 +1,28 @@
-import { Text } from '@chakra-ui/react';
+import { Box, Text } from '@chakra-ui/react';
+
 import { useRouter } from 'next/router';
 import { ReactNode, useEffect } from 'react';
+import Body from '../components/layout/Body';
 import { useAppSelector } from '../store/hooks';
 
 interface ProtectedPageProps {
 	originalUrl: string;
 	children: ReactNode;
+	center?: boolean;
 }
 
-const ProtectedPage = ({ originalUrl, children }: ProtectedPageProps) => {
-	const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
+const ProtectedPage = ({
+	originalUrl,
+	children,
+	center,
+}: ProtectedPageProps) => {
+	const { isLoggedIn, checkedJWT } = useAppSelector(
+		(state) => state.user.auth
+	);
 	const router = useRouter();
 
 	useEffect(() => {
-		if (!isLoggedIn) {
+		if (!isLoggedIn && checkedJWT) {
 			router.push({
 				pathname: '/signin',
 				query: {
@@ -21,13 +30,19 @@ const ProtectedPage = ({ originalUrl, children }: ProtectedPageProps) => {
 				},
 			});
 		}
-	}, [isLoggedIn, router, originalUrl]);
+	}, [isLoggedIn, router, originalUrl, checkedJWT]);
 
 	if (!isLoggedIn) {
 		return <Text>unathorized user</Text>;
 	}
 
-	return <>{children}</>;
+	if (center) return <Body>{children}</Body>;
+
+	return (
+		<Box minHeight='60vh' mb={8} w='full'>
+			{children}
+		</Box>
+	);
 };
 
 export default ProtectedPage;

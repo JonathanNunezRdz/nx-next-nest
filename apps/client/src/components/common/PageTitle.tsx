@@ -9,7 +9,7 @@ interface PageTitleProps {
 const PageTitle = ({ title, children }: PageTitleProps) => {
 	return (
 		<Box w='full'>
-			<HStack spacing='1rem' alignItems='end'>
+			<HStack alignItems='end'>
 				<Heading>{title}</Heading>
 				{children}
 			</HStack>

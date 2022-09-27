@@ -51,7 +51,10 @@ const initialState: UserState = {
 		status: 'idle',
 		error: undefined,
 	},
-	isLoggedIn: false,
+	auth: {
+		isLoggedIn: false,
+		checkedJWT: false,
+	},
 	signIn: {
 		status: 'idle',
 		error: undefined,
@@ -69,22 +72,25 @@ export const userSlice = createSlice({
 		getLoggedStatus: (state) => {
 			const status = validateJWT();
 			if (status.valid) {
-				state.isLoggedIn = true;
 				api.defaults.headers.common[
 					'Authorization'
 				] = `Bearer ${status.jwt}`;
+
 				state.signIn.status = 'succeeded';
+				state.auth.isLoggedIn = true;
 			} else {
-				state.isLoggedIn = false;
 				api.defaults.headers.common['Authorization'] = '';
+
 				state.signIn.status = 'idle';
+				state.auth.isLoggedIn = false;
 			}
+			state.auth.checkedJWT = true;
 		},
 		signOut: (state) => {
 			invalidateJWT();
 			api.defaults.headers.common['Authorization'] = '';
 
-			state.isLoggedIn = false;
+			state.auth.isLoggedIn = false;
 			state.user.data = {} as User;
 			state.user.error = undefined;
 			state.user.status = 'idle';
@@ -109,8 +115,8 @@ export const userSlice = createSlice({
 					'Authorization'
 				] = `Bearer ${action.payload.accessToken}`;
 				state.signIn.status = 'succeeded';
-				state.isLoggedIn = true;
 				state.signIn.error = undefined;
+				state.auth.isLoggedIn = true;
 			})
 			.addCase(signIn.rejected, (state, action) => {
 				invalidateJWT();
@@ -149,6 +155,8 @@ export const selectUserStatus = (state: RootState) => ({
 	status: state.user.user.status,
 	error: state.user.user.error,
 });
+
+export const selectAuth = (state: RootState) => state.user.auth;
 
 export const selectUser = (state: RootState) => state.user.user.data;
 

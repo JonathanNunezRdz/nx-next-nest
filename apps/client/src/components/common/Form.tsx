@@ -1,15 +1,20 @@
-import { VStack } from '@chakra-ui/react';
-import { ReactNode } from 'react';
+import { Box, VStack } from '@chakra-ui/react';
+import type { FormEventHandler, ReactNode } from 'react';
 
 interface FormProps {
 	children: ReactNode;
+	onSubmit: FormEventHandler<HTMLFormElement>;
 }
 
-const Form = ({ children }: FormProps) => {
+const Form = ({ children, onSubmit }: FormProps) => {
 	return (
-		<VStack px='1rem' py='1rem' spacing='1rem'>
-			{children}
-		</VStack>
+		<Box>
+			<form onSubmit={onSubmit}>
+				<VStack px='1.5rem' py='1rem' spacing='1rem'>
+					{children}
+				</VStack>
+			</form>
+		</Box>
 	);
 };
 

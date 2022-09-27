@@ -9,7 +9,10 @@ export interface UserState {
 	user: {
 		data: User;
 	} & RequestStatus;
-	isLoggedIn: boolean;
+	auth: {
+		isLoggedIn: boolean;
+		checkedJWT: boolean;
+	};
 	signIn: RequestStatus;
 	signOut: RequestStatus;
 }

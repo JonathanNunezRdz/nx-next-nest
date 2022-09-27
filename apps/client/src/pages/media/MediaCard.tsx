@@ -55,9 +55,9 @@ const MediaCard = ({ media, ownId, isLoggedIn }: MediaCardProps) => {
 									href={{
 										pathname: '/media/know',
 										query: {
-											mediaId: media.id,
+											mediaIdString: media.id,
 											mediaTitle: media.title,
-											mediaType: media.type,
+											mediaTypeString: media.type,
 										},
 									}}
 									passHref
