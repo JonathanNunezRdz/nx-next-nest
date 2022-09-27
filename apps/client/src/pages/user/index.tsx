@@ -16,15 +16,15 @@ const User: FC = () => {
 	};
 
 	return (
-		<ProtectedPage originalUrl='/user'>
-			<Body>
+		<Body>
+			<ProtectedPage originalUrl='/user'>
 				<NextSeo title='user' />
 				<VStack>
 					<Heading>profile - {user.alias}</Heading>
 					<Button onClick={handleSignOut}>sign out</Button>
 				</VStack>
-			</Body>
-		</ProtectedPage>
+			</ProtectedPage>
+		</Body>
 	);
 };
 

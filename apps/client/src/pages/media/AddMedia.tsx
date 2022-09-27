@@ -9,38 +9,26 @@ import {
 	HStack,
 	Input,
 	Select,
+	Text,
 	VStack,
 } from '@chakra-ui/react';
 import { CreateMediaDto } from '@nx-next-nest/types';
-import type { MediaType } from '@prisma/client';
 import { useRouter } from 'next/router';
 
-import { useAppDispatch } from '../../store/hooks';
-import { addMedia } from '../../store/media';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+	addMedia,
+	resetAddStatus,
+	selectAddMediaStatus,
+} from '../../store/media';
 import ProtectedPage from '../../utils/ProtectedPage';
-
-const label: { [k in MediaType]: string } = {
-	anime: 'watch',
-	manga: 'read',
-	videogame: 'play',
-};
-
-const formatDate = (dateString?: string) => {
-	const date = dateString ? new Date(dateString) : new Date();
-
-	const month =
-		date.getMonth() + 1 < 10
-			? `0${date.getMonth() + 1}`
-			: `${date.getMonth() + 1}`;
-
-	const day = date.getDate() < 10 ? `0${date.getDate()}` : date.getDate();
-	const parsed = `${date.getFullYear()}-${month}-${day}`;
-
-	return parsed;
-};
+import { useEffect } from 'react';
+import { formatDate, prepareDate } from '../../utils';
+import { mediaLabel } from '../../utils/constants';
 
 const AddMedia = () => {
 	const dispatch = useAppDispatch();
+	const addMediaStaus = useAppSelector(selectAddMediaStatus);
 	const router = useRouter();
 	const formik = useFormik<CreateMediaDto>({
 		initialValues: {
@@ -51,17 +39,23 @@ const AddMedia = () => {
 		onSubmit: async (values) => {
 			const newValues = {
 				...values,
-				knownAt: new Date(`${values.knownAt}T00:00:00`).toISOString(),
+				knownAt: prepareDate(values.knownAt),
 			};
 			const res = await dispatch(addMedia(newValues));
 			if (res.meta.requestStatus === 'fulfilled') router.push('/media');
 		},
 		validate: (values) => {
 			const errors: FormikErrors<CreateMediaDto> = {};
-			if (values.title === '') errors.title = 'Title must not be empty';
+			if (values.title === '') errors.title = 'title must not be empty';
 			return errors;
 		},
 	});
+
+	useEffect(() => {
+		return () => {
+			dispatch(resetAddStatus());
+		};
+	}, [dispatch]);
 
 	return (
 		<ProtectedPage originalUrl='/media/add'>
@@ -76,14 +70,30 @@ const AddMedia = () => {
 					<Box>
 						<form onSubmit={formik.handleSubmit}>
 							<VStack px='1.5rem' py='1rem' spacing='1rem'>
-								{/* TODO: add loading and error states */}
+								{/* TODO: add loading */}
+								<Box color='red.300'>
+									{addMediaStaus.error &&
+										(typeof addMediaStaus.error ===
+										'object' ? (
+											addMediaStaus.error.map(
+												(message) => (
+													<Text key={message}>
+														{message}
+													</Text>
+												)
+											)
+										) : (
+											<Text>{addMediaStaus.error}</Text>
+										))}
+								</Box>
 								<FormControl
 									isInvalid={
 										!!formik.errors.title &&
 										formik.touched.title
 									}
+									isRequired
 								>
-									<FormLabel htmlFor='title'>Title</FormLabel>
+									<FormLabel htmlFor='title'>title</FormLabel>
 									<Input
 										id='title'
 										name='title'
@@ -98,7 +108,7 @@ const AddMedia = () => {
 									</FormErrorMessage>
 								</FormControl>
 								<FormControl>
-									<FormLabel htmlFor='type'>Type</FormLabel>
+									<FormLabel htmlFor='type'>type</FormLabel>
 									<Select
 										id='type'
 										name='type'
@@ -115,7 +125,8 @@ const AddMedia = () => {
 								</FormControl>
 								<FormControl>
 									<FormLabel htmlFor='knownAt'>
-										When did you {label[formik.values.type]}{' '}
+										when did you{' '}
+										{mediaLabel.present[formik.values.type]}{' '}
 										it?
 									</FormLabel>
 									<Input
@@ -128,7 +139,7 @@ const AddMedia = () => {
 									/>
 								</FormControl>
 								<Box>
-									<Button type='submit'>Add media</Button>
+									<Button type='submit'>add media</Button>
 								</Box>
 							</VStack>
 						</form>

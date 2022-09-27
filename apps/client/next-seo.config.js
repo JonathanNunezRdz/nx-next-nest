@@ -4,9 +4,9 @@ const defaultSEOConfig = {
 	titleTemplate: '%s | the-wia',
 	defaultTitle: 'wia',
 	description: 'The WIA - view your animes and waifus',
-	canonical: 'http://localhost:3000',
+	canonical: 'http://localhost:4200',
 	openGraph: {
-		url: 'http://localhost:3000',
+		url: 'http://localhost:4200',
 		title: 'wia',
 		description: 'The WIA - view your animes and waifus',
 		images: [

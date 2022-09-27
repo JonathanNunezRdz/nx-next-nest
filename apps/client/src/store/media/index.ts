@@ -1,18 +1,37 @@
 import {
 	CreateMediaDto,
+	CreateMediaResponse,
 	GetMediaDto,
 	GetMediaResponse,
 	HttpError,
+	KnowMediaDto,
+	KnowMediaResponse,
 	MediaState,
-	PostMediaResponse,
 } from '@nx-next-nest/types';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { AxiosError } from 'axios';
 import { RootState } from '..';
 import mediaService from './service';
 
+export const knowMedia = createAsyncThunk<
+	KnowMediaResponse,
+	KnowMediaDto,
+	{ rejectValue: HttpError }
+>('media/knowMedia', async (dto, thunkApi) => {
+	try {
+		const { data } = await mediaService.knownMedia(dto);
+		return data;
+	} catch (error) {
+		if (error instanceof AxiosError) {
+			const { response } = error as AxiosError<HttpError>;
+			return thunkApi.rejectWithValue(response.data);
+		}
+		throw error;
+	}
+});
+
 export const addMedia = createAsyncThunk<
-	PostMediaResponse,
+	CreateMediaResponse,
 	CreateMediaDto,
 	{ rejectValue: HttpError }
 >('media/addMedia', async (dto, thunkApi) => {
@@ -53,12 +72,21 @@ const initialState: MediaState = {
 		status: 'idle',
 		error: undefined,
 	},
+	know: {
+		status: 'idle',
+		error: undefined,
+	},
 };
 
 export const mediaSlice = createSlice({
 	name: 'media',
 	initialState,
-	reducers: {},
+	reducers: {
+		resetAddStatus: (state) => {
+			state.add.status = 'idle';
+			state.add.error = undefined;
+		},
+	},
 	extraReducers(builder) {
 		builder
 			.addCase(getMedias.pending, (state) => {
@@ -84,13 +112,35 @@ export const mediaSlice = createSlice({
 			.addCase(addMedia.rejected, (state, action) => {
 				state.add.status = 'failed';
 				state.add.error = action.payload.message;
+			})
+			.addCase(knowMedia.pending, (state) => {
+				state.know.status = 'loading';
+				state.know.error = undefined;
+			})
+			.addCase(knowMedia.fulfilled, (state, action) => {
+				state.know.status = 'succeeded';
+				state.know.error = undefined;
+				const index = state.data.findIndex(
+					(media) => media.id === action.payload.id
+				);
+				if (index > -1) {
+					state.data[index] = action.payload;
+				}
+			})
+			.addCase(knowMedia.rejected, (state, action) => {
+				state.know.status = 'failed';
+				state.know.error = action.payload.message;
 			});
 	},
 });
 
 const mediaReducer = mediaSlice.reducer;
 
+export const { resetAddStatus } = mediaSlice.actions;
+
 export const selectAddMediaStatus = (state: RootState) => state.media.add;
+
+export const selectKnowMediaStatus = (state: RootState) => state.media.know;
 
 export const selectMedia = (state: RootState) => state.media.data;
 

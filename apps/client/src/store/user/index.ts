@@ -77,7 +77,7 @@ export const userSlice = createSlice({
 			} else {
 				state.isLoggedIn = false;
 				api.defaults.headers.common['Authorization'] = '';
-				state.signIn.status = 'failed';
+				state.signIn.status = 'idle';
 			}
 		},
 		signOut: (state) => {
@@ -92,6 +92,10 @@ export const userSlice = createSlice({
 			state.signIn.status = 'idle';
 			state.signOut.error = undefined;
 			state.signOut.status = 'succeeded';
+		},
+		resetSignInStatus: (state) => {
+			state.signIn.status = 'idle';
+			state.signIn.error = undefined;
 		},
 	},
 	extraReducers(builder) {
@@ -136,7 +140,8 @@ export const userSlice = createSlice({
 
 const userReducer = userSlice.reducer;
 
-export const { signOut, getLoggedStatus } = userSlice.actions;
+export const { signOut, getLoggedStatus, resetSignInStatus } =
+	userSlice.actions;
 
 export const selectSignInStatus = (state: RootState) => state.user.signIn;
 

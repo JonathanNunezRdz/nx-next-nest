@@ -53,7 +53,7 @@ export class AuthService {
 		} catch (error) {
 			if (error instanceof PrismaClientKnownRequestError) {
 				if (error.code === 'P2002')
-					throw new ForbiddenException('Credentials already in use');
+					throw new ForbiddenException('credentials already in use');
 			}
 			throw error;
 		}
@@ -65,10 +65,10 @@ export class AuthService {
 				email: dto.email,
 			},
 		});
-		if (!user) throw new ForbiddenException('Incorrect credentials');
+		if (!user) throw new ForbiddenException('incorrect credentials');
 
 		const valid = await verify(user.hash, dto.password);
-		if (!valid) throw new ForbiddenException('Incorrect credentials');
+		if (!valid) throw new ForbiddenException('incorrect credentials');
 
 		return this.signToken(user.id, user.email);
 	}
@@ -84,7 +84,7 @@ export class AuthService {
 
 		const secret = this.config.get('JWT_SECRET');
 		const token = await this.jwt.signAsync(payload, {
-			expiresIn: '30m',
+			expiresIn: '30d',
 			secret,
 		});
 

@@ -6,10 +6,6 @@ import {
 	LinkBox,
 	LinkOverlay,
 	SimpleGrid,
-	Stat,
-	StatHelpText,
-	StatLabel,
-	StatNumber,
 	Text,
 	VStack,
 } from '@chakra-ui/react';
@@ -19,6 +15,8 @@ import NextLink from 'next/link';
 
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { getMedias, selectMedia } from '../../store/media';
+import MediaCard from './MediaCard';
+import { selectUser } from '../../store/user';
 
 // TODO: design media filter options
 
@@ -26,6 +24,7 @@ const Media: FC = () => {
 	const dispatch = useAppDispatch();
 	const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
 	const media = useAppSelector(selectMedia);
+	const user = useAppSelector(selectUser);
 
 	const handleGetMedia = () => {
 		dispatch(
@@ -92,28 +91,12 @@ const Media: FC = () => {
 					>
 						{media.length > 0 ? (
 							media.map((element) => (
-								<Box
+								<MediaCard
 									key={element.id}
-									bg='teal.500'
-									borderRadius='md'
-									p='1rem'
-								>
-									<Stat>
-										<StatLabel>{element.type}</StatLabel>
-										<StatNumber>{element.title}</StatNumber>
-										{element.knownBy.map(
-											({ user, knownAt }) => (
-												<StatHelpText key={user.id}>
-													{user.alias}
-													{' - '}
-													{new Date(
-														knownAt
-													).toDateString()}
-												</StatHelpText>
-											)
-										)}
-									</Stat>
-								</Box>
+									media={element}
+									ownId={user.id}
+									isLoggedIn={isLoggedIn}
+								/>
 							))
 						) : (
 							<Box>

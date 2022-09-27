@@ -32,7 +32,7 @@ export class MediaService {
 		});
 
 		if (media.knownBy.findIndex((users) => users.userId === userId) === -1)
-			throw new ForbiddenException('Access to resources denied');
+			throw new ForbiddenException('access to resources denied');
 
 		await this.prisma.media.delete({
 			where: {
@@ -56,6 +56,15 @@ export class MediaService {
 				knownBy: editMediaKnownAtOptions,
 			},
 			include: {
+				image: {
+					include: {
+						image: {
+							select: {
+								format: true,
+							},
+						},
+					},
+				},
 				knownBy: {
 					include: {
 						user: {
@@ -75,14 +84,8 @@ export class MediaService {
 							},
 						},
 					},
-				},
-				image: {
-					include: {
-						image: {
-							select: {
-								format: true,
-							},
-						},
+					orderBy: {
+						knownAt: 'asc',
 					},
 				},
 			},
@@ -110,24 +113,36 @@ export class MediaService {
 				},
 			},
 			include: {
+				image: {
+					include: {
+						image: {
+							select: {
+								format: true,
+							},
+						},
+					},
+				},
 				knownBy: {
 					include: {
 						user: {
 							select: {
 								id: true,
 								alias: true,
+								image: {
+									include: {
+										image: {
+											select: {
+												id: true,
+												format: true,
+											},
+										},
+									},
+								},
 							},
 						},
 					},
-				},
-				image: {
-					include: {
-						image: {
-							select: {
-								id: true,
-								format: true,
-							},
-						},
+					orderBy: {
+						knownAt: 'asc',
 					},
 				},
 			},
@@ -190,6 +205,9 @@ export class MediaService {
 							},
 						},
 					},
+					orderBy: {
+						knownAt: 'asc',
+					},
 				},
 			},
 		});
@@ -248,6 +266,9 @@ export class MediaService {
 									},
 								},
 							},
+						},
+						orderBy: {
+							knownAt: 'asc',
 						},
 					},
 				},

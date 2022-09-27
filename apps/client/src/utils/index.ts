@@ -32,3 +32,21 @@ export const validateJWT = (): JWTStatus => {
 export const setJWT = (jwt: string) => {
 	localStorage.setItem(process.env.NEXT_PUBLIC_JWT_LOCAL_STORAGE_KEY, jwt);
 };
+
+export const formatDate = (dateString?: string) => {
+	const date = dateString ? new Date(dateString) : new Date();
+
+	const month =
+		date.getMonth() + 1 < 10
+			? `0${date.getMonth() + 1}`
+			: `${date.getMonth() + 1}`;
+
+	const day = date.getDate() < 10 ? `0${date.getDate()}` : date.getDate();
+	const parsed = `${date.getFullYear()}-${month}-${day}`;
+
+	return parsed;
+};
+
+export const prepareDate = (dateString: string) => {
+	return new Date(`${dateString}T00:00:00`).toISOString();
+};

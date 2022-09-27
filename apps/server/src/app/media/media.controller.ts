@@ -14,11 +14,12 @@ import {
 } from '@nestjs/common';
 import {
 	CreateMediaDto,
+	CreateMediaResponse,
 	EditMediaDto,
 	GetMediaDto,
 	GetMediaResponse,
 	KnowMediaDto,
-	PostMediaResponse,
+	KnowMediaResponse,
 } from '@nx-next-nest/types';
 import { GetUser } from '../auth/decorator';
 import { JwtGuard } from '../auth/guard';
@@ -30,7 +31,10 @@ export class MediaController {
 
 	@UseGuards(JwtGuard)
 	@Patch('know')
-	knowMedia(@GetUser('id') userId: number, @Body() dto: KnowMediaDto) {
+	knowMedia(
+		@GetUser('id') userId: number,
+		@Body() dto: KnowMediaDto
+	): Promise<KnowMediaResponse> {
 		return this.mediaService.knowMedia(userId, dto);
 	}
 
@@ -39,7 +43,7 @@ export class MediaController {
 	createMedia(
 		@GetUser('id') userId: number,
 		@Body() dto: CreateMediaDto
-	): Promise<PostMediaResponse> {
+	): Promise<CreateMediaResponse> {
 		return this.mediaService.createMedia(userId, dto);
 	}
 
