@@ -1,12 +1,11 @@
 import { FormikErrors, useFormik } from 'formik';
+import { useEffect } from 'react';
 import {
 	Box,
 	Button,
 	FormControl,
 	FormErrorMessage,
 	FormLabel,
-	Heading,
-	HStack,
 	Input,
 	Select,
 	Text,
@@ -22,9 +21,10 @@ import {
 	selectAddMediaStatus,
 } from '../../store/media';
 import ProtectedPage from '../../utils/ProtectedPage';
-import { useEffect } from 'react';
 import { formatDate, prepareDate } from '../../utils';
 import { mediaLabel } from '../../utils/constants';
+import PageTitle from '../../components/common/PageTitle';
+import Form from '../../components/common/Form';
 
 const AddMedia = () => {
 	const dispatch = useAppDispatch();
@@ -58,18 +58,13 @@ const AddMedia = () => {
 	}, [dispatch]);
 
 	return (
-		<ProtectedPage originalUrl='/media/add'>
-			<Box minHeight='60vh' mb={8} w='full'>
+		<Box minHeight='60vh' mb={8} w='full'>
+			<ProtectedPage originalUrl='/media/add'>
 				<VStack w='full' spacing='1rem'>
-					<Box w='full'>
-						<HStack spacing='1rem'>
-							<Heading>add media</Heading>
-						</HStack>
-					</Box>
-
+					<PageTitle title='add media' />
 					<Box>
 						<form onSubmit={formik.handleSubmit}>
-							<VStack px='1.5rem' py='1rem' spacing='1rem'>
+							<Form>
 								{/* TODO: add loading */}
 								<Box color='red.300'>
 									{addMediaStaus.error &&
@@ -141,12 +136,12 @@ const AddMedia = () => {
 								<Box>
 									<Button type='submit'>add media</Button>
 								</Box>
-							</VStack>
+							</Form>
 						</form>
 					</Box>
 				</VStack>
-			</Box>
-		</ProtectedPage>
+			</ProtectedPage>
+		</Box>
 	);
 };
 

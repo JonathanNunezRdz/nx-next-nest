@@ -1,38 +1,33 @@
 import { CheckIcon } from '@chakra-ui/icons';
 import {
 	Box,
-	Popover,
-	PopoverTrigger,
 	IconButton,
-	PopoverContent,
-	PopoverArrow,
-	PopoverCloseButton,
-	PopoverHeader,
-	PopoverBody,
 	Input,
 	FormControl,
 	FormLabel,
-	Flex,
-	useDisclosure,
+	VStack,
+	Heading,
 } from '@chakra-ui/react';
 import { KnowMediaDto } from '@nx-next-nest/types';
 import { MediaType } from '@prisma/client';
 import { useFormik } from 'formik';
+import { useRouter } from 'next/router';
+
+import Form from '../../components/common/Form';
+import PageTitle from '../../components/common/PageTitle';
 import { useAppDispatch } from '../../store/hooks';
 import { knowMedia } from '../../store/media';
 import { formatDate, prepareDate } from '../../utils';
 import { mediaLabel } from '../../utils/constants';
-
-interface KnowMediaProps {
-	mediaId: number;
-	mediaType: MediaType;
-}
+import ProtectedPage from '../../utils/ProtectedPage';
 
 // TODO: change popover to a new page -> /media/know
 
-const KnowMedia = ({ mediaId, mediaType }: KnowMediaProps) => {
+const KnowMedia = () => {
 	const dispatch = useAppDispatch();
-	const { isOpen, onClose, onOpen } = useDisclosure();
+	const router = useRouter();
+	const { mediaTitle, mediaType, mediaIdString } = router.query;
+	const mediaId = parseInt(mediaIdString as string, 10);
 	const formik = useFormik<KnowMediaDto>({
 		initialValues: {
 			mediaId,
@@ -44,33 +39,28 @@ const KnowMedia = ({ mediaId, mediaType }: KnowMediaProps) => {
 				knownAt: prepareDate(values.knownAt),
 			};
 			const res = await dispatch(knowMedia(newValues));
-			if (res.meta.requestStatus === 'fulfilled') onClose();
+			if (res.meta.requestStatus === 'fulfilled') router.push('/media');
 		},
 	});
 	return (
-		<Box>
-			<Popover isOpen={isOpen} onClose={onClose}>
-				<PopoverTrigger>
-					<IconButton
-						aria-label='finished it'
-						icon={<CheckIcon />}
-						size='xs'
-						colorScheme='green'
-						onClick={onOpen}
-					/>
-				</PopoverTrigger>
-				<PopoverContent>
-					<PopoverArrow />
-					<PopoverCloseButton />
-					<PopoverHeader fontSize='md'>
-						mark as {mediaLabel.past[mediaType]}?
-					</PopoverHeader>
-					<PopoverBody>
+		<Box minHeight='60vh' mb={8} w='full'>
+			<ProtectedPage originalUrl='/media/know'>
+				<VStack w='full' spacing='1rem'>
+					<PageTitle title='know media'>
+						<Heading size='lg'>- {mediaTitle}</Heading>
+					</PageTitle>
+					<Box>
 						<form onSubmit={formik.handleSubmit}>
-							<Flex w='full' p='0.5rem'>
+							<Form>
 								<FormControl>
-									<FormLabel htmlFor='knownAt' hidden>
-										date
+									<FormLabel htmlFor='knownAt'>
+										when did you{' '}
+										{
+											mediaLabel.present[
+												mediaType as MediaType
+											]
+										}{' '}
+										it?
 									</FormLabel>
 									<Input
 										id='knownAt'
@@ -79,7 +69,6 @@ const KnowMedia = ({ mediaId, mediaType }: KnowMediaProps) => {
 										variant='filled'
 										onChange={formik.handleChange}
 										value={formik.values.knownAt}
-										borderRightRadius='0'
 										max={formatDate()}
 									/>
 								</FormControl>
@@ -89,15 +78,13 @@ const KnowMedia = ({ mediaId, mediaType }: KnowMediaProps) => {
 										aria-label='done'
 										icon={<CheckIcon />}
 										colorScheme='green'
-										borderLeftRadius='0'
-										borderRightRadius='md'
 									/>
 								</Box>
-							</Flex>
+							</Form>
 						</form>
-					</PopoverBody>
-				</PopoverContent>
-			</Popover>
+					</Box>
+				</VStack>
+			</ProtectedPage>
 		</Box>
 	);
 };

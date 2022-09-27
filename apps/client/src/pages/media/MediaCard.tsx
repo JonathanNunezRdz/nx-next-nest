@@ -1,8 +1,10 @@
-import { DeleteIcon, EditIcon } from '@chakra-ui/icons';
+import { CheckIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import {
 	Box,
 	HStack,
 	IconButton,
+	LinkBox,
+	LinkOverlay,
 	Stat,
 	StatHelpText,
 	StatLabel,
@@ -11,8 +13,7 @@ import {
 	useColorModeValue,
 } from '@chakra-ui/react';
 import { MediaResponse } from '@nx-next-nest/types';
-
-import KnowMedia from './KnowMedia';
+import NextLink from 'next/link';
 
 interface MediaCardProps {
 	media: MediaResponse;
@@ -49,10 +50,28 @@ const MediaCard = ({ media, ownId, isLoggedIn }: MediaCardProps) => {
 							</Box>
 						)}
 						{isLoggedIn && !knownByMe && (
-							<KnowMedia
-								mediaId={media.id}
-								mediaType={media.type}
-							/>
+							<LinkBox>
+								<NextLink
+									href={{
+										pathname: '/media/know',
+										query: {
+											mediaId: media.id,
+											mediaTitle: media.title,
+											mediaType: media.type,
+										},
+									}}
+									passHref
+								>
+									<LinkOverlay>
+										<IconButton
+											aria-label='finished it'
+											icon={<CheckIcon />}
+											size='xs'
+											colorScheme='green'
+										/>
+									</LinkOverlay>
+								</NextLink>
+							</LinkBox>
 						)}
 					</HStack>
 				</StatLabel>
