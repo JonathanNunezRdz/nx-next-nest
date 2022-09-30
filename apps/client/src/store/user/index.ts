@@ -16,8 +16,8 @@ export const getUser = createAsyncThunk<User, void, { rejectValue: HttpError }>(
 	'user/getUser',
 	async (_, thunkApi) => {
 		try {
-			const res = await userService.getUser();
-			return res.data;
+			const { data } = await userService.getUser();
+			return data;
 		} catch (error) {
 			if (error instanceof AxiosError) {
 				const { response } = error as AxiosError<HttpError>;

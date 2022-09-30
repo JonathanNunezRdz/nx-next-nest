@@ -9,6 +9,7 @@ import {
 	UserImage,
 } from '@prisma/client';
 import { RequestStatus } from '../common';
+import { EditMediaDto } from './edit-media.dto';
 
 export * from './create-media.dto';
 export * from './edit-media.dto';
@@ -36,10 +37,20 @@ export type MediaResponse = Media & {
 	})[];
 };
 
-export interface MediaState extends RequestStatus {
-	data: GetMediaResponse;
+export interface MediaState {
+	get: {
+		data: GetMediaResponse;
+	} & RequestStatus;
 	add: RequestStatus;
 	know: RequestStatus;
+	edit: {
+		local: {
+			data: EditMediaDto;
+		} & RequestStatus;
+		server: {
+			data: EditMediaDto;
+		} & RequestStatus;
+	};
 }
 
 export interface MediaLabel {

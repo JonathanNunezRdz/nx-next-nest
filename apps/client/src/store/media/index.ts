@@ -1,6 +1,7 @@
 import {
 	CreateMediaDto,
 	CreateMediaResponse,
+	EditMediaDto,
 	GetMediaDto,
 	GetMediaResponse,
 	HttpError,
@@ -65,9 +66,11 @@ export const getMedias = createAsyncThunk<
 });
 
 const initialState: MediaState = {
-	data: [],
-	status: 'idle',
-	error: undefined,
+	get: {
+		data: [],
+		status: 'idle',
+		error: undefined,
+	},
 	add: {
 		status: 'idle',
 		error: undefined,
@@ -75,6 +78,18 @@ const initialState: MediaState = {
 	know: {
 		status: 'idle',
 		error: undefined,
+	},
+	edit: {
+		local: {
+			data: {} as EditMediaDto,
+			status: 'idle',
+			error: undefined,
+		},
+		server: {
+			data: {} as EditMediaDto,
+			status: 'idle',
+			error: undefined,
+		},
 	},
 };
 
@@ -86,32 +101,49 @@ export const mediaSlice = createSlice({
 			state.add.status = 'idle';
 			state.add.error = undefined;
 		},
-		getMediaToEdit: (state, action: PayloadAction<{ mediaId: number }>) => {
+		getMediaToEditFromLocal: (
+			state,
+			action: PayloadAction<{ mediaId: number; userId?: number }>
+		) => {
+			const { mediaId, userId } = action.payload;
 			// TODO: get media from already loaded state, if there are no media loaded, get that one from server
-			// if (action.payload.mediaId === -1) {
-			// }
+			if (mediaId === -1) {
+				state.edit.local.status = 'failed';
+				state.edit.local.error = 'mediaId not found in local data';
+			} else {
+				const media = state.get.data.find(
+					(elem) => elem.id === mediaId
+				);
+				state.edit.local.data.mediaId = media.id;
+				state.edit.local.data.title = media.title;
+				state.edit.local.data.type = media.type;
+				state.edit.local.data.knownAt = new Date(
+					media.knownBy.find((user) => user.userId === userId).knownAt
+				).toISOString();
+				state.edit.local.status = 'succeeded';
+			}
 		},
 	},
 	extraReducers(builder) {
 		builder
 			.addCase(getMedias.pending, (state) => {
-				state.status = 'loading';
+				state.get.status = 'loading';
 			})
 			.addCase(getMedias.fulfilled, (state, action) => {
-				state.status = 'succeeded';
-				state.data = action.payload;
-				state.error = undefined;
+				state.get.status = 'succeeded';
+				state.get.data = action.payload;
+				state.get.error = undefined;
 			})
 			.addCase(getMedias.rejected, (state, action) => {
-				state.status = 'failed';
-				state.error = action.payload.message;
+				state.get.status = 'failed';
+				state.get.error = action.payload.message;
 			})
 			.addCase(addMedia.pending, (state) => {
 				state.add.status = 'loading';
 			})
 			.addCase(addMedia.fulfilled, (state, action) => {
 				state.add.status = 'succeeded';
-				state.data = [action.payload, ...state.data];
+				state.get.data = [action.payload, ...state.get.data];
 				state.add.error = undefined;
 			})
 			.addCase(addMedia.rejected, (state, action) => {
@@ -125,11 +157,11 @@ export const mediaSlice = createSlice({
 			.addCase(knowMedia.fulfilled, (state, action) => {
 				state.know.status = 'succeeded';
 				state.know.error = undefined;
-				const index = state.data.findIndex(
+				const index = state.get.data.findIndex(
 					(media) => media.id === action.payload.id
 				);
 				if (index > -1) {
-					state.data[index] = action.payload;
+					state.get.data[index] = action.payload;
 				}
 			})
 			.addCase(knowMedia.rejected, (state, action) => {
@@ -141,12 +173,15 @@ export const mediaSlice = createSlice({
 
 const mediaReducer = mediaSlice.reducer;
 
-export const { resetAddStatus } = mediaSlice.actions;
+export const { resetAddStatus, getMediaToEditFromLocal } = mediaSlice.actions;
 
 export const selectAddMediaStatus = (state: RootState) => state.media.add;
 
 export const selectKnowMediaStatus = (state: RootState) => state.media.know;
 
-export const selectMedia = (state: RootState) => state.media.data;
+export const selectEditLocalMedia = (state: RootState) =>
+	state.media.edit.local;
+
+export const selectMedia = (state: RootState) => state.media.get.data;
 
 export default mediaReducer;

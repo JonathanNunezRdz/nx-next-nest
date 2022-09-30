@@ -19,7 +19,7 @@ import {
 	resetAddStatus,
 	selectAddMediaStatus,
 } from '../../store/media';
-import ProtectedPage from '../../utils/ProtectedPage';
+import ProtectedPage from '../../components/auth/ProtectedPage';
 import { formatDate, prepareDate } from '../../utils';
 import { mediaLabel } from '../../utils/constants';
 import PageTitle from '../../components/common/PageTitle';

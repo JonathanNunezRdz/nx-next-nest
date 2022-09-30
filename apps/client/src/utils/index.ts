@@ -50,3 +50,8 @@ export const formatDate = (dateString?: string) => {
 export const prepareDate = (dateString: string) => {
 	return new Date(`${dateString}T00:00:00`).toISOString();
 };
+
+export const useMediaId = (mediaId: string | string[]) => {
+	if (typeof mediaId === 'object') return -1;
+	return parseInt(mediaId);
+};

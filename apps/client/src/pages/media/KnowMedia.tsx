@@ -18,7 +18,7 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { knowMedia, selectKnowMediaStatus } from '../../store/media';
 import { formatDate, prepareDate } from '../../utils';
 import { mediaLabel } from '../../utils/constants';
-import ProtectedPage from '../../utils/ProtectedPage';
+import ProtectedPage from '../../components/auth/ProtectedPage';
 
 // TODO: change popover to a new page -> /media/know
 

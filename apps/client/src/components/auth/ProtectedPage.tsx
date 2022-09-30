@@ -1,9 +1,9 @@
 import { Box, Text } from '@chakra-ui/react';
-
 import { useRouter } from 'next/router';
 import { ReactNode, useEffect } from 'react';
-import Body from '../components/layout/Body';
-import { useAppSelector } from '../store/hooks';
+
+import Body from '../layout/Body';
+import { useAppSelector } from '../../store/hooks';
 
 interface ProtectedPageProps {
 	originalUrl: string;

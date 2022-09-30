@@ -4,7 +4,7 @@ import type { FC } from 'react';
 
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { selectUser, signOut } from '../../store/user';
-import ProtectedPage from '../../utils/ProtectedPage';
+import ProtectedPage from '../../components/auth/ProtectedPage';
 
 const User: FC = () => {
 	const dispatch = useAppDispatch();
