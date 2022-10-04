@@ -16,11 +16,18 @@ export * from './edit-media.dto';
 export * from './get-media.dto';
 export * from './know-media.dto';
 
+export type EditMediaResponse = MediaResponse;
+
+export type GetEditMediaResponse = EditMediaDto;
+
 export type KnowMediaResponse = MediaResponse;
 
 export type CreateMediaResponse = MediaResponse;
 
-export type GetMediaResponse = MediaResponse[];
+export type GetMediaResponse = {
+	medias: MediaResponse[];
+	totalPages: number;
+};
 
 export type MediaResponse = Media & {
 	image: MediaImage & {
@@ -39,18 +46,17 @@ export type MediaResponse = Media & {
 
 export interface MediaState {
 	get: {
-		data: GetMediaResponse;
+		data: MediaResponse[];
+		totalPages: number;
+		currentPage: number;
 	} & RequestStatus;
 	add: RequestStatus;
 	know: RequestStatus;
 	edit: {
-		local: {
-			data: EditMediaDto;
-		} & RequestStatus;
-		server: {
-			data: EditMediaDto;
-		} & RequestStatus;
-	};
+		data: EditMediaDto;
+		local: RequestStatus;
+		server: RequestStatus;
+	} & RequestStatus;
 }
 
 export interface MediaLabel {

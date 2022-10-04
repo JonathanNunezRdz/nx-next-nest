@@ -17,6 +17,42 @@ import { PrismaService } from '../prisma/prisma.service';
 export class MediaService {
 	constructor(private prisma: PrismaService) {}
 
+	async getEditMedia(userId: number, mediaId: number) {
+		const media = await this.prisma.media.findFirst({
+			where: {
+				id: mediaId,
+				knownBy: {
+					some: {
+						userId,
+					},
+				},
+			},
+			select: {
+				id: true,
+				title: true,
+				type: true,
+				knownBy: {
+					select: {
+						knownAt: true,
+						userId: true,
+					},
+				},
+			},
+		});
+
+		const knownAt = media.knownBy.find((user) => user.userId === userId);
+
+		if (typeof knownAt === 'undefined')
+			throw new ForbiddenException('access to resources denied');
+
+		return {
+			mediaId: media.id,
+			title: media.title,
+			type: media.type,
+			knownAt: knownAt.knownAt.toISOString(),
+		};
+	}
+
 	async deleteMedia(userId: number, mediaId: number) {
 		const media = await this.prisma.media.findUnique({
 			where: {
@@ -152,6 +188,8 @@ export class MediaService {
 	}
 
 	async getMedias(dto: GetMediaDto) {
+		const totalMedias = await this.prisma.media.count();
+		const totalPages = totalMedias / dto.limit;
 		const medias = await this.prisma.media.findMany({
 			where: {
 				title: {
@@ -160,9 +198,6 @@ export class MediaService {
 				},
 				type: {
 					equals: dto.type,
-				},
-				createdAt: {
-					lt: dto.cursor,
 				},
 				knownBy: {
 					every: {
@@ -176,6 +211,7 @@ export class MediaService {
 			orderBy: {
 				createdAt: 'desc',
 			},
+			skip: (dto.page - 1) * dto.limit,
 			include: {
 				image: {
 					include: {
@@ -212,7 +248,7 @@ export class MediaService {
 			},
 		});
 
-		return medias;
+		return { medias, totalPages };
 	}
 
 	async createMedia(userId: number, dto: CreateMediaDto) {

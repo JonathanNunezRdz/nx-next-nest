@@ -20,8 +20,6 @@ import { formatDate, prepareDate } from '../../utils';
 import { mediaLabel } from '../../utils/constants';
 import ProtectedPage from '../../components/auth/ProtectedPage';
 
-// TODO: change popover to a new page -> /media/know
-
 const KnowMedia = () => {
 	const dispatch = useAppDispatch();
 	const knowMediaStatus = useAppSelector(selectKnowMediaStatus);
@@ -76,7 +74,12 @@ const KnowMedia = () => {
 						/>
 					</FormControl>
 					<Box>
-						<Button type='submit'>confirm</Button>
+						<Button
+							type='submit'
+							isLoading={knowMediaStatus.status === 'loading'}
+						>
+							confirm
+						</Button>
 					</Box>
 				</Form>
 			</VStack>

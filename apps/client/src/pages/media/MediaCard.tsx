@@ -34,13 +34,27 @@ const MediaCard = ({ media, ownId, isLoggedIn }: MediaCardProps) => {
 						<Text>{media.type}</Text>
 						{isLoggedIn && knownByMe && (
 							<Box>
-								<IconButton
-									aria-label='edit media'
-									icon={<EditIcon />}
-									size='xs'
-									me='1'
-									colorScheme='yellow'
-								/>
+								<LinkBox display='inline-flex'>
+									<NextLink
+										href={{
+											pathname: '/media/edit',
+											query: {
+												mediaIdString: media.id,
+											},
+										}}
+										passHref
+									>
+										<LinkOverlay>
+											<IconButton
+												aria-label='edit media'
+												icon={<EditIcon />}
+												size='xs'
+												me='1'
+												colorScheme='yellow'
+											/>
+										</LinkOverlay>
+									</NextLink>
+								</LinkBox>
 								<IconButton
 									aria-label='delete media'
 									icon={<DeleteIcon />}

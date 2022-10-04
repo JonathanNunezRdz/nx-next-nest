@@ -1,4 +1,4 @@
-import { Box, Text } from '@chakra-ui/react';
+import { Box, Center, Spinner } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
 import { ReactNode, useEffect } from 'react';
 
@@ -33,7 +33,11 @@ const ProtectedPage = ({
 	}, [isLoggedIn, router, originalUrl, checkedJWT]);
 
 	if (!isLoggedIn) {
-		return <Text>unathorized user</Text>;
+		return (
+			<Center>
+				<Spinner />
+			</Center>
+		);
 	}
 
 	if (center) return <Body>{children}</Body>;

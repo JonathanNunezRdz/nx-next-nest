@@ -1,15 +1,6 @@
 import { FormikErrors, useFormik } from 'formik';
 import { useEffect } from 'react';
-import {
-	Box,
-	Button,
-	FormControl,
-	FormErrorMessage,
-	FormLabel,
-	Input,
-	Select,
-	VStack,
-} from '@chakra-ui/react';
+import { Box, Button, VStack } from '@chakra-ui/react';
 import { CreateMediaDto } from '@nx-next-nest/types';
 import { useRouter } from 'next/router';
 
@@ -25,6 +16,9 @@ import { mediaLabel } from '../../utils/constants';
 import PageTitle from '../../components/common/PageTitle';
 import Form from '../../components/common/Form';
 import FormErrorMessageWrapper from '../../components/common/FormErrorMessageWrapper';
+import TitleInput from '../../components/common/TitleInput';
+import TypeInput from '../../components/common/TypeInput';
+import KnownAtInput from '../../components/common/KnownAtInput';
 
 const AddMedia = () => {
 	const dispatch = useAppDispatch();
@@ -64,57 +58,32 @@ const AddMedia = () => {
 				<Form onSubmit={formik.handleSubmit}>
 					{/* TODO: add loading */}
 					<FormErrorMessageWrapper error={addMediaStatus.error} />
-					<FormControl
+					<TitleInput
+						title={formik.values.title}
+						onChange={formik.handleChange}
+						onBlur={formik.handleBlur}
 						isInvalid={
-							!!formik.errors.title && formik.touched.title
+							formik.touched.title && !!formik.errors.title
 						}
-						isRequired
-					>
-						<FormLabel htmlFor='title'>title</FormLabel>
-						<Input
-							id='title'
-							name='title'
-							type='text'
-							variant='filled'
-							onChange={formik.handleChange}
-							value={formik.values.title}
-							autoFocus
-						/>
-						<FormErrorMessage>
-							{formik.errors.title}
-						</FormErrorMessage>
-					</FormControl>
-					<FormControl>
-						<FormLabel htmlFor='type'>type</FormLabel>
-						<Select
-							id='type'
-							name='type'
-							variant='filled'
-							onChange={formik.handleChange}
-							value={formik.values.type}
-						>
-							<option value='anime'>anime</option>
-							<option value='manga'>manga</option>
-							<option value='videogame'>videogame</option>
-						</Select>
-					</FormControl>
-					<FormControl>
-						<FormLabel htmlFor='knownAt'>
-							when did you{' '}
-							{mediaLabel.present[formik.values.type]} it?
-						</FormLabel>
-						<Input
-							id='knownAt'
-							name='knownAt'
-							type='date'
-							variant='filled'
-							onChange={formik.handleChange}
-							value={formik.values.knownAt}
-							max={formatDate()}
-						/>
-					</FormControl>
+						error={formik.errors.title}
+					/>
+					<TypeInput
+						type={formik.values.type}
+						onChange={formik.handleChange}
+					/>
+					<KnownAtInput
+						label={mediaLabel.present[formik.values.type]}
+						onChange={formik.handleChange}
+						knownAt={formik.values.knownAt}
+					/>
 					<Box>
-						<Button type='submit'>add media</Button>
+						<Button
+							type='submit'
+							disabled={!formik.dirty}
+							isLoading={addMediaStatus.status === 'loading'}
+						>
+							add media
+						</Button>
 					</Box>
 				</Form>
 			</VStack>

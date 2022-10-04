@@ -1,57 +1,92 @@
-import { Text } from '@chakra-ui/react';
+import { Box, Button, VStack } from '@chakra-ui/react';
 import { EditMediaDto } from '@nx-next-nest/types';
 import { useFormik } from 'formik';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+
 import ProtectedPage from '../../components/auth/ProtectedPage';
-import { useAppSelector } from '../../store/hooks';
+import Form from '../../components/common/Form';
+import FormErrorMessageWrapper from '../../components/common/FormErrorMessageWrapper';
+import KnownAtInput from '../../components/common/KnownAtInput';
+import PageTitle from '../../components/common/PageTitle';
+import TitleInput from '../../components/common/TitleInput';
+import TypeInput from '../../components/common/TypeInput';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
-	getMediaToEditFromLocal,
-	selectEditLocalMedia,
+	editMedia,
+	resetGetMediaToEdit,
+	selectEditMedia,
+	selectEditMediaStatus,
 } from '../../store/media';
-import { selectUser, selectUserStatus } from '../../store/user';
-import { formatDate, useMediaId } from '../../utils';
+
+import { formatDate, prepareDate } from '../../utils';
+import { mediaLabel } from '../../utils/constants';
 
 const EditMedia = () => {
-	const dispatch = useDispatch();
+	const dispatch = useAppDispatch();
 	const router = useRouter();
-	const user = useAppSelector(selectUser);
-	const userStatus = useAppSelector(selectUserStatus);
-	const mediaId = useMediaId(router.query.mediaIdString);
-	const localMedia = useAppSelector(selectEditLocalMedia);
+	const editMediaStatus = useAppSelector(selectEditMediaStatus);
+	const mediaToEdit = useAppSelector(selectEditMedia);
 
 	const formik = useFormik<EditMediaDto>({
 		initialValues: {
-			mediaId,
-			title: '',
-			knownAt: formatDate(),
-			type: 'anime',
+			mediaId: mediaToEdit.mediaId,
+			title: mediaToEdit.title,
+			knownAt: formatDate(mediaToEdit.knownAt),
+			type: mediaToEdit.type,
 		},
-		onSubmit: (values) => {
-			console.log(values);
+		onSubmit: async (values) => {
+			const newValues = {
+				...values,
+				knownAt: prepareDate(values.knownAt),
+			};
+			const res = await dispatch(editMedia(newValues));
+			if (res.meta.requestStatus === 'fulfilled') router.push('/media');
 		},
 	});
 
-	// TODO: get media from local and assign it lo formik, if not on local, get from server
 	useEffect(() => {
-		if (userStatus.status)
-			if (localMedia.status === 'idle') {
-				dispatch(getMediaToEditFromLocal({ mediaId, userId: user.id }));
-			}
-		if (localMedia.status === 'succeeded') {
-			formik.setValues({
-				mediaId: localMedia.data.mediaId,
-				title: localMedia.data.title,
-				knownAt: formatDate(localMedia.data.knownAt),
-				type: localMedia.data.type,
-			});
-		}
-	}, []);
+		return () => {
+			dispatch(resetGetMediaToEdit());
+		};
+	}, [dispatch]);
 
 	return (
 		<ProtectedPage originalUrl='/media/edit'>
-			<Text>Edit media</Text>
+			<VStack w='full' spacing='1rem'>
+				<PageTitle title='edit media' />
+				<Form onSubmit={formik.handleSubmit}>
+					{/* TODO: add loading */}
+					<FormErrorMessageWrapper error={editMediaStatus.error} />
+					<TitleInput
+						title={formik.values.title}
+						onChange={formik.handleChange}
+						onBlur={formik.handleBlur}
+						isInvalid={
+							formik.touched.title && !!formik.errors.title
+						}
+						error={formik.errors.title}
+					/>
+					<TypeInput
+						type={formik.values.type}
+						onChange={formik.handleChange}
+					/>
+					<KnownAtInput
+						label={mediaLabel.present[formik.values.type]}
+						onChange={formik.handleChange}
+						knownAt={formik.values.knownAt}
+					/>
+					<Box>
+						<Button
+							type='submit'
+							disabled={!formik.dirty}
+							isLoading={editMediaStatus.status === 'loading'}
+						>
+							edit media
+						</Button>
+					</Box>
+				</Form>
+			</VStack>
 		</ProtectedPage>
 	);
 };

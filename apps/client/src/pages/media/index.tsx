@@ -1,5 +1,6 @@
 import {
 	Box,
+	Center,
 	Heading,
 	HStack,
 	IconButton,
@@ -10,39 +11,42 @@ import {
 	VStack,
 } from '@chakra-ui/react';
 import { AddIcon, RepeatIcon } from '@chakra-ui/icons';
-import { FC, useEffect } from 'react';
+import { FC, useCallback, useEffect } from 'react';
 import NextLink from 'next/link';
 
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { getMedias, selectMedia } from '../../store/media';
+import {
+	getMedias,
+	selectMedia,
+	selectMediaPages,
+	selectMediaStatus,
+} from '../../store/media';
 import MediaCard from './MediaCard';
 import { selectUser } from '../../store/user';
 
 // TODO: design media filter options
+// TODO: apply media pagination
 
 const Media: FC = () => {
 	const dispatch = useAppDispatch();
 	const { isLoggedIn } = useAppSelector((state) => state.user.auth);
 	const media = useAppSelector(selectMedia);
+	const mediaPages = useAppSelector(selectMediaPages);
 	const user = useAppSelector(selectUser);
+	const getMediaStatus = useAppSelector(selectMediaStatus);
 
-	const handleGetMedia = () => {
+	const handleGetMedia = useCallback(() => {
 		dispatch(
 			getMedias({
-				cursor: new Date().toISOString(),
-				limit: 10,
+				page: mediaPages.currentPage + 1,
+				limit: 9,
 			})
 		);
-	};
+	}, [dispatch, mediaPages.currentPage]);
 
 	useEffect(() => {
-		dispatch(
-			getMedias({
-				cursor: new Date().toISOString(),
-				limit: 10,
-			})
-		);
-	}, [dispatch]);
+		handleGetMedia();
+	}, [handleGetMedia]);
 
 	return (
 		<Box
@@ -79,6 +83,7 @@ const Media: FC = () => {
 								size='sm'
 								mt={1}
 								onClick={handleGetMedia}
+								isLoading={getMediaStatus.status === 'loading'}
 							/>
 						</Box>
 					</HStack>
@@ -105,6 +110,9 @@ const Media: FC = () => {
 						)}
 					</SimpleGrid>
 				</Box>
+				<Center>
+					<Text>More pages</Text>
+				</Center>
 			</VStack>
 		</Box>
 	);

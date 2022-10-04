@@ -16,6 +16,8 @@ import {
 	CreateMediaDto,
 	CreateMediaResponse,
 	EditMediaDto,
+	EditMediaResponse,
+	GetEditMediaResponse,
 	GetMediaDto,
 	GetMediaResponse,
 	KnowMediaDto,
@@ -28,6 +30,15 @@ import { MediaService } from './media.service';
 @Controller('media')
 export class MediaController {
 	constructor(private mediaService: MediaService) {}
+
+	@UseGuards(JwtGuard)
+	@Get('edit/:id')
+	getEditMedia(
+		@GetUser('id') userId: number,
+		@Param('id', ParseIntPipe) mediaId: number
+	): Promise<GetEditMediaResponse> {
+		return this.mediaService.getEditMedia(userId, mediaId);
+	}
 
 	@UseGuards(JwtGuard)
 	@Patch('know')
@@ -47,7 +58,6 @@ export class MediaController {
 		return this.mediaService.createMedia(userId, dto);
 	}
 
-	// TODO: do not use jwt guard
 	@Get('')
 	getMedias(@Query() dto: GetMediaDto): Promise<GetMediaResponse> {
 		console.log({ dto });
@@ -57,7 +67,10 @@ export class MediaController {
 
 	@UseGuards(JwtGuard)
 	@Patch('')
-	editMedia(@GetUser('id') userId: number, @Body() dto: EditMediaDto) {
+	editMedia(
+		@GetUser('id') userId: number,
+		@Body() dto: EditMediaDto
+	): Promise<EditMediaResponse> {
 		return this.mediaService.editMedia(userId, dto);
 	}
 

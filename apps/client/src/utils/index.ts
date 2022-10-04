@@ -52,6 +52,12 @@ export const prepareDate = (dateString: string) => {
 };
 
 export const useMediaId = (mediaId: string | string[]) => {
-	if (typeof mediaId === 'object') return -1;
-	return parseInt(mediaId);
+	if (typeof mediaId === 'object' || typeof mediaId === 'undefined')
+		return -1;
+	try {
+		const id = parseInt(mediaId);
+		return id;
+	} catch (error) {
+		return -1;
+	}
 };
