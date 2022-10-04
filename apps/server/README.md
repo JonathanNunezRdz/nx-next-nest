@@ -28,7 +28,12 @@
 
 -   [?] Create waifu
 -   [?] Get all waifus w/filters
--   [ ] Get waifus for a media
-    -   [~] dto
--   [ ] Edit/update waifu
+-   [?] Get waifus for a media
+    -   [?] dto
+    -   [?] controller
+    -   [?] service
+-   [?] Edit/update waifu
+    -   [?] dto
+    -   [?] controller
+    -   [?] service
 -   [ ] Delete waifu

@@ -1,28 +1,23 @@
-import { WaifuLevel } from '@prisma/client';
+import { User, WaifuLevel } from '@prisma/client';
+import { Transform } from 'class-transformer';
 import {
-	IsDateString,
+	ArrayNotEmpty,
+	IsArray,
 	IsEnum,
-	IsInt,
-	IsNotEmpty,
 	IsOptional,
 	IsString,
-	Max,
-	Min,
 } from 'class-validator';
 
 export class GetMediaWaifusDto {
-	@IsDateString()
-	@IsNotEmpty()
-	cursor: string;
-
-	@IsInt()
-	@Max(20)
-	@Min(1)
-	limit: number;
-
 	@IsString()
 	@IsOptional()
 	name?: string;
+
+	@Transform(({ value }) => JSON.parse(value))
+	@IsArray()
+	@ArrayNotEmpty()
+	@IsOptional()
+	users?: User['id'][];
 
 	@IsEnum(WaifuLevel, {
 		message: `level must be a valid option: ${Object.keys(WaifuLevel).join(

@@ -1,18 +1,115 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { CreateWaifuDto, GetAllWaifusDto } from '@nx-next-nest/types';
+import {
+	CreateWaifuDto,
+	EditWaifuDto,
+	GetAllWaifusDto,
+	GetMediaWaifusDto,
+} from '@nx-next-nest/types';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 
-import { createWaifuImage } from '../../utils';
+import { createWaifuImage, upsertWaifuImage } from '../../utils';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class WaifuService {
 	constructor(private prisma: PrismaService) {}
 
-	async getMediaWaifus() {}
+	async editWaifu(userId: number, dto: EditWaifuDto) {
+		const { name, level, waifuId } = dto;
+		const upsertWaifuImageOptions = upsertWaifuImage(dto);
+
+		const waifuToEdit = await this.prisma.waifu.findUnique({
+			where: {
+				id: waifuId,
+			},
+			select: {
+				userId: true,
+			},
+		});
+
+		if (waifuToEdit.userId !== userId) {
+			throw new ForbiddenException('access to resources denied');
+		}
+
+		const waifu = await this.prisma.waifu.update({
+			where: {
+				id: waifuId,
+			},
+			data: {
+				name,
+				level,
+				image: upsertWaifuImageOptions,
+			},
+			include: {
+				image: {
+					include: {
+						image: {
+							select: {
+								format: true,
+							},
+						},
+					},
+				},
+				media: {
+					select: {
+						title: true,
+						type: true,
+					},
+				},
+				user: {
+					select: {
+						alias: true,
+					},
+				},
+			},
+		});
+		return waifu;
+	}
+
+	async getMediaWaifus(mediaId: number, dto: GetMediaWaifusDto) {
+		const { name, level, users } = dto;
+		const waifus = await this.prisma.waifu.findMany({
+			where: {
+				mediaId,
+				name,
+				level,
+				userId: {
+					in: users,
+				},
+			},
+			include: {
+				image: {
+					include: {
+						image: {
+							select: {
+								format: true,
+							},
+						},
+					},
+				},
+				media: {
+					select: {
+						title: true,
+						type: true,
+					},
+				},
+				user: {
+					select: {
+						alias: true,
+					},
+				},
+			},
+			orderBy: {
+				createdAt: 'desc',
+			},
+		});
+
+		return waifus;
+	}
 
 	async getAllWaifus(dto: GetAllWaifusDto) {
-		const { name, cursor, limit, level, userId } = dto;
+		const { name, page, limit, level, userId } = dto;
+		const totalWaifus = await this.prisma.waifu.count();
 		const waifus = await this.prisma.waifu.findMany({
 			where: {
 				name: {
@@ -22,9 +119,6 @@ export class WaifuService {
 				level: {
 					equals: level,
 				},
-				createdAt: {
-					lt: cursor,
-				},
 				user: {
 					id: {
 						equals: userId,
@@ -32,6 +126,7 @@ export class WaifuService {
 				},
 			},
 			take: limit,
+			skip: (page - 1) * limit,
 			orderBy: {
 				createdAt: 'desc',
 			},
@@ -51,10 +146,18 @@ export class WaifuService {
 						type: true,
 					},
 				},
+				user: {
+					select: {
+						alias: true,
+					},
+				},
 			},
 		});
 
-		return waifus;
+		const totalPages =
+			waifus.length > 0 ? Math.max(totalWaifus / limit, 1) : 0;
+
+		return { waifus, totalPages };
 	}
 
 	async createWaifu(userId: number, dto: CreateWaifuDto) {
@@ -62,7 +165,24 @@ export class WaifuService {
 		const createWaifuImageOption = createWaifuImage(dto);
 		const { name, level, mediaId } = dto;
 
-		console.log('create waifu');
+		const media = await this.prisma.media.findUnique({
+			where: {
+				id: mediaId,
+			},
+			select: {
+				knownBy: {
+					select: {
+						userId: true,
+					},
+				},
+			},
+		});
+
+		const index = media.knownBy.findIndex((user) => user.userId === userId);
+
+		if (index === -1) {
+			throw new ForbiddenException('access to resources denied');
+		}
 
 		try {
 			const waifu = await this.prisma.waifu.create({
@@ -84,7 +204,7 @@ export class WaifuService {
 				},
 				include: {
 					image: {
-						select: {
+						include: {
 							image: {
 								select: {
 									format: true,
@@ -92,32 +212,19 @@ export class WaifuService {
 							},
 						},
 					},
-					user: {
-						select: {
-							id: true,
-							alias: true,
-							image: {
-								select: {
-									image: {
-										select: {
-											format: true,
-										},
-									},
-								},
-							},
-						},
-					},
 					media: {
 						select: {
-							id: true,
 							title: true,
 							type: true,
 						},
 					},
+					user: {
+						select: {
+							alias: true,
+						},
+					},
 				},
 			});
-
-			console.log('created waifu');
 
 			return waifu;
 		} catch (error) {

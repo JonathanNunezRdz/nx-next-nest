@@ -5,7 +5,6 @@ import {
 	FormErrorMessage,
 	FormLabel,
 	Input,
-	Text,
 	VStack,
 } from '@chakra-ui/react';
 import { SignInDto } from '@nx-next-nest/types';
@@ -13,6 +12,7 @@ import { FormikErrors, useFormik } from 'formik';
 import { NextSeo } from 'next-seo';
 import { useRouter } from 'next/router';
 import { FC, useEffect } from 'react';
+import FormErrorMessageWrapper from '../../components/common/FormErrorMessageWrapper';
 
 import Body from '../../components/layout/Body';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
@@ -66,6 +66,7 @@ const SignIn: FC = () => {
 			<NextSeo title='sign in' />
 			<form onSubmit={formik.handleSubmit} noValidate>
 				<VStack px='1.5rem' py='1rem' spacing='1rem'>
+					<FormErrorMessageWrapper error={signInStatus.error} />
 					<FormControl
 						isInvalid={
 							!!formik.errors.email && formik.touched.email
@@ -104,19 +105,14 @@ const SignIn: FC = () => {
 						</FormErrorMessage>
 					</FormControl>
 
-					<Box color='red.300'>
-						{signInStatus.error &&
-							(typeof signInStatus.error === 'object' ? (
-								signInStatus.error.map((message) => (
-									<Text key={message}>{message}</Text>
-								))
-							) : (
-								<Text>{signInStatus.error}</Text>
-							))}
-					</Box>
-
 					<Box>
-						<Button type='submit'>sign in</Button>
+						<Button
+							type='submit'
+							isDisabled={!formik.dirty}
+							isLoading={signInStatus.status === 'loading'}
+						>
+							sign in
+						</Button>
 					</Box>
 				</VStack>
 			</form>
