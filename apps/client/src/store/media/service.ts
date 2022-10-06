@@ -11,22 +11,22 @@ import {
 
 import api from '../api';
 
-export const editMedia = (dto: EditMediaDto) => api.patch('/media', dto);
+const editMedia = (dto: EditMediaDto) => api.patch('/media', dto);
 
-export const getEditMedia = (mediaId: number) =>
+const getEditMedia = (mediaId: number) =>
 	api.get<GetEditMediaResponse>(`/media/edit/${mediaId}`);
 
-export const knownMedia = (dto: KnowMediaDto) =>
+const knownMedia = (dto: KnowMediaDto) =>
 	api.patch<KnowMediaResponse>('/media/know', dto);
 
-export const getMedias = (dto: GetMediaDto) =>
+const getMedias = (dto: GetMediaDto) =>
 	api.get<GetMediaResponse>('/media', {
 		params: {
 			...dto,
 		},
 	});
 
-export const addMedia = (dto: CreateMediaDto) =>
+const addMedia = (dto: CreateMediaDto) =>
 	api.post<CreateMediaResponse>('/media/create', dto);
 
 const mediaService = {

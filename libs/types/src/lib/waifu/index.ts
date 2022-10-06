@@ -1,4 +1,6 @@
 import { ImageFormat, MediaType, Waifu, WaifuImage } from '@prisma/client';
+import { RequestStatus } from '../common';
+import { EditWaifuDto } from './edit-waifu.dto';
 
 export * from './create-waifu.dto';
 export * from './edit-waifu.dto';
@@ -30,3 +32,17 @@ export type WaifuResponse = Waifu & {
 		type: MediaType;
 	};
 };
+
+export interface WaifuState {
+	get: {
+		data: WaifuResponse[];
+		totalPages: number;
+		currentPage: number;
+	} & RequestStatus;
+	add: RequestStatus;
+	edit: {
+		data: EditWaifuDto;
+		local: RequestStatus;
+		server: RequestStatus;
+	} & RequestStatus;
+}

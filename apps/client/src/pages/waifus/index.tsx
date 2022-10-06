@@ -1,3 +1,4 @@
+import { AddIcon, RepeatIcon } from '@chakra-ui/icons';
 import {
 	Box,
 	Center,
@@ -10,61 +11,52 @@ import {
 	Text,
 	VStack,
 } from '@chakra-ui/react';
-import { AddIcon, RepeatIcon } from '@chakra-ui/icons';
-import { FC, useCallback, useEffect } from 'react';
 import NextLink from 'next/link';
+import { useCallback, useEffect } from 'react';
 
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import {
-	getMedias,
-	selectMedia,
-	selectMediaPages,
-	selectMediaStatus,
-} from '../../store/media';
-import MediaCard from './MediaCard';
-import { selectUser } from '../../store/user';
 import Body from '../../components/layout/Body';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { selectUser } from '../../store/user';
+import {
+	getAllWaifus,
+	selectWaifuPages,
+	selectWaifus,
+	selectWaifuStatus,
+} from '../../store/waifu';
+import WaifuCard from './WaifuCard';
 
-// TODO: design media filter options
-// TODO: apply media pagination
-
-const Media: FC = () => {
+const Waifus = () => {
 	const dispatch = useAppDispatch();
-	const { isLoggedIn } = useAppSelector((state) => state.user.auth);
-	const media = useAppSelector(selectMedia);
-	const mediaPages = useAppSelector(selectMediaPages);
+	const isLoggedIn = useAppSelector((state) => state.user.auth.isLoggedIn);
 	const user = useAppSelector(selectUser);
-	const getMediaStatus = useAppSelector(selectMediaStatus);
+	const waifus = useAppSelector(selectWaifus);
+	const waifuPages = useAppSelector(selectWaifuPages);
+	const waifuStatus = useAppSelector(selectWaifuStatus);
 
-	const handleGetMedia = useCallback(
+	const handleGetWaifus = useCallback(
 		(page: number) => {
-			dispatch(
-				getMedias({
-					page,
-					limit: 9,
-				})
-			);
+			dispatch(getAllWaifus({ page, limit: 9 }));
 		},
 		[dispatch]
 	);
 
 	useEffect(() => {
-		handleGetMedia(1);
-	}, [handleGetMedia]);
+		handleGetWaifus(1);
+	}, [handleGetWaifus]);
 
 	return (
 		<Body h>
 			<VStack w='full' spacing='1rem'>
 				<Box w='full'>
 					<HStack spacing='1rem'>
-						<Heading>media</Heading>
+						<Heading>waifus</Heading>
 
 						{isLoggedIn && (
 							<LinkBox>
-								<NextLink href='/media/add' passHref>
+								<NextLink href='/waifu/add' passHref>
 									<LinkOverlay>
 										<IconButton
-											aria-label='add media'
+											aria-label='add waifu'
 											icon={<AddIcon />}
 											size='sm'
 											mt={1}
@@ -75,12 +67,12 @@ const Media: FC = () => {
 						)}
 						<Box>
 							<IconButton
-								aria-label='refresh media'
+								aria-label='refresh waifus'
 								icon={<RepeatIcon />}
 								size='sm'
 								mt={1}
-								onClick={() => handleGetMedia(1)}
-								isLoading={getMediaStatus.status === 'loading'}
+								onClick={() => handleGetWaifus(1)}
+								isLoading={waifuStatus.status === 'loading'}
 							/>
 						</Box>
 					</HStack>
@@ -91,11 +83,11 @@ const Media: FC = () => {
 						columns={{ sm: 1, md: 2, lg: 3 }}
 						spacing='1rem'
 					>
-						{media.length > 0 ? (
-							media.map((element) => (
-								<MediaCard
+						{waifus.length > 0 ? (
+							waifus.map((element) => (
+								<WaifuCard
 									key={element.id}
-									media={element}
+									waifu={element}
 									ownId={user.id}
 									isLoggedIn={isLoggedIn}
 								/>
@@ -115,4 +107,4 @@ const Media: FC = () => {
 	);
 };
 
-export default Media;
+export default Waifus;

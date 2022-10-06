@@ -40,13 +40,14 @@ const ProtectedPage = ({
 		);
 	}
 
-	if (center) return <Body>{children}</Body>;
+	if (center)
+		return (
+			<Body v h>
+				{children}
+			</Body>
+		);
 
-	return (
-		<Box minHeight='60vh' mb={8} w='full'>
-			{children}
-		</Box>
-	);
+	return <Body>{children}</Body>;
 };
 
 export default ProtectedPage;

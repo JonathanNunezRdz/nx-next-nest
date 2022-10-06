@@ -3,11 +3,13 @@ import { configureStore } from '@reduxjs/toolkit';
 import mediaReducer from './media';
 
 import userReducer from './user';
+import waifuReducer from './waifu';
 
 export const store = configureStore({
 	reducer: {
 		user: userReducer,
 		media: mediaReducer,
+		waifu: waifuReducer,
 	},
 });
 

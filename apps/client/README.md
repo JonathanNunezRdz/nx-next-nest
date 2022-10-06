@@ -19,42 +19,42 @@
 ## User
 
 -   [?] Get current user
-    -   [ ] Show errors
-    -   [ ] Show loading state
--   [?] Edit user
+    -   [~] Show errors
+    -   [?] Show loading state
+-   [ ] Edit user
     -   [ ] Show errors
     -   [ ] Show loading state
 
 ## Media
 
 -   [?] Create media
-    -   [ ] Show errors
-    -   [ ] Show loading state
+    -   [?] Show errors
+    -   [?] Show loading state
 -   [?] Get all media w/filters
     -   [ ] Show errors
-    -   [ ] Show loading state
+    -   [?] Show loading state
 -   [?] Know media
-    -   [ ] Show errors
-    -   [ ] Show loading state
+    -   [?] Show errors
+    -   [?] Show loading state
 -   [?] Edit/update media
-    -   [ ] Show errors
-    -   [ ] Show loading state
--   [?] Delete media
+    -   [?] Show errors
+    -   [?] Show loading state
+-   [ ] Delete media
     -   [ ] Show errors
     -   [ ] Show loading state
 
 ## Waifu
 
--   [?] Create waifu
+-   [ ] Create waifu
     -   [ ] Show errors
     -   [ ] Show loading state
--   [?] Get all waifus w/filters
+-   [ ] Get all waifus w/filters
     -   [ ] Show errors
     -   [ ] Show loading state
--   [?] Get waifus for a media
+-   [ ] Get waifus for a media
     -   [ ] Show errors
     -   [ ] Show loading state
--   [?] Edit/update waifu
+-   [ ] Edit/update waifu
     -   [ ] Show errors
     -   [ ] Show loading state
 -   [ ] Delete waifu
