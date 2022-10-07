@@ -30,3 +30,9 @@ export interface InvalidJWT {
 }
 
 export type JWTStatus = ValidJWT | InvalidJWT;
+
+export interface ListResponse<T> {
+	currentPage: number;
+	totalPages: number;
+	data: T[];
+}

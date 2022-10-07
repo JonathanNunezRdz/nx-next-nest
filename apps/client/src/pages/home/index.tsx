@@ -1,5 +1,14 @@
 import type { FC, ReactNode } from 'react';
-import { Box, Heading, Spinner, Text } from '@chakra-ui/react';
+import {
+	Box,
+	Button,
+	ButtonGroup,
+	Heading,
+	SimpleGrid,
+	Spinner,
+	Text,
+	VStack,
+} from '@chakra-ui/react';
 import { NextSeo } from 'next-seo';
 
 import { useAppSelector } from '../../store/hooks';
@@ -25,27 +34,51 @@ const Home: FC = () => {
 	if (isLoading) {
 		content = <Spinner />;
 	} else if (isSuccess) {
-		content = media.medias.map((elem) => (
-			<MediaCard
-				isLoggedIn={!!user.id}
-				media={elem}
-				ownId={user.id}
-				key={elem.id}
-			/>
-		));
+		content = (
+			<Box>
+				<SimpleGrid columns={2} spacing='1rem' my='1rem'>
+					{media.medias.map((elem) => (
+						<MediaCard
+							isLoggedIn={!!user.id}
+							media={elem}
+							ownId={user.id}
+							key={elem.id}
+						/>
+					))}
+				</SimpleGrid>
+			</Box>
+		);
 	} else if (isError) {
 		content = <Text>{error.toString()}</Text>;
+	}
+
+	let pageButtons: ReactNode;
+
+	if (isSuccess) {
+		pageButtons = (
+			<ButtonGroup isAttached>
+				{Array.from({ length: media.totalPages }, (_, i) => (
+					<Button key={i}>{i + 1}</Button>
+				))}
+			</ButtonGroup>
+		);
 	}
 
 	return (
 		<Body v h>
 			<NextSeo title='home' />
-			<Box>
-				<Heading>
-					welcome {status === 'succeeded' ? user.alias : 'to the wia'}
-				</Heading>
-				{content}
-			</Box>
+			<VStack w='full' spacing='1rem'>
+				<Box w='full' textAlign='center'>
+					<Heading>
+						welcome{' '}
+						{status === 'succeeded' ? user.alias : 'to the wia'}
+					</Heading>
+				</Box>
+				<Box w='full'>{content}</Box>
+				<Box display='flex' w='full' justifyContent='center'>
+					{pageButtons}
+				</Box>
+			</VStack>
 		</Body>
 	);
 };

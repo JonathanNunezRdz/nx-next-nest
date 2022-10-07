@@ -1,163 +1,31 @@
-import {
-	HttpError,
-	SignInDto,
-	SignInResponse,
-	UserState,
-} from '@nx-next-nest/types';
-import type { User } from '@prisma/client';
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { AxiosError } from 'axios';
+import { UserState } from '@nx-next-nest/types';
+import { User } from '@prisma/client';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '..';
-import { invalidateJWT, setJWT, validateJWT } from '../../utils';
-import api from '../api';
-import userService from './service';
-
-export const getUser = createAsyncThunk<User, void, { rejectValue: HttpError }>(
-	'user/getUser',
-	async (_, thunkApi) => {
-		try {
-			const { data } = await userService.getUser();
-			return data;
-		} catch (error) {
-			if (error instanceof AxiosError) {
-				const { response } = error as AxiosError<HttpError>;
-				return thunkApi.rejectWithValue(response.data);
-			}
-			throw error;
-		}
-	}
-);
-
-export const signIn = createAsyncThunk<
-	SignInResponse,
-	SignInDto,
-	{ rejectValue: HttpError }
->('user/signIn', async ({ email, password }, thunkApi) => {
-	try {
-		const { data } = await userService.signIn(email, password);
-		return data;
-	} catch (error) {
-		if (error instanceof AxiosError) {
-			const { response } = error as AxiosError<HttpError>;
-			return thunkApi.rejectWithValue(response.data);
-		}
-		throw error;
-	}
-});
+import { setJWT } from '../../utils';
 
 const initialState: UserState = {
-	user: {
-		data: {} as User,
-		status: 'idle',
-		error: undefined,
-	},
-	auth: {
-		isLoggedIn: false,
-		checkedJWT: false,
-	},
-	signIn: {
-		status: 'idle',
-		error: undefined,
-	},
-	signOut: {
-		status: 'idle',
-		error: undefined,
+	get: {
+		data: null,
 	},
 };
 
-export const userSlice = createSlice({
+const userSlice = createSlice({
 	name: 'user',
 	initialState,
 	reducers: {
-		getLoggedStatus: (state) => {
-			const status = validateJWT();
-			if (status.valid) {
-				api.defaults.headers.common[
-					'Authorization'
-				] = `Bearer ${status.jwt}`;
-
-				state.signIn.status = 'succeeded';
-				state.auth.isLoggedIn = true;
-			} else {
-				api.defaults.headers.common['Authorization'] = '';
-
-				state.signIn.status = 'idle';
-				state.auth.isLoggedIn = false;
-			}
-			state.auth.checkedJWT = true;
+		setCredentials: (
+			state,
+			action: PayloadAction<{ user: User; token: string }>
+		) => {
+			setJWT(action.payload.token);
+			state.get.data = action.payload.user;
 		},
-		signOut: (state) => {
-			invalidateJWT();
-			api.defaults.headers.common['Authorization'] = '';
-
-			state.auth.isLoggedIn = false;
-			state.user.data = {} as User;
-			state.user.error = undefined;
-			state.user.status = 'idle';
-			state.signIn.error = undefined;
-			state.signIn.status = 'idle';
-			state.signOut.error = undefined;
-			state.signOut.status = 'succeeded';
-		},
-		resetSignInStatus: (state) => {
-			state.signIn.status = 'idle';
-			state.signIn.error = undefined;
-		},
-	},
-	extraReducers(builder) {
-		builder
-			.addCase(signIn.pending, (state) => {
-				state.signIn.status = 'loading';
-			})
-			.addCase(signIn.fulfilled, (state, action) => {
-				setJWT(action.payload.accessToken);
-				api.defaults.headers.common[
-					'Authorization'
-				] = `Bearer ${action.payload.accessToken}`;
-				state.signIn.status = 'succeeded';
-				state.signIn.error = undefined;
-				state.auth.isLoggedIn = true;
-			})
-			.addCase(signIn.rejected, (state, action) => {
-				invalidateJWT();
-				state.signIn.status = 'failed';
-				state.signIn.error = action.payload.message;
-				state.user.data = {} as User;
-			})
-			.addCase(getUser.pending, (state) => {
-				state.user.status = 'loading';
-			})
-			.addCase(getUser.fulfilled, (state, action) => {
-				state.user = {
-					data: action.payload,
-					status: 'succeeded',
-					error: undefined,
-				};
-			})
-			.addCase(getUser.rejected, (state, action) => {
-				state.user = {
-					data: {} as User,
-					status: 'failed',
-					error: action.payload.message,
-				};
-			});
 	},
 });
 
-const userReducer = userSlice.reducer;
+export const { setCredentials } = userSlice.actions;
 
-export const { signOut, getLoggedStatus, resetSignInStatus } =
-	userSlice.actions;
+export default userSlice.reducer;
 
-export const selectSignInStatus = (state: RootState) => state.user.signIn;
-
-export const selectUserStatus = (state: RootState) => ({
-	status: state.user.user.status,
-	error: state.user.user.error,
-});
-
-export const selectAuth = (state: RootState) => state.user.auth;
-
-export const selectUser = (state: RootState) => state.user.user.data;
-
-export default userReducer;
+export const selectUser = (state: RootState) => state.user.get.data;

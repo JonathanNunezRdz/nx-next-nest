@@ -188,8 +188,8 @@ export class MediaService {
 	}
 
 	async getMedias(dto: GetMediaDto) {
+		const { limit } = dto;
 		const totalMedias = await this.prisma.media.count();
-		const totalPages = totalMedias / dto.limit;
 		const medias = await this.prisma.media.findMany({
 			where: {
 				title: {
@@ -247,6 +247,10 @@ export class MediaService {
 				},
 			},
 		});
+
+		const totalPages = Math.ceil(
+			medias.length > 0 ? Math.max(totalMedias / limit, 1) : 0
+		);
 
 		return { medias, totalPages };
 	}

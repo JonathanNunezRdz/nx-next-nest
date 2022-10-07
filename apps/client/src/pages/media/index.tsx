@@ -24,6 +24,7 @@ import {
 import MediaCard from './MediaCard';
 import { selectUser } from '../../store/user';
 import Body from '../../components/layout/Body';
+import { NextSeo } from 'next-seo';
 
 // TODO: design media filter options
 // TODO: apply media pagination
@@ -54,6 +55,7 @@ const Media: FC = () => {
 
 	return (
 		<Body h>
+			<NextSeo title='media' />
 			<VStack w='full' spacing='1rem'>
 				<Box w='full'>
 					<HStack spacing='1rem'>

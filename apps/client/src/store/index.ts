@@ -1,20 +1,16 @@
 import type { Action, ThunkAction } from '@reduxjs/toolkit';
 import { configureStore } from '@reduxjs/toolkit';
-import mediaReducer from './media';
 
-import { apiSlice } from './media/query';
 import userReducer from './user';
-import waifuReducer from './waifu';
+import { userApi } from './user/service';
 
 export const store = configureStore({
 	reducer: {
+		[userApi.reducerPath]: userApi.reducer,
 		user: userReducer,
-		media: mediaReducer,
-		waifu: waifuReducer,
-		[apiSlice.reducerPath]: apiSlice.reducer,
 	},
 	middleware: (getDefaultMiddleware) =>
-		getDefaultMiddleware().concat(apiSlice.middleware),
+		getDefaultMiddleware().concat(userApi.middleware),
 });
 
 export type AppDispatch = typeof store.dispatch;

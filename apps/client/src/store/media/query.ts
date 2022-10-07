@@ -1,9 +1,7 @@
 import { GetMediaDto, GetMediaResponse } from '@nx-next-nest/types';
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { emptySlice } from '..';
 
-export const apiSlice = createApi({
-	reducerPath: 'api',
-	baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:3333/api' }),
+export const mediaSlice = emptySlice.injectEndpoints({
 	endpoints: (builder) => ({
 		getMedia: builder.query<GetMediaResponse, GetMediaDto>({
 			query: (dto) => ({
@@ -12,6 +10,7 @@ export const apiSlice = createApi({
 			}),
 		}),
 	}),
+	overrideExisting: false,
 });
 
-export const { useGetMediaQuery } = apiSlice;
+export const { useGetMediaQuery } = mediaSlice;
