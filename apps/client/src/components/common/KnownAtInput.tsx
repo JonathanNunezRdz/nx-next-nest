@@ -6,9 +6,15 @@ interface KnownAtInputProps {
 	label: string;
 	onChange: ChangeEventHandler<HTMLInputElement>;
 	knownAt: string;
+	isDisabled?: boolean;
 }
 
-const KnownAtInput = ({ knownAt, label, onChange }: KnownAtInputProps) => {
+const KnownAtInput = ({
+	knownAt,
+	label,
+	onChange,
+	isDisabled = false,
+}: KnownAtInputProps) => {
 	return (
 		<FormControl>
 			<FormLabel htmlFor='knownAt'>when did you {label} it?</FormLabel>
@@ -20,6 +26,7 @@ const KnownAtInput = ({ knownAt, label, onChange }: KnownAtInputProps) => {
 				onChange={onChange}
 				value={knownAt}
 				max={formatDate()}
+				isDisabled={isDisabled}
 			/>
 		</FormControl>
 	);

@@ -143,7 +143,7 @@ export const mediaSlice = createSlice({
 			state.edit.server.status = 'idle';
 			state.edit.server.error = undefined;
 		},
-		resetAddStatus: (state) => {
+		resetAddMediaStatus: (state) => {
 			state.add.status = 'idle';
 			state.add.error = undefined;
 		},
@@ -257,8 +257,11 @@ export const mediaSlice = createSlice({
 
 const mediaReducer = mediaSlice.reducer;
 
-export const { resetAddStatus, getMediaToEditFromLocal, resetGetMediaToEdit } =
-	mediaSlice.actions;
+export const {
+	resetAddMediaStatus,
+	getMediaToEditFromLocal,
+	resetGetMediaToEdit,
+} = mediaSlice.actions;
 
 export const selectAddMediaStatus = (state: RootState) => state.media.add;
 

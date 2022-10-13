@@ -11,7 +11,7 @@ const Home: FC = () => {
 	const user = useAppSelector(selectUser);
 
 	return (
-		<Body>
+		<Body v h>
 			<NextSeo title='home' />
 			<Box>
 				<Heading>

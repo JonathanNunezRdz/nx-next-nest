@@ -5,9 +5,10 @@ import { ChangeEventHandler } from 'react';
 interface TypeInputProps {
 	onChange: ChangeEventHandler<HTMLSelectElement>;
 	type: MediaType;
+	isDisabled?: boolean;
 }
 
-const TypeInput = ({ onChange, type }: TypeInputProps) => {
+const TypeInput = ({ onChange, type, isDisabled = false }: TypeInputProps) => {
 	return (
 		<FormControl>
 			<FormLabel htmlFor='type'>type</FormLabel>
@@ -17,6 +18,7 @@ const TypeInput = ({ onChange, type }: TypeInputProps) => {
 				variant='filled'
 				onChange={onChange}
 				value={type}
+				isDisabled={isDisabled}
 			>
 				<option value='anime'>anime</option>
 				<option value='manga'>manga</option>

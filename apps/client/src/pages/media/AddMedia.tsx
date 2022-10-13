@@ -7,7 +7,7 @@ import { useRouter } from 'next/router';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
 	addMedia,
-	resetAddStatus,
+	resetAddMediaStatus,
 	selectAddMediaStatus,
 } from '../../store/media';
 import ProtectedPage from '../../components/auth/ProtectedPage';
@@ -47,7 +47,7 @@ const AddMedia = () => {
 
 	useEffect(() => {
 		return () => {
-			dispatch(resetAddStatus());
+			dispatch(resetAddMediaStatus());
 		};
 	}, [dispatch]);
 
@@ -79,7 +79,7 @@ const AddMedia = () => {
 					<Box>
 						<Button
 							type='submit'
-							disabled={!formik.dirty}
+							isDisabled={!formik.dirty}
 							isLoading={addMediaStatus.status === 'loading'}
 						>
 							add media

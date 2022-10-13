@@ -64,8 +64,11 @@ const WaifuCard = ({ waifu, ownId, isLoggedIn }: WaifuCardProps) => {
 					</HStack>
 				</StatLabel>
 				<StatNumber>{waifu.name}</StatNumber>
-				<StatHelpText>
+				<StatHelpText mb='0'>
 					Since: {new Date(waifu.since).toDateString()}
+				</StatHelpText>
+				<StatHelpText>
+					Owner: {ownId === waifu.userId ? 'me' : waifu.user.alias}
 				</StatHelpText>
 			</Stat>
 		</Box>

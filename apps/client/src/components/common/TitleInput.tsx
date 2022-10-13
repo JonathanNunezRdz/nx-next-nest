@@ -12,6 +12,7 @@ interface TitleInputProps {
 	onBlur: FocusEventHandler<HTMLInputElement>;
 	isInvalid: boolean;
 	error: string;
+	isDisabled?: boolean;
 }
 
 const TitleInput = ({
@@ -20,6 +21,7 @@ const TitleInput = ({
 	isInvalid,
 	error,
 	onBlur,
+	isDisabled = false,
 }: TitleInputProps) => {
 	return (
 		<FormControl isInvalid={isInvalid} isRequired>
@@ -33,6 +35,7 @@ const TitleInput = ({
 				value={title}
 				onBlur={onBlur}
 				autoFocus
+				isDisabled={isDisabled}
 			/>
 			<FormErrorMessage>{error}</FormErrorMessage>
 		</FormControl>

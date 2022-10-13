@@ -90,8 +90,11 @@ const MediaCard = ({ media, ownId, isLoggedIn }: MediaCardProps) => {
 					</HStack>
 				</StatLabel>
 				<StatNumber>{media.title}</StatNumber>
-				{media.knownBy.map(({ user, knownAt }) => (
-					<StatHelpText key={user.id}>
+				{media.knownBy.map(({ user, knownAt }, i) => (
+					<StatHelpText
+						key={user.id}
+						mb={i !== media.knownBy.length - 1 ? '0' : '2'}
+					>
 						{ownId === user.id ? 'me' : user.alias} -{' '}
 						{new Date(knownAt).toDateString()}
 					</StatHelpText>
