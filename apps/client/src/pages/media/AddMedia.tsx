@@ -1,29 +1,23 @@
 import { FormikErrors, useFormik } from 'formik';
-import { useEffect } from 'react';
 import { Box, Button, VStack } from '@chakra-ui/react';
 import { CreateMediaDto } from '@nx-next-nest/types';
 import { useRouter } from 'next/router';
 
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import {
-	addMedia,
-	resetAddStatus,
-	selectAddMediaStatus,
-} from '../../store/media';
 import ProtectedPage from '../../components/auth/ProtectedPage';
-import { formatDate, prepareDate } from '../../utils';
-import { mediaLabel } from '../../utils/constants';
+import { formatDate, prepareDate, mediaLabel } from '../../utils';
 import PageTitle from '../../components/common/PageTitle';
 import Form from '../../components/common/Form';
 import FormErrorMessageWrapper from '../../components/common/FormErrorMessageWrapper';
 import TitleInput from '../../components/common/TitleInput';
 import TypeInput from '../../components/common/TypeInput';
 import KnownAtInput from '../../components/common/KnownAtInput';
+import { useAddMediaMutation } from '../../store';
 
 const AddMedia = () => {
-	const dispatch = useAppDispatch();
-	const addMediaStatus = useAppSelector(selectAddMediaStatus);
 	const router = useRouter();
+	const [addMedia, { isLoading, isError, error, isSuccess }] =
+		useAddMediaMutation();
+
 	const formik = useFormik<CreateMediaDto>({
 		initialValues: {
 			title: '',
@@ -35,8 +29,9 @@ const AddMedia = () => {
 				...values,
 				knownAt: prepareDate(values.knownAt),
 			};
-			const res = await dispatch(addMedia(newValues));
-			if (res.meta.requestStatus === 'fulfilled') router.push('/media');
+
+			await addMedia(newValues);
+			if (isSuccess) router.push('/media');
 		},
 		validate: (values) => {
 			const errors: FormikErrors<CreateMediaDto> = {};
@@ -45,19 +40,12 @@ const AddMedia = () => {
 		},
 	});
 
-	useEffect(() => {
-		return () => {
-			dispatch(resetAddStatus());
-		};
-	}, [dispatch]);
-
 	return (
 		<ProtectedPage originalUrl='/media/add'>
 			<VStack w='full' spacing='1rem'>
 				<PageTitle title='add media' />
 				<Form onSubmit={formik.handleSubmit}>
-					{/* TODO: add loading */}
-					<FormErrorMessageWrapper error={addMediaStatus.error} />
+					<FormErrorMessageWrapper error={error} />
 					<TitleInput
 						title={formik.values.title}
 						onChange={formik.handleChange}
@@ -80,7 +68,7 @@ const AddMedia = () => {
 						<Button
 							type='submit'
 							disabled={!formik.dirty}
-							isLoading={addMediaStatus.status === 'loading'}
+							isLoading={isLoading}
 						>
 							add media
 						</Button>

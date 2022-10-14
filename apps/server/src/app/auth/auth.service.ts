@@ -35,21 +35,13 @@ export class AuthService {
 					hash: hashedPassword,
 					image: createImage,
 				},
-				include: {
-					image: {
-						include: {
-							image: {
-								select: {
-									id: true,
-									format: true,
-								},
-							},
-						},
-					},
-				},
 			});
 
-			return this.signToken(user.id, user.email);
+			delete user.hash;
+
+			const { accessToken } = await this.signToken(user.id, user.email);
+
+			return { user, accessToken };
 		} catch (error) {
 			if (error instanceof PrismaClientKnownRequestError) {
 				if (error.code === 'P2002')
@@ -70,7 +62,11 @@ export class AuthService {
 		const valid = await verify(user.hash, dto.password);
 		if (!valid) throw new ForbiddenException('incorrect credentials');
 
-		return this.signToken(user.id, user.email);
+		delete user.hash;
+
+		const { accessToken } = await this.signToken(user.id, user.email);
+
+		return { user, accessToken };
 	}
 
 	async signToken(

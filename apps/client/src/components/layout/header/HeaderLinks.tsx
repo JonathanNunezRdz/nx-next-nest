@@ -1,18 +1,17 @@
 import { Link, Spinner } from '@chakra-ui/react';
+import { useUserQuery } from '../../../store';
 import NextLink from 'next/link';
 import type { FC } from 'react';
 
-import { useAppSelector } from '../../../store/hooks';
-import { selectAuth, selectUser, selectUserStatus } from '../../../store/user';
+import { useAuth } from '../../../store/hooks';
 
 interface HeaderLinksProps {
 	links: string[];
 }
 
 const HeaderLinks: FC<HeaderLinksProps> = ({ links }) => {
-	const { isLoggedIn } = useAppSelector(selectAuth);
-	const user = useAppSelector(selectUser);
-	const { status } = useAppSelector(selectUserStatus);
+	const { isLoggedIn, user } = useAuth();
+	const { isLoading: userIsLoading } = useUserQuery();
 	const linksComponent = links.map((link) => {
 		return (
 			<NextLink key={link} href={`/${link}`} passHref>
@@ -20,14 +19,14 @@ const HeaderLinks: FC<HeaderLinksProps> = ({ links }) => {
 			</NextLink>
 		);
 	});
-	if (isLoggedIn && status === 'loading')
+	if (userIsLoading)
 		return (
 			<>
 				{linksComponent}
 				<Spinner me='1rem' />
 			</>
 		);
-	if (isLoggedIn && status === 'succeeded')
+	if (isLoggedIn)
 		return (
 			<>
 				{linksComponent}

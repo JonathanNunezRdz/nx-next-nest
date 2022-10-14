@@ -25,8 +25,9 @@ export type KnowMediaResponse = MediaResponse;
 export type CreateMediaResponse = MediaResponse;
 
 export type GetMediaResponse = {
-	medias: MediaResponse[];
+	data: MediaResponse[];
 	totalPages: number;
+	currentPage: number;
 };
 
 export type MediaResponse = Media & {

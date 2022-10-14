@@ -6,7 +6,7 @@ import {
 	HttpStatus,
 	Post,
 } from '@nestjs/common';
-import { SignInDto, SignInResponse, SignUpDto } from '@nx-next-nest/types';
+import { AuthResponse, SignInDto, SignUpDto } from '@nx-next-nest/types';
 import { AuthService } from './auth.service';
 
 @Controller('auth')
@@ -19,13 +19,13 @@ export class AuthController {
 	}
 
 	@Post('signup')
-	signup(@Body() dto: SignUpDto) {
+	signup(@Body() dto: SignUpDto): Promise<AuthResponse> {
 		return this.authService.signup(dto);
 	}
 
 	@HttpCode(HttpStatus.OK)
 	@Post('signin')
-	signin(@Body() dto: SignInDto): Promise<SignInResponse> {
+	signin(@Body() dto: SignInDto): Promise<AuthResponse> {
 		return this.authService.signin(dto);
 	}
 }

@@ -5,24 +5,34 @@ import {
 	IconButton,
 	LinkBox,
 	LinkOverlay,
+	Skeleton,
 	Stat,
 	StatHelpText,
 	StatLabel,
 	StatNumber,
 	Text,
+	Theme,
 	useColorModeValue,
 } from '@chakra-ui/react';
 import { MediaResponse } from '@nx-next-nest/types';
 import NextLink from 'next/link';
+import customTheme from '../../styles/theme';
 
 interface MediaCardProps {
 	media: MediaResponse;
 	ownId: number;
 	isLoggedIn: boolean;
+	isFetching: boolean;
 }
 
-const MediaCard = ({ media, ownId, isLoggedIn }: MediaCardProps) => {
+const MediaCard = ({
+	media,
+	ownId,
+	isLoggedIn,
+	isFetching,
+}: MediaCardProps) => {
 	const bg = useColorModeValue('teal.100', 'teal.500');
+
 	const knownByMe =
 		media.knownBy.findIndex((user) => user.userId === ownId) !== -1;
 

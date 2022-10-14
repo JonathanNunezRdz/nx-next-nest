@@ -1,4 +1,29 @@
-import { JWTPayload, JWTStatus } from '@nx-next-nest/types';
+import { Theme } from '@chakra-ui/react';
+import { HttpError, JWTPayload, JWTStatus } from '@nx-next-nest/types';
+import { FetchBaseQueryError } from '@reduxjs/toolkit/dist/query';
+
+export * from './constants';
+
+export const isHttpError = (data: unknown): data is HttpError => {
+	return typeof data === 'object' && data != null && 'statusCode' in data;
+};
+
+export const isFetchBaseQueryError = (
+	error: unknown
+): error is FetchBaseQueryError => {
+	return typeof error === 'object' && error != null && 'status' in error;
+};
+
+export const isErrorWithMessage = (
+	error: unknown
+): error is { message: string } => {
+	return (
+		typeof error === 'object' &&
+		error != null &&
+		'message' in error &&
+		typeof (error as any).message === 'string'
+	);
+};
 
 export const invalidateJWT = () => {
 	localStorage.removeItem(process.env.NEXT_PUBLIC_JWT_LOCAL_STORAGE_KEY);
@@ -60,4 +85,20 @@ export const useMediaId = (mediaId: string | string[]) => {
 	} catch (error) {
 		return -1;
 	}
+};
+
+export const getCardBg = (
+	isFetching: boolean,
+	level: keyof Theme['colors']['blue'],
+	baseColor: keyof Theme['colors']
+) => {
+	if (isFetching) {
+		const newLevel = () => {
+			if (level === 50) return level + 150;
+			if (level === 900) return level;
+			return level + 200;
+		};
+		return `${baseColor}.${newLevel()}`;
+	}
+	return `${baseColor}.${level}`;
 };

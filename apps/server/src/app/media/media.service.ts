@@ -252,7 +252,7 @@ export class MediaService {
 			medias.length > 0 ? Math.max(totalMedias / limit, 1) : 0
 		);
 
-		return { medias, totalPages };
+		return { data: medias, totalPages, currentPage: dto.page };
 	}
 
 	async createMedia(userId: number, dto: CreateMediaDto) {

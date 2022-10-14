@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { ReactNode, useEffect } from 'react';
 
 import Body from '../layout/Body';
-import { useAppSelector } from '../../store/hooks';
+import { useAuth } from '../../store/hooks';
 
 interface ProtectedPageProps {
 	originalUrl: string;
@@ -16,9 +16,7 @@ const ProtectedPage = ({
 	children,
 	center,
 }: ProtectedPageProps) => {
-	const { isLoggedIn, checkedJWT } = useAppSelector(
-		(state) => state.user.auth
-	);
+	const { isLoggedIn, checkedJWT } = useAuth();
 	const router = useRouter();
 
 	useEffect(() => {
@@ -30,9 +28,9 @@ const ProtectedPage = ({
 				},
 			});
 		}
-	}, [isLoggedIn, router, originalUrl, checkedJWT]);
+	}, [isLoggedIn, router, originalUrl]);
 
-	if (!isLoggedIn) {
+	if (!isLoggedIn && !checkedJWT) {
 		return (
 			<Center>
 				<Spinner />

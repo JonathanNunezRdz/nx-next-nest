@@ -11,35 +11,38 @@ import { SignInDto } from '@nx-next-nest/types';
 import { FormikErrors, useFormik } from 'formik';
 import { NextSeo } from 'next-seo';
 import { useRouter } from 'next/router';
-import { FC, useEffect } from 'react';
-import FormErrorMessageWrapper from '../../components/common/FormErrorMessageWrapper';
+import { FC } from 'react';
 
+import FormErrorMessageWrapper from '../../components/common/FormErrorMessageWrapper';
 import Body from '../../components/layout/Body';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { useAppDispatch } from '../../store/hooks';
+import { setCredentials } from '../../store/user';
+import { useLoginMutation } from '../../store';
 import {
-	resetSignInStatus,
-	selectSignInStatus,
-	signIn,
-} from '../../store/user';
+	isHttpError,
+	isErrorWithMessage,
+	isFetchBaseQueryError,
+} from '../../utils';
 
 const SignIn: FC = () => {
 	const dispatch = useAppDispatch();
 	const router = useRouter();
-	const signInStatus = useAppSelector(selectSignInStatus);
+	const [login, { isLoading, error }] = useLoginMutation();
 	const formik = useFormik<SignInDto>({
 		initialValues: {
 			email: '',
 			password: '',
 		},
-		onSubmit: async ({ email, password }) => {
-			const res = await dispatch(signIn({ email, password }));
-			if (res.meta.requestStatus === 'fulfilled') {
+		onSubmit: async (dto) => {
+			try {
+				const auth = await login(dto).unwrap();
+				dispatch(setCredentials(auth));
 				if (router.query.redirect) {
 					router.push(router.query.redirect as string);
 				} else {
 					router.push('/');
 				}
-			}
+			} catch (error) {}
 		},
 		validate: (values) => {
 			const errors: FormikErrors<SignInDto> = {};
@@ -55,18 +58,19 @@ const SignIn: FC = () => {
 		},
 	});
 
-	useEffect(() => {
-		return () => {
-			dispatch(resetSignInStatus());
-		};
-	}, [dispatch]);
+	// TODO: on mount, if user isLoggedIn, redirect to /user
+	// useEffect(() => {
+	// 	return () => {
+	// 		dispatch(resetSignInStatus());
+	// 	};
+	// }, [dispatch]);
 
 	return (
 		<Body v h>
 			<NextSeo title='sign in' />
 			<form onSubmit={formik.handleSubmit} noValidate>
 				<VStack px='1.5rem' py='1rem' spacing='1rem'>
-					<FormErrorMessageWrapper error={signInStatus.error} />
+					<FormErrorMessageWrapper error={error} />
 					<FormControl
 						isInvalid={
 							!!formik.errors.email && formik.touched.email
@@ -109,7 +113,7 @@ const SignIn: FC = () => {
 						<Button
 							type='submit'
 							isDisabled={!formik.dirty}
-							isLoading={signInStatus.status === 'loading'}
+							isLoading={isLoading}
 						>
 							sign in
 						</Button>

@@ -7,9 +7,11 @@ export * from './signup.dto';
 export interface UserState {
 	get: {
 		data: User | null;
+		checkedJWT: boolean;
 	};
 }
 
-export interface SignInResponse {
+export interface AuthResponse {
 	accessToken: string;
+	user: User;
 }

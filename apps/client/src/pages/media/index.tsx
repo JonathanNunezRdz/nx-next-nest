@@ -7,51 +7,34 @@ import {
 	LinkBox,
 	LinkOverlay,
 	SimpleGrid,
+	Spinner,
 	Text,
 	VStack,
 } from '@chakra-ui/react';
 import { AddIcon, RepeatIcon } from '@chakra-ui/icons';
-import { FC, useCallback, useEffect } from 'react';
+import { FC } from 'react';
 import NextLink from 'next/link';
 
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import {
-	getMedias,
-	selectMedia,
-	selectMediaPages,
-	selectMediaStatus,
-} from '../../store/media';
+import { useAuth } from '../../store/hooks';
 import MediaCard from './MediaCard';
-import { selectUser } from '../../store/user';
 import Body from '../../components/layout/Body';
 import { NextSeo } from 'next-seo';
+import { useGetMediaQuery } from '../../store';
+import MediaGrid from './MediaGrid';
 
 // TODO: design media filter options
 // TODO: apply media pagination
 
 const Media: FC = () => {
-	const dispatch = useAppDispatch();
-	const { isLoggedIn } = useAppSelector((state) => state.user.auth);
-	const media = useAppSelector(selectMedia);
-	const mediaPages = useAppSelector(selectMediaPages);
-	const user = useAppSelector(selectUser);
-	const getMediaStatus = useAppSelector(selectMediaStatus);
+	const { isLoggedIn, user } = useAuth();
 
-	const handleGetMedia = useCallback(
-		(page: number) => {
-			dispatch(
-				getMedias({
-					page,
-					limit: 9,
-				})
-			);
-		},
-		[dispatch]
-	);
-
-	useEffect(() => {
-		handleGetMedia(1);
-	}, [handleGetMedia]);
+	const {
+		data: mediaQuery,
+		isSuccess,
+		isLoading,
+		isFetching,
+		refetch,
+	} = useGetMediaQuery({ limit: 9, page: 1 });
 
 	return (
 		<Body h>
@@ -81,33 +64,26 @@ const Media: FC = () => {
 								icon={<RepeatIcon />}
 								size='sm'
 								mt={1}
-								onClick={() => handleGetMedia(1)}
-								isLoading={getMediaStatus.status === 'loading'}
+								onClick={refetch}
+								isLoading={isFetching}
 							/>
 						</Box>
 					</HStack>
 				</Box>
 
 				<Box w='full'>
-					<SimpleGrid
-						columns={{ sm: 1, md: 2, lg: 3 }}
-						spacing='1rem'
-					>
-						{media.length > 0 ? (
-							media.map((element) => (
-								<MediaCard
-									key={element.id}
-									media={element}
-									ownId={user.id}
-									isLoggedIn={isLoggedIn}
-								/>
-							))
-						) : (
-							<Box>
-								<Text>no media has been added to the wia</Text>
-							</Box>
-						)}
-					</SimpleGrid>
+					{isLoading ? (
+						<Center>
+							<Spinner />
+						</Center>
+					) : (
+						<MediaGrid
+							media={mediaQuery.data}
+							isLoggedIn={isLoggedIn}
+							ownId={isLoggedIn && user.id}
+							isFetching={isFetching}
+						/>
+					)}
 				</Box>
 				<Center>
 					<Text>More pages</Text>
