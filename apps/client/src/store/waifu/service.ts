@@ -10,7 +10,7 @@ const getAllWaifus = (dto: GetAllWaifusDto) =>
 	api.get<GetAllWaifusResponse>('/waifu', { params: { ...dto } });
 
 const addWaifu = (dto: CreateWaifuDto) =>
-	api.post<CreateWaifuResponse>('/waifu/create', dto);
+	api.post<CreateWaifuResponse>('/waifu', dto);
 
 const waifuService = {
 	getAllWaifus,

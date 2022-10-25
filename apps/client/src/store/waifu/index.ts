@@ -108,8 +108,8 @@ export const waifuSlice = createSlice({
 				state.add.status = 'succeeded';
 			})
 			.addCase(addWaifu.rejected, (state, action) => {
-				state.get.error = action.payload.message;
-				state.get.status = 'failed';
+				state.add.error = action.payload.message;
+				state.add.status = 'failed';
 			});
 	},
 });

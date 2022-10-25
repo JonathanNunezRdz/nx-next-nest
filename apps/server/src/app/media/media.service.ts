@@ -17,6 +17,23 @@ import { PrismaService } from '../prisma/prisma.service';
 export class MediaService {
 	constructor(private prisma: PrismaService) {}
 
+	async getMediaTitles(userId: number) {
+		const mediaTitles = await this.prisma.media.findMany({
+			where: {
+				knownBy: {
+					some: {
+						userId,
+					},
+				},
+			},
+			select: {
+				id: true,
+				title: true,
+			},
+		});
+		return mediaTitles;
+	}
+
 	async getEditMedia(userId: number, mediaId: number) {
 		const media = await this.prisma.media.findFirst({
 			where: {

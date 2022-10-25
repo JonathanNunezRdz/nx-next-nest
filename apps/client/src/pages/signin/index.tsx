@@ -62,7 +62,7 @@ const SignIn: FC = () => {
 	}, [dispatch]);
 
 	return (
-		<Body>
+		<Body v h>
 			<NextSeo title='sign in' />
 			<form onSubmit={formik.handleSubmit} noValidate>
 				<VStack px='1.5rem' py='1rem' spacing='1rem'>

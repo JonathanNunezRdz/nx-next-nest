@@ -16,6 +16,11 @@ export * from './edit-media.dto';
 export * from './get-media.dto';
 export * from './know-media.dto';
 
+export type GetMediaTitlesResponse = {
+	id: number;
+	title: string;
+}[];
+
 export type EditMediaResponse = MediaResponse;
 
 export type GetEditMediaResponse = EditMediaDto;
@@ -56,6 +61,9 @@ export interface MediaState {
 		data: EditMediaDto;
 		local: RequestStatus;
 		server: RequestStatus;
+	} & RequestStatus;
+	titles: {
+		data: GetMediaTitlesResponse;
 	} & RequestStatus;
 }
 

@@ -20,6 +20,7 @@ import {
 	GetEditMediaResponse,
 	GetMediaDto,
 	GetMediaResponse,
+	GetMediaTitlesResponse,
 	KnowMediaDto,
 	KnowMediaResponse,
 } from '@nx-next-nest/types';
@@ -30,6 +31,14 @@ import { MediaService } from './media.service';
 @Controller('media')
 export class MediaController {
 	constructor(private mediaService: MediaService) {}
+
+	@UseGuards(JwtGuard)
+	@Get('titles')
+	getMediaTitles(
+		@GetUser('id') userId: number
+	): Promise<GetMediaTitlesResponse> {
+		return this.mediaService.getMediaTitles(userId);
+	}
 
 	@UseGuards(JwtGuard)
 	@Get('edit/:id')

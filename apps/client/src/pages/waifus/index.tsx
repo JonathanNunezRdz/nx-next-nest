@@ -53,7 +53,7 @@ const Waifus = () => {
 
 						{isLoggedIn && (
 							<LinkBox>
-								<NextLink href='/waifu/add' passHref>
+								<NextLink href='/waifus/add' passHref>
 									<LinkOverlay>
 										<IconButton
 											aria-label='add waifu'

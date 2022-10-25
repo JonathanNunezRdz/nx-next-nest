@@ -5,11 +5,14 @@ import {
 	GetEditMediaResponse,
 	GetMediaDto,
 	GetMediaResponse,
+	GetMediaTitlesResponse,
 	KnowMediaDto,
 	KnowMediaResponse,
 } from '@nx-next-nest/types';
 
 import api from '../api';
+
+const getMediaTitles = () => api.get<GetMediaTitlesResponse>('/media/titles');
 
 const editMedia = (dto: EditMediaDto) => api.patch('/media', dto);
 
@@ -35,6 +38,7 @@ const mediaService = {
 	knownMedia,
 	getEditMedia,
 	editMedia,
+	getMediaTitles,
 };
 
 export default mediaService;

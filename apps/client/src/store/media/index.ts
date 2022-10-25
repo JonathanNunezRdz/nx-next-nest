@@ -6,6 +6,7 @@ import {
 	GetEditMediaResponse,
 	GetMediaDto,
 	GetMediaResponse,
+	GetMediaTitlesResponse,
 	HttpError,
 	KnowMediaDto,
 	KnowMediaResponse,
@@ -15,6 +16,23 @@ import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AxiosError } from 'axios';
 import { RootState } from '..';
 import mediaService from './service';
+
+export const getMediaTitles = createAsyncThunk<
+	GetMediaTitlesResponse,
+	void,
+	{ rejectValue: HttpError }
+>('media/getMediatitles', async (_, { rejectWithValue }) => {
+	try {
+		const { data } = await mediaService.getMediaTitles();
+		return data;
+	} catch (error) {
+		if (error instanceof AxiosError) {
+			const { response } = error as AxiosError<HttpError>;
+			return rejectWithValue(response.data);
+		}
+		throw error;
+	}
+});
 
 export const editMedia = createAsyncThunk<
 	EditMediaResponse,
@@ -130,6 +148,11 @@ const initialState: MediaState = {
 			error: undefined,
 		},
 	},
+	titles: {
+		data: [],
+		status: 'idle',
+		error: undefined,
+	},
 };
 
 export const mediaSlice = createSlice({
@@ -171,6 +194,11 @@ export const mediaSlice = createSlice({
 				).toISOString();
 				state.edit.local.status = 'succeeded';
 			}
+		},
+		resetMediaTitles: (state) => {
+			state.titles.data = [];
+			state.titles.status = 'idle';
+			state.titles.error = undefined;
 		},
 	},
 	extraReducers(builder) {
@@ -251,6 +279,19 @@ export const mediaSlice = createSlice({
 			.addCase(editMedia.rejected, (state, action) => {
 				state.edit.error = action.payload.message;
 				state.edit.status = 'failed';
+			})
+			.addCase(getMediaTitles.pending, (state) => {
+				state.titles.error = undefined;
+				state.titles.status = 'loading';
+			})
+			.addCase(getMediaTitles.fulfilled, (state, action) => {
+				state.titles.data = action.payload;
+				state.titles.status = 'succeeded';
+				state.titles.error = undefined;
+			})
+			.addCase(getMediaTitles.rejected, (state, action) => {
+				state.titles.error = action.payload.message;
+				state.titles.status = 'failed';
 			});
 	},
 });
@@ -261,6 +302,7 @@ export const {
 	resetAddMediaStatus,
 	getMediaToEditFromLocal,
 	resetGetMediaToEdit,
+	resetMediaTitles,
 } = mediaSlice.actions;
 
 export const selectAddMediaStatus = (state: RootState) => state.media.add;
@@ -286,5 +328,11 @@ export const selectMediaPages = (state: RootState) => ({
 	totalPages: state.media.get.totalPages,
 	currentPage: state.media.get.currentPage,
 });
+
+export const selectMediaTitlesStatus = (state: RootState) => ({
+	status: state.media.titles.status,
+	error: state.media.titles.error,
+});
+export const selectMediaTitles = (state: RootState) => state.media.titles.data;
 
 export default mediaReducer;
