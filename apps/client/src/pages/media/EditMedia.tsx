@@ -1,8 +1,16 @@
-import { Box, Button, VStack } from '@chakra-ui/react';
+import {
+	Box,
+	Button,
+	HStack,
+	LinkBox,
+	LinkOverlay,
+	VStack,
+} from '@chakra-ui/react';
 import { EditMediaDto } from '@nx-next-nest/types';
 import { useFormik } from 'formik';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
+import NextLink from 'next/link';
 
 import ProtectedPage from '../../components/auth/ProtectedPage';
 import Form from '../../components/common/Form';
@@ -76,15 +84,22 @@ const EditMedia = () => {
 						onChange={formik.handleChange}
 						knownAt={formik.values.knownAt}
 					/>
-					<Box>
+					<HStack>
+						<LinkBox display='inline-flex'>
+							<NextLink href='/media' passHref>
+								<LinkOverlay>
+									<Button>cancel</Button>
+								</LinkOverlay>
+							</NextLink>
+						</LinkBox>
 						<Button
 							type='submit'
 							disabled={!formik.dirty}
 							isLoading={editMediaStatus.status === 'loading'}
 						>
-							edit media
+							confirm
 						</Button>
-					</Box>
+					</HStack>
 				</Form>
 			</VStack>
 		</ProtectedPage>

@@ -11,19 +11,15 @@ import {
 	selectEditServerMediaStatus,
 } from '../../store/media';
 import { selectUser, selectUserStatus } from '../../store/user';
-import { useMediaId } from '../../utils';
+import { parseMediaId } from '../../utils';
 import EditMedia from './EditMedia';
 
-interface EditMediaProps {
-	children: ReactNode;
-}
-
-const EditMediaWrapper = ({ children }: EditMediaProps) => {
+const EditMediaWrapper = () => {
 	const dispatch = useAppDispatch();
 	const router = useRouter();
 	const user = useAppSelector(selectUser);
 	const userStatus = useAppSelector(selectUserStatus);
-	const mediaId = useMediaId(router.query.mediaIdString);
+	const mediaId = parseMediaId(router.query.mediaIdString);
 	const editMedia = useAppSelector(selectEditMedia);
 	const localMediaStatus = useAppSelector(selectEditLocalMediaStatus);
 	const serverMediaStatus = useAppSelector(selectEditServerMediaStatus);
@@ -41,16 +37,12 @@ const EditMediaWrapper = ({ children }: EditMediaProps) => {
 		}
 	}, [
 		dispatch,
-		editMedia.knownAt,
-		editMedia.mediaId,
-		editMedia.title,
-		editMedia.type,
-		localMediaStatus.status,
 		mediaId,
 		router.isReady,
+		localMediaStatus.status,
 		serverMediaStatus.status,
-		user.id,
 		userStatus.status,
+		user.id,
 	]);
 
 	useEffect(() => {

@@ -1,8 +1,9 @@
 import { FormikErrors, useFormik } from 'formik';
 import { useEffect } from 'react';
-import { Box, Button, VStack } from '@chakra-ui/react';
+import { LinkBox, LinkOverlay, Button, HStack, VStack } from '@chakra-ui/react';
 import { CreateMediaDto } from '@nx-next-nest/types';
 import { useRouter } from 'next/router';
+import NextLink from 'next/link';
 
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
@@ -76,7 +77,14 @@ const AddMedia = () => {
 						onChange={formik.handleChange}
 						knownAt={formik.values.knownAt}
 					/>
-					<Box>
+					<HStack>
+						<LinkBox display='inline-flex'>
+							<NextLink href='/media' passHref>
+								<LinkOverlay>
+									<Button>cancel</Button>
+								</LinkOverlay>
+							</NextLink>
+						</LinkBox>
 						<Button
 							type='submit'
 							isDisabled={!formik.dirty}
@@ -84,7 +92,7 @@ const AddMedia = () => {
 						>
 							add media
 						</Button>
-					</Box>
+					</HStack>
 				</Form>
 			</VStack>
 		</ProtectedPage>
