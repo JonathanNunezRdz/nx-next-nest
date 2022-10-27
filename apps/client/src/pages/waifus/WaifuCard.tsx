@@ -35,7 +35,7 @@ const WaifuCard = ({ waifu, ownId, isLoggedIn }: WaifuCardProps) => {
 								<LinkBox display='inline-flex'>
 									<NextLink
 										href={{
-											pathname: '/waifu/edit',
+											pathname: '/waifus/edit',
 											query: {
 												waifuIdString: waifu.id,
 											},

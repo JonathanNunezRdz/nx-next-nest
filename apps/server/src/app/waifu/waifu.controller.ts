@@ -28,6 +28,7 @@ import { WaifuService } from './waifu.service';
 export class WaifuController {
 	constructor(private waifuService: WaifuService) {}
 
+	@UseGuards(JwtGuard)
 	@Patch('')
 	editWaifu(
 		@GetUser('id') userId: number,
