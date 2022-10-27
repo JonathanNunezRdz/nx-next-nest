@@ -1,16 +1,21 @@
 import { CheckIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import {
 	Box,
+	Button,
+	Collapse,
 	HStack,
 	IconButton,
 	LinkBox,
 	LinkOverlay,
+	ListItem,
 	Stat,
 	StatHelpText,
 	StatLabel,
 	StatNumber,
 	Text,
+	List,
 	useColorModeValue,
+	useDisclosure,
 } from '@chakra-ui/react';
 import { MediaResponse } from '@nx-next-nest/types';
 import NextLink from 'next/link';
@@ -22,9 +27,11 @@ interface MediaCardProps {
 }
 
 const MediaCard = ({ media, ownId, isLoggedIn }: MediaCardProps) => {
+	const { isOpen, onToggle } = useDisclosure();
 	const bg = useColorModeValue('teal.100', 'teal.500');
 	const knownByMe =
 		media.knownBy.findIndex((user) => user.userId === ownId) !== -1;
+	const hasWaifus = media.waifus.length > 0;
 
 	return (
 		<Box bg={bg} borderRadius='md' p='1rem' pb='0.5rem'>
@@ -99,6 +106,38 @@ const MediaCard = ({ media, ownId, isLoggedIn }: MediaCardProps) => {
 						{new Date(knownAt).toDateString()}
 					</StatHelpText>
 				))}
+				<Box>
+					<Button onClick={onToggle} variant='link' py='0.5rem'>
+						{isOpen ? 'hide' : 'view waifus'}
+					</Button>
+					<Collapse in={isOpen} animateOpacity>
+						<Box
+							bg='teal.600'
+							borderRadius='md'
+							p='0.5rem'
+							ps='0.75rem'
+						>
+							<Box>
+								<List>
+									{hasWaifus ? (
+										media.waifus.map((waifu) => (
+											<ListItem key={waifu.id}>
+												{waifu.name}
+											</ListItem>
+										))
+									) : (
+										<ListItem>No waifus</ListItem>
+									)}
+								</List>
+							</Box>
+							{hasWaifus && (
+								<Button variant='link' mt='0.5rem'>
+									show all
+								</Button>
+							)}
+						</Box>
+					</Collapse>
+				</Box>
 			</Stat>
 		</Box>
 	);

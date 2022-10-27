@@ -45,12 +45,13 @@
 
 ## Waifu
 
--   [ ] Create waifu
-    -   [ ] Show errors
-    -   [ ] Show loading state
--   [ ] Get all waifus w/filters
-    -   [ ] Show errors
-    -   [ ] Show loading state
+-   [?] Create waifu
+    -   [?] Show errors
+    -   [?] Show loading state
+-   [?] Get all waifus
+    -   [ ] With filters
+    -   [?] Show errors
+    -   [?] Show loading state
 -   [ ] Get waifus for a media
     -   [ ] Show errors
     -   [ ] Show loading state

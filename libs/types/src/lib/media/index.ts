@@ -47,6 +47,10 @@ export type MediaResponse = Media & {
 			};
 		};
 	})[];
+	waifus: {
+		id: number;
+		name: string;
+	}[];
 };
 
 export interface MediaState {

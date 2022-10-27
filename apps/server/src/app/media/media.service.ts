@@ -109,6 +109,16 @@ export class MediaService {
 				knownBy: editMediaKnownAtOptions,
 			},
 			include: {
+				waifus: {
+					select: {
+						id: true,
+						name: true,
+					},
+					take: 3,
+					orderBy: {
+						createdAt: 'desc',
+					},
+				},
 				image: {
 					include: {
 						image: {
@@ -166,6 +176,13 @@ export class MediaService {
 				},
 			},
 			include: {
+				waifus: {
+					select: {
+						id: true,
+						name: true,
+					},
+					take: 3,
+				},
 				image: {
 					include: {
 						image: {
@@ -230,6 +247,13 @@ export class MediaService {
 			},
 			skip: (dto.page - 1) * dto.limit,
 			include: {
+				waifus: {
+					select: {
+						id: true,
+						name: true,
+					},
+					take: 3,
+				},
 				image: {
 					include: {
 						image: {
@@ -292,6 +316,13 @@ export class MediaService {
 					},
 				},
 				include: {
+					waifus: {
+						select: {
+							id: true,
+							name: true,
+						},
+						take: 3,
+					},
 					image: {
 						include: {
 							image: {

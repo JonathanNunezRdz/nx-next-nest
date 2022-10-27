@@ -38,14 +38,14 @@ export const editMedia = createAsyncThunk<
 	EditMediaResponse,
 	EditMediaDto,
 	{ rejectValue: HttpError }
->('media/editMedia', async (dto, thunkApi) => {
+>('media/editMedia', async (dto, { rejectWithValue }) => {
 	try {
 		const { data } = await mediaService.editMedia(dto);
 		return data;
 	} catch (error) {
 		if (error instanceof AxiosError) {
 			const { response } = error as AxiosError<HttpError>;
-			return thunkApi.rejectWithValue(response.data);
+			return rejectWithValue(response.data);
 		}
 		throw error;
 	}
@@ -55,14 +55,14 @@ export const getMediaToEditFromServer = createAsyncThunk<
 	GetEditMediaResponse,
 	number,
 	{ rejectValue: HttpError }
->('media/getEditMedia', async (mediaId, thunkApi) => {
+>('media/getEditMedia', async (mediaId, { rejectWithValue }) => {
 	try {
 		const { data } = await mediaService.getEditMedia(mediaId);
 		return data;
 	} catch (error) {
 		if (error instanceof AxiosError) {
 			const { response } = error as AxiosError<HttpError>;
-			return thunkApi.rejectWithValue(response.data);
+			return rejectWithValue(response.data);
 		}
 		throw error;
 	}
@@ -72,14 +72,14 @@ export const knowMedia = createAsyncThunk<
 	KnowMediaResponse,
 	KnowMediaDto,
 	{ rejectValue: HttpError }
->('media/knowMedia', async (dto, thunkApi) => {
+>('media/knowMedia', async (dto, { rejectWithValue }) => {
 	try {
 		const { data } = await mediaService.knownMedia(dto);
 		return data;
 	} catch (error) {
 		if (error instanceof AxiosError) {
 			const { response } = error as AxiosError<HttpError>;
-			return thunkApi.rejectWithValue(response.data);
+			return rejectWithValue(response.data);
 		}
 		throw error;
 	}
@@ -89,14 +89,14 @@ export const addMedia = createAsyncThunk<
 	CreateMediaResponse,
 	CreateMediaDto,
 	{ rejectValue: HttpError }
->('media/addMedia', async (dto, thunkApi) => {
+>('media/addMedia', async (dto, { rejectWithValue }) => {
 	try {
 		const { data } = await mediaService.addMedia(dto);
 		return data;
 	} catch (error) {
 		if (error instanceof AxiosError) {
 			const { response } = error as AxiosError<HttpError>;
-			return thunkApi.rejectWithValue(response.data);
+			return rejectWithValue(response.data);
 		}
 		throw error;
 	}
@@ -106,14 +106,14 @@ export const getMedias = createAsyncThunk<
 	GetMediaResponse,
 	GetMediaDto,
 	{ rejectValue: HttpError }
->('media/getMedias', async (dto, thunkApi) => {
+>('media/getMedias', async (dto, { rejectWithValue }) => {
 	try {
 		const { data } = await mediaService.getMedias(dto);
 		return data;
 	} catch (error) {
 		if (error instanceof AxiosError) {
 			const { response } = error as AxiosError<HttpError>;
-			return thunkApi.rejectWithValue(response.data);
+			return rejectWithValue(response.data);
 		}
 		throw error;
 	}
