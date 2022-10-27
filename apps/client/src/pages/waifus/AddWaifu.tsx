@@ -1,8 +1,10 @@
-import { Box, Button, Text, VStack } from '@chakra-ui/react';
-import { CreateWaifuDto, GetMediaTitlesResponse } from '@nx-next-nest/types';
+import { Button, HStack, LinkBox, LinkOverlay, VStack } from '@chakra-ui/react';
+import { CreateWaifuDto } from '@nx-next-nest/types';
 import { FormikErrors, useFormik } from 'formik';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import NextLink from 'next/link';
+
 import ProtectedPage from '../../components/auth/ProtectedPage';
 import Form from '../../components/common/Form';
 import FormErrorMessageWrapper from '../../components/common/FormErrorMessageWrapper';
@@ -88,7 +90,14 @@ const AddWaifu = () => {
 						onChange={formik.handleChange}
 						mediaTitles={mediaTitles}
 					/>
-					<Box>
+					<HStack>
+						<LinkBox display='inline-flex'>
+							<NextLink href='/waifus' passHref>
+								<LinkOverlay>
+									<Button>cancel</Button>
+								</LinkOverlay>
+							</NextLink>
+						</LinkBox>
 						<Button
 							type='submit'
 							isDisabled={!formik.dirty}
@@ -96,7 +105,7 @@ const AddWaifu = () => {
 						>
 							add waifu
 						</Button>
-					</Box>
+					</HStack>
 				</Form>
 			</VStack>
 		</ProtectedPage>

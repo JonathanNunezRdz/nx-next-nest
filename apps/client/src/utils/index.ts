@@ -51,11 +51,22 @@ export const prepareDate = (dateString: string) => {
 	return new Date(`${dateString}T00:00:00`).toISOString();
 };
 
-export const useMediaId = (mediaId: string | string[]) => {
+export const parseMediaId = (mediaId: string | string[]) => {
 	if (typeof mediaId === 'object' || typeof mediaId === 'undefined')
 		return -1;
 	try {
-		const id = parseInt(mediaId);
+		const id = parseInt(mediaId, 10);
+		return id;
+	} catch (error) {
+		return -1;
+	}
+};
+
+export const parseWaifuId = (waifuId: string | string[]) => {
+	if (typeof waifuId === 'object' || typeof waifuId === 'undefined')
+		return -1;
+	try {
+		const id = parseInt(waifuId, 10);
 		return id;
 	} catch (error) {
 		return -1;
