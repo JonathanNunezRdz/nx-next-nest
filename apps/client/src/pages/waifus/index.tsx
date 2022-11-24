@@ -5,15 +5,13 @@ import {
 	Heading,
 	HStack,
 	IconButton,
-	LinkBox,
-	LinkOverlay,
 	SimpleGrid,
 	Text,
 	VStack,
 } from '@chakra-ui/react';
-import NextLink from 'next/link';
 import { useCallback, useEffect } from 'react';
 
+import LinkButton from '../../components/common/LinkButton';
 import Body from '../../components/layout/Body';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { selectUser } from '../../store/user';
@@ -52,18 +50,15 @@ const Waifus = () => {
 						<Heading>waifus</Heading>
 
 						{isLoggedIn && (
-							<LinkBox>
-								<NextLink href='/waifus/add' passHref>
-									<LinkOverlay>
-										<IconButton
-											aria-label='add waifu'
-											icon={<AddIcon />}
-											size='sm'
-											mt={1}
-										/>
-									</LinkOverlay>
-								</NextLink>
-							</LinkBox>
+							<LinkButton
+								pathname='/waifus/add'
+								iconButtonProps={{
+									'aria-label': 'add waifu',
+									icon: <AddIcon />,
+									size: 'sm',
+									mt: '1',
+								}}
+							/>
 						)}
 						<Box>
 							<IconButton
@@ -94,7 +89,9 @@ const Waifus = () => {
 							))
 						) : (
 							<Box>
-								<Text>no media has been added to the wia</Text>
+								<Text>
+									no waifus have been added to the wia
+								</Text>
 							</Box>
 						)}
 					</SimpleGrid>

@@ -1,18 +1,17 @@
 import {
 	Box,
+	Button,
+	ButtonGroup,
 	Center,
 	Heading,
 	HStack,
 	IconButton,
-	LinkBox,
-	LinkOverlay,
 	SimpleGrid,
 	Text,
 	VStack,
 } from '@chakra-ui/react';
 import { AddIcon, RepeatIcon } from '@chakra-ui/icons';
 import { FC, useCallback, useEffect } from 'react';
-import NextLink from 'next/link';
 
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
@@ -24,15 +23,15 @@ import {
 import MediaCard from './MediaCard';
 import { selectUser } from '../../store/user';
 import Body from '../../components/layout/Body';
+import LinkButton from '../../components/common/LinkButton';
 
 // TODO: design media filter options
-// TODO: apply media pagination
 
 const Media: FC = () => {
 	const dispatch = useAppDispatch();
 	const { isLoggedIn } = useAppSelector((state) => state.user.auth);
 	const media = useAppSelector(selectMedia);
-	const mediaPages = useAppSelector(selectMediaPages);
+	const { currentPage, totalPages } = useAppSelector(selectMediaPages);
 	const user = useAppSelector(selectUser);
 	const getMediaStatus = useAppSelector(selectMediaStatus);
 
@@ -48,8 +47,13 @@ const Media: FC = () => {
 		[dispatch]
 	);
 
+	const handleChangePage = (page: number) => {
+		if (page === currentPage) return;
+		handleGetMedia(page);
+	};
+
 	useEffect(() => {
-		handleGetMedia(1);
+		handleGetMedia(currentPage);
 	}, [handleGetMedia]);
 
 	return (
@@ -58,20 +62,16 @@ const Media: FC = () => {
 				<Box w='full'>
 					<HStack spacing='1rem'>
 						<Heading>media</Heading>
-
 						{isLoggedIn && (
-							<LinkBox>
-								<NextLink href='/media/add' passHref>
-									<LinkOverlay>
-										<IconButton
-											aria-label='add media'
-											icon={<AddIcon />}
-											size='sm'
-											mt={1}
-										/>
-									</LinkOverlay>
-								</NextLink>
-							</LinkBox>
+							<LinkButton
+								pathname='/media/add'
+								iconButtonProps={{
+									size: 'sm',
+									'aria-label': 'add media',
+									icon: <AddIcon />,
+									mt: 1,
+								}}
+							/>
 						)}
 						<Box>
 							<IconButton
@@ -79,7 +79,7 @@ const Media: FC = () => {
 								icon={<RepeatIcon />}
 								size='sm'
 								mt={1}
-								onClick={() => handleGetMedia(1)}
+								onClick={() => handleGetMedia(currentPage)}
 								isLoading={getMediaStatus.status === 'loading'}
 							/>
 						</Box>
@@ -108,7 +108,17 @@ const Media: FC = () => {
 					</SimpleGrid>
 				</Box>
 				<Center>
-					<Text>More pages</Text>
+					<ButtonGroup isAttached>
+						{Array.from({ length: totalPages }, (_, i) => (
+							<Button
+								key={i}
+								isActive={currentPage === i + 1}
+								onClick={() => handleChangePage(i + 1)}
+							>
+								{i + 1}
+							</Button>
+						))}
+					</ButtonGroup>
 				</Center>
 			</VStack>
 		</Body>

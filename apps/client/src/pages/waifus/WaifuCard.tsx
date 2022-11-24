@@ -1,9 +1,6 @@
 import {
 	Box,
 	HStack,
-	IconButton,
-	LinkBox,
-	LinkOverlay,
 	Stat,
 	StatHelpText,
 	StatLabel,
@@ -11,9 +8,10 @@ import {
 	Text,
 	useColorModeValue,
 } from '@chakra-ui/react';
-import NextLink from 'next/link';
 import { WaifuResponse } from '@nx-next-nest/types';
-import { DeleteIcon, EditIcon } from '@chakra-ui/icons';
+
+import { WaifuLevelLabels } from '../../utils/constants';
+import WaifuActionButtons from './WaifuActionButtons';
 
 interface WaifuCardProps {
 	waifu: WaifuResponse;
@@ -29,38 +27,12 @@ const WaifuCard = ({ waifu, ownId, isLoggedIn }: WaifuCardProps) => {
 			<Stat>
 				<StatLabel>
 					<HStack justifyContent='space-between'>
-						<Text>{waifu.level}</Text>
-						{isLoggedIn && waifuIsOwn && (
-							<Box>
-								<LinkBox display='inline-flex'>
-									<NextLink
-										href={{
-											pathname: '/waifus/edit',
-											query: {
-												waifuIdString: waifu.id,
-											},
-										}}
-										passHref
-									>
-										<LinkOverlay>
-											<IconButton
-												aria-label='edit waifu'
-												icon={<EditIcon />}
-												size='xs'
-												me='1'
-												colorScheme='yellow'
-											/>
-										</LinkOverlay>
-									</NextLink>
-								</LinkBox>
-								<IconButton
-									aria-label='delete waifu'
-									icon={<DeleteIcon />}
-									size='xs'
-									colorScheme='red'
-								/>
-							</Box>
-						)}
+						<Text>{WaifuLevelLabels[waifu.level]}</Text>
+						<WaifuActionButtons
+							isLoggedIn={isLoggedIn}
+							waifuIsOwn={waifuIsOwn}
+							waifuId={waifu.id}
+						/>
 					</HStack>
 				</StatLabel>
 				<StatNumber>{waifu.name}</StatNumber>
