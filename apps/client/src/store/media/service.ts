@@ -6,11 +6,16 @@ import {
 	GetMediaDto,
 	GetMediaResponse,
 	GetMediaTitlesResponse,
+	GetMediaWaifusDto,
+	GetMediaWaifusResponse,
 	KnowMediaDto,
 	KnowMediaResponse,
 } from '@nx-next-nest/types';
 
 import api from '../api';
+
+const getMediaWaifus = (title: string, dto: GetMediaWaifusDto) =>
+	api.get<GetMediaWaifusResponse>(`/waifu/${title}`, { params: dto });
 
 const getMediaTitles = () => api.get<GetMediaTitlesResponse>('/media/titles');
 
@@ -33,6 +38,7 @@ const addMedia = (dto: CreateMediaDto) =>
 	api.post<CreateMediaResponse>('/media/create', dto);
 
 const mediaService = {
+	getMediaWaifus,
 	getMedias,
 	addMedia,
 	knownMedia,

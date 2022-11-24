@@ -66,11 +66,13 @@ export class WaifuService {
 		return waifu;
 	}
 
-	async getMediaWaifus(mediaId: number, dto: GetMediaWaifusDto) {
+	async getMediaWaifus(title: string, dto: GetMediaWaifusDto) {
 		const { name, level, users } = dto;
 		const waifus = await this.prisma.waifu.findMany({
 			where: {
-				mediaId,
+				media: {
+					title,
+				},
 				name,
 				level,
 				userId: {

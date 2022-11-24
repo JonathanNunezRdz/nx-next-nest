@@ -7,6 +7,8 @@ import {
 	GetMediaDto,
 	GetMediaResponse,
 	GetMediaTitlesResponse,
+	GetMediaWaifusDto,
+	GetMediaWaifusResponse,
 	HttpError,
 	KnowMediaDto,
 	KnowMediaResponse,
@@ -16,6 +18,23 @@ import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AxiosError } from 'axios';
 import { RootState } from '..';
 import mediaService from './service';
+
+export const getMediaWaifus = createAsyncThunk<
+	GetMediaWaifusResponse,
+	{ title: string; dto: GetMediaWaifusDto },
+	{ rejectValue: HttpError }
+>('media/getMediaWaifus', async ({ title, dto }, { rejectWithValue }) => {
+	try {
+		const { data } = await mediaService.getMediaWaifus(title, dto);
+		return data;
+	} catch (error) {
+		if (error instanceof AxiosError) {
+			const { response } = error as AxiosError<HttpError>;
+			return rejectWithValue(response.data);
+		}
+		throw error;
+	}
+});
 
 export const getMediaTitles = createAsyncThunk<
 	GetMediaTitlesResponse,
@@ -123,7 +142,7 @@ const initialState: MediaState = {
 	get: {
 		data: [],
 		totalPages: 0,
-		currentPage: 0,
+		currentPage: 1,
 		status: 'idle',
 		error: undefined,
 	},
@@ -149,6 +168,12 @@ const initialState: MediaState = {
 		},
 	},
 	titles: {
+		data: [],
+		status: 'idle',
+		error: undefined,
+	},
+	mediaWaifus: {
+		title: '',
 		data: [],
 		status: 'idle',
 		error: undefined,
@@ -199,6 +224,12 @@ export const mediaSlice = createSlice({
 			state.titles.data = [];
 			state.titles.status = 'idle';
 			state.titles.error = undefined;
+		},
+		resetMediaWaifus: (state) => {
+			state.mediaWaifus.title = '';
+			state.mediaWaifus.data = [];
+			state.mediaWaifus.error = undefined;
+			state.mediaWaifus.status = 'idle';
 		},
 	},
 	extraReducers(builder) {
@@ -292,6 +323,20 @@ export const mediaSlice = createSlice({
 			.addCase(getMediaTitles.rejected, (state, action) => {
 				state.titles.error = action.payload.message;
 				state.titles.status = 'failed';
+			})
+			.addCase(getMediaWaifus.pending, (state, action) => {
+				state.mediaWaifus.status = 'loading';
+				state.mediaWaifus.title = action.meta.arg.title;
+				state.mediaWaifus.error = undefined;
+			})
+			.addCase(getMediaWaifus.fulfilled, (state, action) => {
+				state.mediaWaifus.data = action.payload;
+				state.mediaWaifus.error = undefined;
+				state.mediaWaifus.status = 'succeeded';
+			})
+			.addCase(getMediaWaifus.rejected, (state, action) => {
+				state.mediaWaifus.error = action.payload.message;
+				state.mediaWaifus.status = 'failed';
 			});
 	},
 });
@@ -303,6 +348,7 @@ export const {
 	getMediaToEditFromLocal,
 	resetGetMediaToEdit,
 	resetMediaTitles,
+	resetMediaWaifus,
 } = mediaSlice.actions;
 
 export const selectAddMediaStatus = (state: RootState) => state.media.add;
@@ -334,5 +380,12 @@ export const selectMediaTitlesStatus = (state: RootState) => ({
 	error: state.media.titles.error,
 });
 export const selectMediaTitles = (state: RootState) => state.media.titles.data;
+
+export const selectMediaWaifus = (state: RootState) =>
+	state.media.mediaWaifus.data;
+export const selectMediaWaifusStatus = (state: RootState) => ({
+	status: state.media.mediaWaifus.status,
+	error: state.media.mediaWaifus.error,
+});
 
 export default mediaReducer;

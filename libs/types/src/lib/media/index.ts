@@ -9,6 +9,7 @@ import {
 	UserImage,
 } from '@prisma/client';
 import { RequestStatus } from '../common';
+import { WaifuResponse } from '../waifu';
 import { EditMediaDto } from './edit-media.dto';
 
 export * from './create-media.dto';
@@ -40,17 +41,19 @@ export type MediaResponse = Media & {
 			format: ImageFormat;
 		};
 	};
-	knownBy: (KnownMedia & {
-		user: Pick<User, 'id' | 'alias'> & {
-			image: UserImage & {
-				image: Pick<Image, 'id' | 'format'>;
-			};
-		};
-	})[];
+	knownBy: MediaKnownUser[];
 	waifus: {
 		id: number;
 		name: string;
 	}[];
+};
+
+export type MediaKnownUser = KnownMedia & {
+	user: Pick<User, 'id' | 'alias'> & {
+		image: UserImage & {
+			image: Pick<Image, 'id' | 'format'>;
+		};
+	};
 };
 
 export interface MediaState {
@@ -68,6 +71,10 @@ export interface MediaState {
 	} & RequestStatus;
 	titles: {
 		data: GetMediaTitlesResponse;
+	} & RequestStatus;
+	mediaWaifus: {
+		title: string;
+		data: WaifuResponse[];
 	} & RequestStatus;
 }
 

@@ -223,7 +223,7 @@ export class MediaService {
 
 	async getMedias(dto: GetMediaDto) {
 		const totalMedias = await this.prisma.media.count();
-		const totalPages = totalMedias / dto.limit;
+		const totalPages = Math.ceil(totalMedias / dto.limit);
 		const medias = await this.prisma.media.findMany({
 			where: {
 				title: {
@@ -253,6 +253,9 @@ export class MediaService {
 						name: true,
 					},
 					take: 3,
+					orderBy: {
+						createdAt: 'desc',
+					},
 				},
 				image: {
 					include: {

@@ -3,7 +3,6 @@ import {
 	Controller,
 	Get,
 	Param,
-	ParseIntPipe,
 	Patch,
 	Post,
 	Query,
@@ -37,12 +36,12 @@ export class WaifuController {
 		return this.waifuService.editWaifu(userId, dto);
 	}
 
-	@Get(':id')
+	@Get(':title')
 	getMediaWaifus(
-		@Param('id', ParseIntPipe) mediaId: number,
+		@Param('title') title: string,
 		@Query() dto: GetMediaWaifusDto
 	): Promise<GetMediaWaifusResponse> {
-		return this.waifuService.getMediaWaifus(mediaId, dto);
+		return this.waifuService.getMediaWaifus(title, dto);
 	}
 
 	@Get('')
