@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { ReactNode, useEffect } from 'react';
+import { useEffect } from 'react';
 
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
@@ -7,7 +7,6 @@ import {
 	getMediaToEditFromServer,
 	resetGetMediaToEdit,
 	selectEditLocalMediaStatus,
-	selectEditMedia,
 	selectEditServerMediaStatus,
 } from '../../store/media';
 import { selectUser, selectUserStatus } from '../../store/user';
@@ -20,7 +19,6 @@ const EditMediaWrapper = () => {
 	const user = useAppSelector(selectUser);
 	const userStatus = useAppSelector(selectUserStatus);
 	const mediaId = parseMediaId(router.query.mediaIdString);
-	const editMedia = useAppSelector(selectEditMedia);
 	const localMediaStatus = useAppSelector(selectEditLocalMediaStatus);
 	const serverMediaStatus = useAppSelector(selectEditServerMediaStatus);
 

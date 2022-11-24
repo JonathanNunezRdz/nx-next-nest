@@ -81,7 +81,7 @@ const AddMedia = () => {
 						<LinkBox display='inline-flex'>
 							<NextLink href='/media' passHref>
 								<LinkOverlay>
-									<Button>cancel</Button>
+									<Button colorScheme='red'>cancel</Button>
 								</LinkOverlay>
 							</NextLink>
 						</LinkBox>
@@ -89,6 +89,7 @@ const AddMedia = () => {
 							type='submit'
 							isDisabled={!formik.dirty}
 							isLoading={addMediaStatus.status === 'loading'}
+							colorScheme={formik.dirty ? 'green' : 'gray'}
 						>
 							add media
 						</Button>

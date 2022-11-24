@@ -1,20 +1,13 @@
 import { FormControl, FormLabel, Select } from '@chakra-ui/react';
 import { WaifuLevel } from '@prisma/client';
 import { ChangeEventHandler } from 'react';
+import { WaifuLevelLabels } from '../../utils/constants';
 
 interface WaifuLevelInputProps {
 	onChange: ChangeEventHandler<HTMLSelectElement>;
 	level: WaifuLevel;
 	isDisabled?: boolean;
 }
-
-const WaifuLevelLabels: Record<WaifuLevel, string> = {
-	freeAgent: 'free agent',
-	genin: 'genin',
-	chunin: 'chunin',
-	jonin: 'jonin',
-	topWaifu: 'top waifu',
-};
 
 const WaifuLevelInput = ({
 	onChange,

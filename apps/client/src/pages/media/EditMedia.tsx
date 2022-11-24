@@ -1,11 +1,4 @@
-import {
-	Box,
-	Button,
-	HStack,
-	LinkBox,
-	LinkOverlay,
-	VStack,
-} from '@chakra-ui/react';
+import { Button, HStack, LinkBox, LinkOverlay, VStack } from '@chakra-ui/react';
 import { EditMediaDto } from '@nx-next-nest/types';
 import { useFormik } from 'formik';
 import { useRouter } from 'next/router';
@@ -88,7 +81,7 @@ const EditMedia = () => {
 						<LinkBox display='inline-flex'>
 							<NextLink href='/media' passHref>
 								<LinkOverlay>
-									<Button>cancel</Button>
+									<Button colorScheme='red'>cancel</Button>
 								</LinkOverlay>
 							</NextLink>
 						</LinkBox>
@@ -96,6 +89,7 @@ const EditMedia = () => {
 							type='submit'
 							disabled={!formik.dirty}
 							isLoading={editMediaStatus.status === 'loading'}
+							colorScheme={formik.dirty ? 'green' : 'gray'}
 						>
 							confirm
 						</Button>

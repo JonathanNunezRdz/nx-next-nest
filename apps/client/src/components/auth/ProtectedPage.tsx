@@ -4,6 +4,7 @@ import { ReactNode, useEffect } from 'react';
 
 import Body from '../layout/Body';
 import { useAppSelector } from '../../store/hooks';
+import { selectAuth } from '../../store/user';
 
 interface ProtectedPageProps {
 	originalUrl: string;
@@ -16,9 +17,7 @@ const ProtectedPage = ({
 	children,
 	center,
 }: ProtectedPageProps) => {
-	const { isLoggedIn, checkedJWT } = useAppSelector(
-		(state) => state.user.auth
-	);
+	const { isLoggedIn, checkedJWT } = useAppSelector(selectAuth);
 	const router = useRouter();
 
 	useEffect(() => {

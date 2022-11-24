@@ -69,7 +69,7 @@ const EditWaifu = () => {
 						<LinkBox display='inline-flex'>
 							<NextLink href='/waifus' passHref>
 								<LinkOverlay>
-									<Button>cancel</Button>
+									<Button colorScheme='red'>cancel</Button>
 								</LinkOverlay>
 							</NextLink>
 						</LinkBox>
@@ -77,6 +77,7 @@ const EditWaifu = () => {
 							type='submit'
 							isDisabled={!formik.dirty}
 							isLoading={editWaifuStatus.status === 'loading'}
+							colorScheme={formik.dirty ? 'green' : 'gray'}
 						>
 							confirm
 						</Button>

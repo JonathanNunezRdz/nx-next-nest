@@ -94,7 +94,7 @@ const AddWaifu = () => {
 						<LinkBox display='inline-flex'>
 							<NextLink href='/waifus' passHref>
 								<LinkOverlay>
-									<Button>cancel</Button>
+									<Button colorScheme='red'>cancel</Button>
 								</LinkOverlay>
 							</NextLink>
 						</LinkBox>
@@ -102,6 +102,7 @@ const AddWaifu = () => {
 							type='submit'
 							isDisabled={!formik.dirty}
 							isLoading={addWaifuStatus.status === 'loading'}
+							colorScheme={formik.dirty ? 'green' : 'gray'}
 						>
 							add waifu
 						</Button>
