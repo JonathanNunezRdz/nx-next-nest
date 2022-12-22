@@ -3,7 +3,6 @@ import { Transform } from 'class-transformer';
 import {
 	ArrayNotEmpty,
 	IsArray,
-	IsEnum,
 	IsInt,
 	IsOptional,
 	IsString,
@@ -23,7 +22,7 @@ export class GetMediaDto {
 	@Min(1)
 	limit: number;
 
-	@Transform(({ value }) => JSON.parse(value))
+	@Transform(({ value }) => value.split(',').map(Number))
 	@IsArray()
 	@ArrayNotEmpty()
 	@IsOptional()
@@ -33,11 +32,9 @@ export class GetMediaDto {
 	@IsOptional()
 	title?: string;
 
-	@IsEnum(MediaType, {
-		message: `type must be a valid option: ${Object.keys(MediaType).join(
-			' | '
-		)}`,
-	})
+	@Transform(({ value }) => value.split(','))
+	@IsArray()
+	@ArrayNotEmpty()
 	@IsOptional()
-	type?: MediaType;
+	type?: MediaType[];
 }

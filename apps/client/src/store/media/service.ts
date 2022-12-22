@@ -11,8 +11,11 @@ import {
 	KnowMediaDto,
 	KnowMediaResponse,
 } from '@nx-next-nest/types';
+import qs from 'qs';
 
 import api from '../api';
+
+// TODO: fix all routes which have an array in params
 
 const getMediaWaifus = (title: string, dto: GetMediaWaifusDto) =>
 	api.get<GetMediaWaifusResponse>(`/waifu/${title}`, { params: dto });
@@ -29,8 +32,16 @@ const knownMedia = (dto: KnowMediaDto) =>
 
 const getMedias = (dto: GetMediaDto) =>
 	api.get<GetMediaResponse>('/media', {
-		params: {
-			...dto,
+		params: dto,
+		paramsSerializer(params) {
+			console.log(
+				qs.stringify(params, { encode: false, arrayFormat: 'comma' })
+			);
+
+			return qs.stringify(params, {
+				encode: false,
+				arrayFormat: 'comma',
+			});
 		},
 	});
 

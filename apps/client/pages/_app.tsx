@@ -7,6 +7,7 @@ import defaultSEOConfig from '../next-seo.config';
 import Chakra from '../src/Chakra';
 import Layout from '../src/components/layout';
 import { store } from '../src/store';
+import '../src/styles/global.css';
 
 function CustomApp({ Component, pageProps }: AppProps) {
 	return (

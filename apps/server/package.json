@@ -23,5 +23,6 @@
 		"prisma:test:deploy": "npx env-cmd -f .env.test npx prisma migrate deploy --schema=../../prisma/schema.prisma",
 		"open:terminal": "@powershell -NoProfile -ExecutionPolicy Unrestricted -Command ./ps.ps1"
 	},
-	"dependencies": {}
+	"dependencies": {},
+	"type": "module"
 }

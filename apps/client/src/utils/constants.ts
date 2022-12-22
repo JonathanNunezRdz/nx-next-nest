@@ -1,5 +1,5 @@
 import { MediaLabel } from '@nx-next-nest/types';
-import { WaifuLevel } from '@prisma/client';
+import { MediaType, WaifuLevel } from '@prisma/client';
 
 export const mediaLabel: MediaLabel = {
 	present: {
@@ -15,9 +15,12 @@ export const mediaLabel: MediaLabel = {
 };
 
 export const WaifuLevelLabels: Record<WaifuLevel, string> = {
+	nationalTreasure: 'national treasure',
 	freeAgent: 'free agent',
 	genin: 'genin',
 	chunin: 'chunin',
 	jonin: 'jonin',
 	topWaifu: 'top waifu',
 };
+
+export const MediaTypeLabels: MediaType[] = ['anime', 'manga', 'videogame'];

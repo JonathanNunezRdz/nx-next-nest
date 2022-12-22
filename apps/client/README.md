@@ -30,7 +30,8 @@
 -   [?] Create media
     -   [?] Show errors
     -   [?] Show loading state
--   [?] Get all media w/filters
+-   [?] Get all media
+    -   [ ] With filters
     -   [ ] Show errors
     -   [?] Show loading state
 -   [?] Know media

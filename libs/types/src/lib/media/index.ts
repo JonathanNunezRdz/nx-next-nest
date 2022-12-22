@@ -11,6 +11,7 @@ import {
 import { RequestStatus } from '../common';
 import { WaifuResponse } from '../waifu';
 import { EditMediaDto } from './edit-media.dto';
+import { GetMediaDto } from './get-media.dto';
 
 export * from './create-media.dto';
 export * from './edit-media.dto';
@@ -32,15 +33,17 @@ export type CreateMediaResponse = MediaResponse;
 
 export type GetMediaResponse = {
 	medias: MediaResponse[];
-	totalPages: number;
+	totalMedias: number;
 };
 
 export type MediaResponse = Media & {
-	image: MediaImage & {
-		image: {
-			format: ImageFormat;
-		};
-	};
+	image:
+		| (MediaImage & {
+				image: {
+					format: ImageFormat;
+				};
+		  })
+		| null;
 	knownBy: MediaKnownUser[];
 	waifus: {
 		id: number;
@@ -59,8 +62,8 @@ export type MediaKnownUser = KnownMedia & {
 export interface MediaState {
 	get: {
 		data: MediaResponse[];
-		totalPages: number;
-		currentPage: number;
+		totalMedias: number;
+		appliedFilters: GetMediaDto;
 	} & RequestStatus;
 	add: RequestStatus;
 	know: RequestStatus;

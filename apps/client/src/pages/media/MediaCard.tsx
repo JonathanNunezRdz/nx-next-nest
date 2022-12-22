@@ -18,6 +18,7 @@ import { MediaResponse } from '@nx-next-nest/types';
 
 import MediaActionButtons from './MediaActionButtons';
 import KnownBy from './KnownBy';
+import ImageCard from '../../components/common/ImageCard';
 
 interface MediaCardProps {
 	media: MediaResponse;
@@ -49,6 +50,7 @@ const MediaCard = ({ media, ownId, isLoggedIn }: MediaCardProps) => {
 						/>
 					</HStack>
 				</StatLabel>
+				<ImageCard image={media.image} />
 				<StatNumber>{media.title}</StatNumber>
 				<KnownBy users={media.knownBy} ownId={ownId} />
 				<Box>

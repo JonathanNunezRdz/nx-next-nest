@@ -1,6 +1,7 @@
 import { ImageFormat, MediaType, Waifu, WaifuImage } from '@prisma/client';
 import { RequestStatus } from '../common';
 import { EditWaifuDto } from './edit-waifu.dto';
+import { GetAllWaifusDto } from './get-all-waifus.dto';
 
 export * from './create-waifu.dto';
 export * from './edit-waifu.dto';
@@ -15,15 +16,17 @@ export type CreateWaifuResponse = WaifuResponse;
 
 export type GetAllWaifusResponse = {
 	waifus: WaifuResponse[];
-	totalPages: number;
+	totalWaifus: number;
 };
 
 export type WaifuResponse = Waifu & {
-	image: WaifuImage & {
-		image: {
-			format: ImageFormat;
-		};
-	};
+	image:
+		| (WaifuImage & {
+				image: {
+					format: ImageFormat;
+				};
+		  })
+		| null;
 	user: {
 		alias: string;
 	};
@@ -36,8 +39,8 @@ export type WaifuResponse = Waifu & {
 export interface WaifuState {
 	get: {
 		data: WaifuResponse[];
-		totalPages: number;
-		currentPage: number;
+		totalWaifus: number;
+		appliedFilters: GetAllWaifusDto;
 	} & RequestStatus;
 	add: RequestStatus;
 	edit: {

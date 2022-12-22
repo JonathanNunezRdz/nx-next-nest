@@ -1,3 +1,4 @@
+import { usePagination } from '@ajna/pagination';
 import { AddIcon, RepeatIcon } from '@chakra-ui/icons';
 import {
 	Box,
@@ -9,37 +10,67 @@ import {
 	Text,
 	VStack,
 } from '@chakra-ui/react';
+import { GetAllWaifusDto } from '@nx-next-nest/types';
 import { useCallback, useEffect } from 'react';
+import CustomPagination from '../../components/common/CustomPagination';
 
 import LinkButton from '../../components/common/LinkButton';
 import Body from '../../components/layout/Body';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { selectUser } from '../../store/user';
+import { selectAuth, selectUser } from '../../store/user';
 import {
 	getAllWaifus,
-	selectWaifuPages,
+	selectWaifuAppliedFilters,
 	selectWaifus,
 	selectWaifuStatus,
 } from '../../store/waifu';
 import WaifuCard from './WaifuCard';
+import WaifuFilterOptions from './WaifuFilterOptions';
 
 const Waifus = () => {
 	const dispatch = useAppDispatch();
-	const isLoggedIn = useAppSelector((state) => state.user.auth.isLoggedIn);
+	const { isLoggedIn } = useAppSelector(selectAuth);
 	const user = useAppSelector(selectUser);
+
 	const waifus = useAppSelector(selectWaifus);
-	const waifuPages = useAppSelector(selectWaifuPages);
-	const waifuStatus = useAppSelector(selectWaifuStatus);
+	const { totalWaifus, ...appliedFilters } = useAppSelector(
+		selectWaifuAppliedFilters
+	);
+	const getWaifuStatus = useAppSelector(selectWaifuStatus);
+
+	const { pages, pagesCount, currentPage, isDisabled, setCurrentPage } =
+		usePagination({
+			total: totalWaifus,
+			limits: {
+				inner: 2,
+				outer: 2,
+			},
+			initialState: {
+				pageSize: 9,
+				isDisabled: false,
+				currentPage: appliedFilters.page,
+			},
+		});
 
 	const handleGetWaifus = useCallback(
-		(page: number) => {
-			dispatch(getAllWaifus({ page, limit: 9 }));
+		(options: GetAllWaifusDto) => {
+			setCurrentPage(options.page);
+			dispatch(getAllWaifus(options));
 		},
 		[dispatch]
 	);
 
+	const handleChangePage = (nextPage: number) => {
+		if (nextPage === appliedFilters.page) return;
+		if (nextPage < 1) return;
+		if (nextPage > totalWaifus) return;
+		setCurrentPage(nextPage);
+		handleGetWaifus({ ...appliedFilters, page: nextPage });
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+	};
+
 	useEffect(() => {
-		handleGetWaifus(1);
+		handleGetWaifus(appliedFilters);
 	}, [handleGetWaifus]);
 
 	return (
@@ -48,7 +79,6 @@ const Waifus = () => {
 				<Box w='full'>
 					<HStack spacing='1rem'>
 						<Heading>waifus</Heading>
-
 						{isLoggedIn && (
 							<LinkButton
 								pathname='/waifus/add'
@@ -66,11 +96,12 @@ const Waifus = () => {
 								icon={<RepeatIcon />}
 								size='sm'
 								mt={1}
-								onClick={() => handleGetWaifus(1)}
-								isLoading={waifuStatus.status === 'loading'}
+								onClick={() => handleGetWaifus(appliedFilters)}
+								isLoading={getWaifuStatus.status === 'loading'}
 							/>
 						</Box>
 					</HStack>
+					<WaifuFilterOptions getWaifus={handleGetWaifus} />
 				</Box>
 
 				<Box w='full'>
@@ -96,9 +127,14 @@ const Waifus = () => {
 						)}
 					</SimpleGrid>
 				</Box>
-				<Center>
-					<Text>More pages</Text>
-				</Center>
+
+				<CustomPagination
+					pages={pages}
+					pagesCount={pagesCount}
+					currentPage={currentPage}
+					isDisabled={isDisabled}
+					onPageChange={handleChangePage}
+				/>
 			</VStack>
 		</Body>
 	);

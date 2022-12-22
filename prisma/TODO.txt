@@ -1,0 +1,101 @@
+model User {
+    [x]  id        Int      @id @default(autoincrement())
+    [x]  createdAt DateTime @default(now())              
+    [x]  updatedAt DateTime @updatedAt
+
+    [x]  alias     String
+    [x]  firstName String
+    [x]  lastName  String
+    [x]  uid       String @unique
+    [x]  hash      String
+    [x]  email     String @unique
+
+    []  image      UserImage?
+    [x]  knownMedia KnownMedia[]
+    [x]  waifus     Waifu[]
+}
+
+model UserImage {
+    []  user   User @relation(references: [id], fields: [userId])
+    []  userId Int  @unique
+
+    []  image   Image @relation(references: [id], fields: [imageId])
+    []  imageId Int   @unique
+
+    @@id([userId, imageId])
+}
+
+model Image {
+    [x]  id        Int      @id @default(autoincrement())
+    [x]  createdAt DateTime @default(now())
+    [x]  updatedAt DateTime @updatedAt
+
+    [x]  format ImageFormat
+
+    []  user  UserImage?
+    [x]  media MediaImage?
+    [x]  waifu WaifuImage?
+}
+
+model MediaImage {
+    [x]  media   Media @relation(references: [id], fields: [mediaId])
+    [x]  mediaId Int   @unique
+
+    [x]  image   Image @relation(references: [id], fields: [imageId])
+    [x]  imageId Int   @unique
+
+    @@id([mediaId, imageId])
+}
+
+model Media {
+    [x]  id        Int      @id @default(autoincrement())
+    [x]  createdAt DateTime @default(now())
+    [x]  updatedAt DateTime @updatedAt
+
+    [x]  title String    @unique
+    [x]  type  MediaType
+
+    [x]  image   MediaImage?
+    [x]  knownBy KnownMedia[]
+    [x]  waifus  Waifu[]
+}
+
+model KnownMedia {
+    [x]  user   User @relation(fields: [userId], references: [id])
+    [x]  userId Int
+
+    [x]  media   Media @relation(fields: [mediaId], references: [id])
+    [x]  mediaId Int
+
+    [x]  knownAt DateTime
+
+    @@id([userId, mediaId])
+}
+
+model Waifu {
+    [x]  id        Int      @id @default(autoincrement())
+    [x]  createdAt DateTime @default(now())
+    [x]  updatedAt DateTime @updatedAt
+
+    [x]  name  String
+    [x]  level WaifuLevel
+    [x]  since DateTime
+
+    [x]  image   WaifuImage?
+    [x]  media   Media       @relation(references: [id], fields: [mediaId])
+    [x]  mediaId Int
+    [x]  user    User        @relation(references: [id], fields: [userId])
+    [x]  userId  Int
+
+    [x]  @@unique([name, mediaId])
+}
+
+model WaifuImage {
+    [x]  waifu   Waifu @relation(references: [id], fields: [waifuId])
+    [x]  waifuId Int   @unique
+
+    [x]  image   Image @relation(references: [id], fields: [imageId])
+    [x]  imageId Int   @unique
+
+    @@id([waifuId, imageId])
+}

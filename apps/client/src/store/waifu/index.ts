@@ -68,10 +68,16 @@ export const getAllWaifus = createAsyncThunk<
 const initialState: WaifuState = {
 	get: {
 		data: [],
-		totalPages: 0,
-		currentPage: 0,
+		totalWaifus: 0,
 		status: 'idle',
 		error: undefined,
+		appliedFilters: {
+			page: 1,
+			limit: 9,
+			name: '',
+			level: [],
+			users: [],
+		},
 	},
 	add: {
 		status: 'idle',
@@ -138,8 +144,8 @@ export const waifuSlice = createSlice({
 			})
 			.addCase(getAllWaifus.fulfilled, (state, action) => {
 				state.get.data = action.payload.waifus;
-				state.get.totalPages = action.payload.totalPages;
-				state.get.currentPage = action.meta.arg.page;
+				state.get.totalWaifus = action.payload.totalWaifus;
+				state.get.appliedFilters = action.meta.arg;
 				state.get.error = undefined;
 				state.get.status = 'succeeded';
 			})
@@ -205,9 +211,9 @@ export const selectWaifuStatus = (state: RootState) => ({
 	status: state.waifu.get.status,
 	error: state.waifu.get.error,
 });
-export const selectWaifuPages = (state: RootState) => ({
-	totalPages: state.waifu.get.totalPages,
-	currentPage: state.waifu.get.currentPage,
+export const selectWaifuAppliedFilters = (state: RootState) => ({
+	totalWaifus: state.waifu.get.totalWaifus,
+	...state.waifu.get.appliedFilters,
 });
 
 export default waifuReducer;

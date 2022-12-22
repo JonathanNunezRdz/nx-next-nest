@@ -1,6 +1,7 @@
 import { FormControl, FormLabel, Select } from '@chakra-ui/react';
 import { MediaType } from '@prisma/client';
 import { ChangeEventHandler } from 'react';
+import MediaTypeOptions from './MediaTypeOptions';
 
 interface TypeInputProps {
 	onChange: ChangeEventHandler<HTMLSelectElement>;
@@ -20,9 +21,7 @@ const TypeInput = ({ onChange, type, isDisabled = false }: TypeInputProps) => {
 				value={type}
 				isDisabled={isDisabled}
 			>
-				<option value='anime'>anime</option>
-				<option value='manga'>manga</option>
-				<option value='videogame'>videogame</option>
+				<MediaTypeOptions />
 			</Select>
 		</FormControl>
 	);

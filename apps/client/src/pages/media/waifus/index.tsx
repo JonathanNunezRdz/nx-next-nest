@@ -6,6 +6,10 @@ import {
 	Text,
 	VStack,
 } from '@chakra-ui/react';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
+
+import Body from 'apps/client/src/components/layout/Body';
 import { useAppDispatch, useAppSelector } from 'apps/client/src/store/hooks';
 import {
 	getMediaWaifus,
@@ -14,10 +18,7 @@ import {
 	selectMediaWaifusStatus,
 } from 'apps/client/src/store/media';
 import { selectAuth, selectUser } from 'apps/client/src/store/user';
-import { useRouter } from 'next/router';
-import { useEffect } from 'react';
 
-import Body from '../../../components/layout/Body';
 import WaifuCard from '../../waifus/WaifuCard';
 
 const MediaWaifus = () => {
@@ -33,7 +34,10 @@ const MediaWaifus = () => {
 		if (router.isReady) {
 			if (status === 'idle') {
 				dispatch(
-					getMediaWaifus({ title: mediaTitle as string, dto: {} })
+					getMediaWaifus({
+						title: mediaTitle as string,
+						dto: {},
+					})
 				);
 			}
 		}
@@ -77,7 +81,7 @@ const MediaWaifus = () => {
 						) : (
 							<Box>
 								<Text>
-									no wiafus have been added to this media
+									no waifus have been added to this media
 								</Text>
 							</Box>
 						)}

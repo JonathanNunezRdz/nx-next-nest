@@ -222,8 +222,24 @@ export class MediaService {
 	}
 
 	async getMedias(dto: GetMediaDto) {
-		const totalMedias = await this.prisma.media.count();
-		const totalPages = Math.ceil(totalMedias / dto.limit);
+		const totalMedias = await this.prisma.media.count({
+			where: {
+				title: {
+					contains: dto.title,
+					mode: 'insensitive',
+				},
+				type: {
+					in: dto.type,
+				},
+				knownBy: {
+					every: {
+						userId: {
+							in: dto.users,
+						},
+					},
+				},
+			},
+		});
 		const medias = await this.prisma.media.findMany({
 			where: {
 				title: {
@@ -231,7 +247,7 @@ export class MediaService {
 					mode: 'insensitive',
 				},
 				type: {
-					equals: dto.type,
+					in: dto.type,
 				},
 				knownBy: {
 					every: {
@@ -292,7 +308,7 @@ export class MediaService {
 			},
 		});
 
-		return { medias, totalPages };
+		return { medias, totalMedias };
 	}
 
 	async createMedia(userId: number, dto: CreateMediaDto) {

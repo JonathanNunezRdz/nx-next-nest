@@ -110,8 +110,23 @@ export class WaifuService {
 	}
 
 	async getAllWaifus(dto: GetAllWaifusDto) {
-		const { name, page, limit, level, userId } = dto;
-		const totalWaifus = await this.prisma.waifu.count();
+		const { name, page, limit, level, users } = dto;
+		const totalWaifus = await this.prisma.waifu.count({
+			where: {
+				name: {
+					contains: name,
+					mode: 'insensitive',
+				},
+				level: {
+					in: level,
+				},
+				user: {
+					id: {
+						in: users,
+					},
+				},
+			},
+		});
 		const waifus = await this.prisma.waifu.findMany({
 			where: {
 				name: {
@@ -119,11 +134,11 @@ export class WaifuService {
 					mode: 'insensitive',
 				},
 				level: {
-					equals: level,
+					in: level,
 				},
 				user: {
 					id: {
-						equals: userId,
+						in: users,
 					},
 				},
 			},
@@ -156,10 +171,7 @@ export class WaifuService {
 			},
 		});
 
-		const totalPages =
-			waifus.length > 0 ? Math.max(totalWaifus / limit, 1) : 0;
-
-		return { waifus, totalPages };
+		return { waifus, totalWaifus };
 	}
 
 	async createWaifu(userId: number, dto: CreateWaifuDto) {

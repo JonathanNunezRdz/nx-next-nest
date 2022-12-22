@@ -1,6 +1,14 @@
-import { WaifuLevel } from '@prisma/client';
+import { User, WaifuLevel } from '@prisma/client';
 import { Transform } from 'class-transformer';
-import { IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import {
+	ArrayNotEmpty,
+	IsArray,
+	IsInt,
+	IsOptional,
+	IsString,
+	Max,
+	Min,
+} from 'class-validator';
 
 export class GetAllWaifusDto {
 	@Transform(({ value }) => parseInt(value, 10))
@@ -14,20 +22,19 @@ export class GetAllWaifusDto {
 	@Min(1)
 	limit: number;
 
-	@Transform(({ value }) => parseInt(value, 10))
-	@IsInt()
+	@Transform(({ value }) => value.split(',').map(Number))
+	@IsArray()
+	@ArrayNotEmpty()
 	@IsOptional()
-	userId?: number;
+	users?: User['id'][];
 
 	@IsString()
 	@IsOptional()
 	name?: string;
 
-	@IsEnum(WaifuLevel, {
-		message: `level must be a valid option: ${Object.keys(WaifuLevel).join(
-			' | '
-		)}`,
-	})
+	@Transform(({ value }) => value.split(','))
+	@IsArray()
+	@ArrayNotEmpty()
 	@IsOptional()
-	level?: WaifuLevel;
+	level?: WaifuLevel[];
 }

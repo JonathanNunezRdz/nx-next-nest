@@ -127,6 +127,8 @@ export const getMedias = createAsyncThunk<
 	{ rejectValue: HttpError }
 >('media/getMedias', async (dto, { rejectWithValue }) => {
 	try {
+		console.log(dto);
+
 		const { data } = await mediaService.getMedias(dto);
 		return data;
 	} catch (error) {
@@ -141,10 +143,16 @@ export const getMedias = createAsyncThunk<
 const initialState: MediaState = {
 	get: {
 		data: [],
-		totalPages: 0,
-		currentPage: 1,
+		totalMedias: 0,
 		status: 'idle',
 		error: undefined,
+		appliedFilters: {
+			page: 1,
+			limit: 9,
+			title: '',
+			type: [],
+			users: [],
+		},
 	},
 	add: {
 		status: 'idle',
@@ -240,8 +248,8 @@ export const mediaSlice = createSlice({
 			})
 			.addCase(getMedias.fulfilled, (state, action) => {
 				state.get.data = action.payload.medias;
-				state.get.totalPages = action.payload.totalPages;
-				state.get.currentPage = action.meta.arg.page;
+				state.get.totalMedias = action.payload.totalMedias;
+				state.get.appliedFilters = action.meta.arg;
 				state.get.error = undefined;
 				state.get.status = 'succeeded';
 			})
@@ -370,9 +378,9 @@ export const selectMediaStatus = (state: RootState) => ({
 	status: state.media.get.status,
 	error: state.media.get.error,
 });
-export const selectMediaPages = (state: RootState) => ({
-	totalPages: state.media.get.totalPages,
-	currentPage: state.media.get.currentPage,
+export const selectMediaAppliedFilters = (state: RootState) => ({
+	totalMedias: state.media.get.totalMedias,
+	...state.media.get.appliedFilters,
 });
 
 export const selectMediaTitlesStatus = (state: RootState) => ({
