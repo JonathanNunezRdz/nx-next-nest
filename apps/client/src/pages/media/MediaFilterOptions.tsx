@@ -52,13 +52,11 @@ const MediaFilterOptions = ({ getMedia }: MediaFilterOptionsProps) => {
 		getMedia({ page: 1, limit: 9 });
 	};
 
-	const Component = useBreakpointValue({ base: Fragment, lg: HStack });
-
 	return (
 		<Box>
 			<form onSubmit={handleSubmit(onSubmit)}>
 				<SimpleGrid
-					columns={{ sm: 1, md: 2, lg: 3 }}
+					columns={{ sm: 1, md: 2 }}
 					spacing='1rem'
 					alignItems='end'
 				>
@@ -73,7 +71,7 @@ const MediaFilterOptions = ({ getMedia }: MediaFilterOptionsProps) => {
 					<FormControl>
 						<FormLabel htmlFor='type'>type</FormLabel>
 						<CheckboxGroup>
-							<HStack spacing='1rem'>
+							<SimpleGrid columns={{ sm: 3 }} spacing='1rem'>
 								{MediaTypeLabels.map((label) => (
 									<Controller
 										key={label}
@@ -93,17 +91,15 @@ const MediaFilterOptions = ({ getMedia }: MediaFilterOptionsProps) => {
 										)}
 									/>
 								))}
-							</HStack>
+							</SimpleGrid>
 						</CheckboxGroup>
 					</FormControl>
-					<Component>
-						<Button onClick={resetFilters} width='full'>
-							reset
-						</Button>
-						<Button type='submit' width='full'>
-							search
-						</Button>
-					</Component>
+					<Button onClick={resetFilters} width='full'>
+						reset
+					</Button>
+					<Button type='submit' width='full'>
+						search
+					</Button>
 				</SimpleGrid>
 			</form>
 		</Box>

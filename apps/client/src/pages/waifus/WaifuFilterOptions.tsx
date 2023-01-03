@@ -55,13 +55,11 @@ const WaifuFilterOptions = ({ getWaifus }: WaifuFilterOptionsProps) => {
 		getWaifus({ page: 1, limit: 9 });
 	};
 
-	const Component = useBreakpointValue({ base: Fragment, lg: HStack });
-
 	return (
 		<Box>
 			<form onSubmit={handleSubmit(onSubmit)}>
 				<SimpleGrid
-					columns={{ sm: 1, md: 2, lg: 3 }}
+					columns={{ sm: 1, md: 2 }}
 					spacing='1rem'
 					alignItems='end'
 				>
@@ -77,7 +75,7 @@ const WaifuFilterOptions = ({ getWaifus }: WaifuFilterOptionsProps) => {
 					<FormControl>
 						<FormLabel htmlFor='level'>level</FormLabel>
 						<CheckboxGroup>
-							<HStack spacing='1rem'>
+							<SimpleGrid columns={{ sm: 3 }} spacing='1rem'>
 								{Object.entries(WaifuLevelLabels).map(
 									([level, label]) => (
 										<Controller
@@ -99,17 +97,16 @@ const WaifuFilterOptions = ({ getWaifus }: WaifuFilterOptionsProps) => {
 										/>
 									)
 								)}
-							</HStack>
+							</SimpleGrid>
 						</CheckboxGroup>
 					</FormControl>
-					<Component>
-						<Button onClick={resetFilters} width='full'>
-							reset
-						</Button>
-						<Button type='submit' width='full'>
-							search
-						</Button>
-					</Component>
+
+					<Button onClick={resetFilters} width='full'>
+						reset
+					</Button>
+					<Button type='submit' width='full'>
+						search
+					</Button>
 				</SimpleGrid>
 			</form>
 		</Box>

@@ -1,3 +1,4 @@
+import { useColorModeValue } from '@chakra-ui/react';
 import { MediaLabel } from '@nx-next-nest/types';
 import { MediaType, WaifuLevel } from '@prisma/client';
 
@@ -24,3 +25,5 @@ export const WaifuLevelLabels: Record<WaifuLevel, string> = {
 };
 
 export const MediaTypeLabels: MediaType[] = ['anime', 'manga', 'videogame'];
+
+export const useCardColor = () => useColorModeValue('teal.100', 'teal.500');

@@ -127,8 +127,6 @@ export const getMedias = createAsyncThunk<
 	{ rejectValue: HttpError }
 >('media/getMedias', async (dto, { rejectWithValue }) => {
 	try {
-		console.log(dto);
-
 		const { data } = await mediaService.getMedias(dto);
 		return data;
 	} catch (error) {

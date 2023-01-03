@@ -1,4 +1,4 @@
-import { StatHelpText } from '@chakra-ui/react';
+import { Box, StatHelpText, Text } from '@chakra-ui/react';
 import { MediaKnownUser } from '@nx-next-nest/types';
 
 interface KnownByProps {
@@ -8,14 +8,14 @@ interface KnownByProps {
 
 const KnownBy = ({ users, ownId }: KnownByProps) => {
 	return (
-		<>
+		<Box my='2'>
 			{users.map(({ user, knownAt }, i) => (
-				<StatHelpText key={user.id} mb={1 !== users.length ? '0' : '2'}>
+				<Text key={user.id} opacity='0.8' fontSize='sm'>
 					{ownId === user.id ? 'me' : user.alias} -{' '}
 					{new Date(knownAt).toDateString()}
-				</StatHelpText>
+				</Text>
 			))}
-		</>
+		</Box>
 	);
 };
 

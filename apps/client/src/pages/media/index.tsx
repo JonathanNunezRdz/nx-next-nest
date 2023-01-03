@@ -118,10 +118,7 @@ const Media: FC = () => {
 				</Box>
 
 				<Box w='full'>
-					<SimpleGrid
-						columns={{ sm: 1, md: 2, lg: 3 }}
-						spacing='1rem'
-					>
+					<SimpleGrid columns={{ sm: 2, md: 3 }} spacing='1rem'>
 						{media.length > 0 ? (
 							media.map((element) => (
 								<MediaCard

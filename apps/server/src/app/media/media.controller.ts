@@ -69,7 +69,6 @@ export class MediaController {
 
 	@Get('')
 	getMedias(@Query() dto: GetMediaDto): Promise<GetMediaResponse> {
-		console.log({ dto });
 		return this.mediaService.getMedias(dto);
 	}
 

@@ -11,7 +11,7 @@ import {
 	KnowMediaDto,
 	KnowMediaResponse,
 } from '@nx-next-nest/types';
-import qs from 'qs';
+import { stringify } from 'qs';
 
 import api from '../api';
 
@@ -34,11 +34,7 @@ const getMedias = (dto: GetMediaDto) =>
 	api.get<GetMediaResponse>('/media', {
 		params: dto,
 		paramsSerializer(params) {
-			console.log(
-				qs.stringify(params, { encode: false, arrayFormat: 'comma' })
-			);
-
-			return qs.stringify(params, {
+			return stringify(params, {
 				encode: false,
 				arrayFormat: 'comma',
 			});

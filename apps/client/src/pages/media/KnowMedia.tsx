@@ -6,11 +6,14 @@ import {
 	VStack,
 	Button,
 	Text,
+	LinkBox,
+	LinkOverlay,
 } from '@chakra-ui/react';
 import { KnowMediaDto } from '@nx-next-nest/types';
 import { MediaType } from '@prisma/client';
 import { useFormik } from 'formik';
 import { useRouter } from 'next/router';
+import NextLink from 'next/link';
 
 import Form from '../../components/common/Form';
 import PageTitle from '../../components/common/PageTitle';
@@ -74,6 +77,13 @@ const KnowMedia = () => {
 						/>
 					</FormControl>
 					<Box>
+						<LinkBox display='inline-flex'>
+							<NextLink href='/media' passHref>
+								<LinkOverlay>
+									<Button colorScheme='red'>cancel</Button>
+								</LinkOverlay>
+							</NextLink>
+						</LinkBox>
 						<Button
 							type='submit'
 							isLoading={knowMediaStatus.status === 'loading'}

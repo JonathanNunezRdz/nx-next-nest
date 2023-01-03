@@ -16,6 +16,10 @@
     -   [?] Show errors
     -   [?] Show loading state
 
+## Image
+
+-   [ ] Show images for media, waifu, and user
+
 ## User
 
 -   [?] Get current user
@@ -31,8 +35,8 @@
     -   [?] Show errors
     -   [?] Show loading state
 -   [?] Get all media
-    -   [ ] With filters
-    -   [ ] Show errors
+    -   [?] With filters
+    -   [?] Show errors
     -   [?] Show loading state
 -   [?] Know media
     -   [?] Show errors
@@ -50,13 +54,16 @@
     -   [?] Show errors
     -   [?] Show loading state
 -   [?] Get all waifus
-    -   [ ] With filters
+    -   [?] With filters
     -   [?] Show errors
     -   [?] Show loading state
--   [ ] Get waifus for a media
+-   [?] Get waifus for a media
     -   [ ] Show errors
     -   [ ] Show loading state
--   [ ] Edit/update waifu
+-   [?] Edit/update waifu
+    -   [?] Show errors
+    -   [?] Show loading state
+-   [ ] Edit/update media waifu
     -   [ ] Show errors
     -   [ ] Show loading state
 -   [ ] Delete waifu
