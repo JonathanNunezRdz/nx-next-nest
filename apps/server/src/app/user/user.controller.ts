@@ -21,23 +21,23 @@ export class UserController {
 		return user;
 	}
 
-	@Patch('migrate')
-	migrate() {
-		return this.userService.migrate();
-	}
+	// @Patch('migrate')
+	// migrate() {
+	// 	return this.userService.migrate();
+	// }
 
-	@Get('checkup')
-	checkup() {
-		return this.userService.checkup();
-	}
+	// @Get('checkup')
+	// checkup() {
+	// 	return this.userService.checkup();
+	// }
 
-	// @Get('waifu_firebase')
-	waifuFirebase() {
-		return this.userService.waifuFirebase();
-	}
+	// // @Get('waifu_firebase')
+	// waifuFirebase() {
+	// 	return this.userService.waifuFirebase();
+	// }
 
-	// @Get('media_firebase')
-	mediaFirebase() {
-		return this.userService.mediaFirebase();
-	}
+	// // @Get('media_firebase')
+	// mediaFirebase() {
+	// 	return this.userService.mediaFirebase();
+	// }
 }
