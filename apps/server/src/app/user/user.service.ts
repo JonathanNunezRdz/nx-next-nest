@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import type { EditUserDto } from '@nx-next-nest/types';
 import type { ImageFormat, Prisma, PrismaPromise } from '@prisma/client';
 import { hash } from 'argon2';
-import { cert, initializeApp, ServiceAccount } from 'firebase-admin/app';
+import { applicationDefault, initializeApp } from 'firebase-admin/app';
 import { getStorage } from 'firebase-admin/storage';
 import mongoose, { Schema } from 'mongoose';
 
@@ -15,7 +15,6 @@ import mangas from '../../../tmp/dumps/mangas.json';
 import users from '../../../tmp/dumps/users.json';
 import videogames from '../../../tmp/dumps/videogames.json';
 import waifus from '../../../tmp/dumps/waifus.json';
-import serviceAccount from '../../../tmp/serviceAccountKey.json';
 
 @Injectable()
 export class UserService {
@@ -72,7 +71,7 @@ export class UserService {
 
 		// init firebase app
 		initializeApp({
-			credential: cert(serviceAccount as ServiceAccount),
+			credential: applicationDefault(),
 			storageBucket: 'wia-web-app.appspot.com',
 		});
 
@@ -203,7 +202,7 @@ export class UserService {
 
 		// init firebase app
 		initializeApp({
-			credential: cert(serviceAccount as ServiceAccount),
+			credential: applicationDefault(),
 			storageBucket: 'wia-web-app.appspot.com',
 		});
 
