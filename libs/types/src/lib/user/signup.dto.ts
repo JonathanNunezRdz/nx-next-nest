@@ -32,6 +32,10 @@ export class SignUpDto {
 	@IsNotEmpty()
 	password: string;
 
+	@IsString()
+	@IsNotEmpty()
+	secret: string;
+
 	@IsEnum(ImageFormat, {
 		message: `imageFormat must be a valid option: ${Object.keys(
 			ImageFormat

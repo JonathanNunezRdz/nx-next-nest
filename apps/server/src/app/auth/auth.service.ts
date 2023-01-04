@@ -21,17 +21,23 @@ export class AuthService {
 	}
 
 	async signup(dto: SignUpDto) {
-		const hashedPassword = await hash(dto.password);
+		const { lastName, firstName, alias, email, password, secret, uid } =
+			dto;
+		const valid = await verify(this.config.get('SIGN_UP_KEY'), secret);
+		if (!valid) {
+			throw new ForbiddenException('incorrect credentials');
+		}
+		const hashedPassword = await hash(password);
 		const createImage = createUserImage(dto);
 
 		try {
 			const user = await this.prisma.user.create({
 				data: {
-					alias: dto.alias,
-					firstName: dto.firstName,
-					lastName: dto.lastName,
-					email: dto.email,
-					uid: dto.uid,
+					alias,
+					firstName,
+					lastName,
+					email,
+					uid,
 					hash: hashedPassword,
 					image: createImage,
 				},
