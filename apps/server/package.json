@@ -4,6 +4,7 @@
 	"authors": "author",
 	"version": "1.0.0",
 	"main": "pathToMain",
+	"license": "MIT",
 	"scripts": {
 		"db:dev:up": "docker compose up dev-db -d",
 		"db:dev:rm": "docker compose rm dev-db -s -f -v",
