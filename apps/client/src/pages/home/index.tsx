@@ -9,14 +9,13 @@ import { selectUser, selectUserStatus } from '../../store/user';
 const Home: FC = () => {
 	const { status } = useAppSelector(selectUserStatus);
 	const user = useAppSelector(selectUser);
+	const welcomeMessage = status === 'succeeded' ? user.alias : 'to the wia';
 
 	return (
 		<Body v h>
 			<NextSeo title='home' />
 			<Box>
-				<Heading>
-					welcome {status === 'succeeded' ? user.alias : 'to the wia'}
-				</Heading>
+				<Heading>welcome {welcomeMessage}</Heading>
 			</Box>
 		</Body>
 	);
