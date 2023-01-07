@@ -6,8 +6,19 @@
 		"prepare": {
 			"executor": "nx:run-commands",
 			"options": {
-				"command": "npx prisma migrate deploy --schema=../../prisma/schema.prisma",
+				"commands": [
+					"docker compose up dev-db -d",
+					"npx prisma migrate deploy --schema=../../prisma/schema.prisma"
+				],
+				"parallel": false,
 				"cwd": "apps/server"
+			},
+			"configurations": {
+				"production": {
+					"commands": [
+						"npx prisma migrate deploy --schema=../../prisma/schema.prisma"
+					]
+				}
 			}
 		},
 		"build": {
@@ -38,7 +49,8 @@
 			"executor": "@nrwl/node:node",
 			"options": {
 				"buildTarget": "server:build"
-			}
+			},
+			"dependsOn": ["prepare"]
 		},
 		"lint": {
 			"executor": "@nrwl/linter:eslint",

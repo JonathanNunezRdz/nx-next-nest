@@ -1,4 +1,6 @@
 import { JWTPayload, JWTStatus } from '@nx-next-nest/types';
+import { ImageFormat } from '@prisma/client';
+import { ImageFormats } from './constants';
 
 export const invalidateJWT = () => {
 	localStorage.removeItem(process.env.NEXT_PUBLIC_JWT_LOCAL_STORAGE_KEY);
@@ -71,4 +73,29 @@ export const parseWaifuId = (waifuId: string | string[]) => {
 	} catch (error) {
 		return -1;
 	}
+};
+
+export const loadImage = (images: FileList) => {
+	return new Promise<{ result: string; format: ImageFormat; image: File }>(
+		(resolve, reject) => {
+			if (images && images[0]) {
+				const reader = new FileReader();
+				reader.onload = (event) => {
+					const format = images[0].type.split('/').pop();
+					if (isValidImageFormat(format)) {
+						resolve({
+							result: event.target.result as string,
+							format,
+							image: images[0],
+						});
+					}
+				};
+				reader.readAsDataURL(images[0]);
+			} else reject('not a valid format');
+		}
+	);
+};
+
+export const isValidImageFormat = (format: string): format is ImageFormat => {
+	return ImageFormats.includes(format);
 };

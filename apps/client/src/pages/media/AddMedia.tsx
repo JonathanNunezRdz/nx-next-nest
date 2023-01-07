@@ -1,6 +1,16 @@
 import { FormikErrors, useFormik } from 'formik';
-import { useEffect } from 'react';
-import { LinkBox, LinkOverlay, Button, HStack, VStack } from '@chakra-ui/react';
+import { ChangeEvent, useEffect, useState } from 'react';
+import {
+	LinkBox,
+	LinkOverlay,
+	Button,
+	HStack,
+	VStack,
+	FormControl,
+	FormLabel,
+	Input,
+	Image,
+} from '@chakra-ui/react';
 import { CreateMediaDto } from '@nx-next-nest/types';
 import { useRouter } from 'next/router';
 import NextLink from 'next/link';
@@ -12,7 +22,7 @@ import {
 	selectAddMediaStatus,
 } from '../../store/media';
 import ProtectedPage from '../../components/auth/ProtectedPage';
-import { formatDate, prepareDate } from '../../utils';
+import { formatDate, loadImage, prepareDate } from '../../utils';
 import { mediaLabel } from '../../utils/constants';
 import PageTitle from '../../components/common/PageTitle';
 import Form from '../../components/common/Form';
@@ -30,6 +40,7 @@ const AddMedia = () => {
 			title: '',
 			type: 'anime',
 			knownAt: formatDate(),
+			imageFormat: null,
 		},
 		onSubmit: async (values) => {
 			const newValues = {
@@ -37,6 +48,7 @@ const AddMedia = () => {
 				knownAt: prepareDate(values.knownAt),
 			};
 			const res = await dispatch(addMedia(newValues));
+			// upload image to firebase
 			if (res.meta.requestStatus === 'fulfilled') router.push('/media');
 		},
 		validate: (values) => {
@@ -45,6 +57,15 @@ const AddMedia = () => {
 			return errors;
 		},
 	});
+	const [currentImage, setCurrentImage] = useState<string>('');
+	const [imageFile, setImageFile] = useState<File>();
+
+	const handleImageChange = async (event: ChangeEvent<HTMLInputElement>) => {
+		const res = await loadImage(event.currentTarget.files);
+		setCurrentImage(res.result);
+		setImageFile(res.image);
+		formik.setFieldValue('imageFormat', res.format);
+	};
 
 	useEffect(() => {
 		return () => {
@@ -77,6 +98,18 @@ const AddMedia = () => {
 						onChange={formik.handleChange}
 						knownAt={formik.values.knownAt}
 					/>
+					{currentImage && <Image src={currentImage} />}
+					<FormControl>
+						<FormLabel htmlFor='image'>image</FormLabel>
+						<Input
+							id='image'
+							name='image'
+							type='file'
+							variant='filled'
+							accept='image/*'
+							onChange={handleImageChange}
+						/>
+					</FormControl>
 					<HStack>
 						<LinkBox display='inline-flex'>
 							<NextLink href='/media' passHref>

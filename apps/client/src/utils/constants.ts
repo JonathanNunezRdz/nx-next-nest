@@ -27,3 +27,17 @@ export const WaifuLevelLabels: Record<WaifuLevel, string> = {
 export const MediaTypeLabels: MediaType[] = ['anime', 'manga', 'videogame'];
 
 export const useCardColor = () => useColorModeValue('teal.100', 'teal.500');
+
+export const ImageFormats: string[] = [
+	'apng',
+	'avif',
+	'gif',
+	'jpg',
+	'jpeg',
+	'jfif',
+	'pjpeg',
+	'pjp',
+	'png',
+	'svg',
+	'webp',
+];

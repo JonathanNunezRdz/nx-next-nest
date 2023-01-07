@@ -121,6 +121,8 @@ export const addMedia = createAsyncThunk<
 	}
 });
 
+// export const createImage = createAsyncThunk<>();/
+
 export const getMedias = createAsyncThunk<
 	GetMediaResponse,
 	GetMediaDto,
