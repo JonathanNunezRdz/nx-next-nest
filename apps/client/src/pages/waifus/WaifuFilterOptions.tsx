@@ -53,10 +53,17 @@ const WaifuFilterOptions = ({ getWaifus }: WaifuFilterOptionsProps) => {
 			},
 		});
 	const onSubmit: SubmitHandler<WaifuFilterInputs> = (data) => {
+		const users: UserId[] = [];
 		const level: WaifuLevel[] = [];
 		Object.entries(data).forEach(([key, value]) => {
 			if (Object.keys(WaifuLevelLabels).includes(key) && value === true)
 				level.push(key as WaifuLevel);
+
+			if (
+				members.findIndex((member) => member.id === Number(key)) &&
+				value === true
+			)
+				users.push(key as UserId);
 		});
 
 		getWaifus({
@@ -64,6 +71,7 @@ const WaifuFilterOptions = ({ getWaifus }: WaifuFilterOptionsProps) => {
 			limit: 9,
 			name: data.name,
 			level,
+			users: users.map(Number),
 		});
 	};
 	const resetFilters = () => {
@@ -80,8 +88,8 @@ const WaifuFilterOptions = ({ getWaifus }: WaifuFilterOptionsProps) => {
 			<form onSubmit={handleSubmit(onSubmit)}>
 				<SimpleGrid
 					columns={{ sm: 1, md: 3 }}
-					spacing='1rem'
-					alignItems='end'
+					spacing='4'
+					alignItems='center'
 				>
 					<FormControl>
 						<FormLabel htmlFor='name'>name</FormLabel>
