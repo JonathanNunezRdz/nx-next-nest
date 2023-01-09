@@ -75,9 +75,9 @@ const Waifus = () => {
 
 	return (
 		<Body h>
-			<VStack w='full' spacing='1rem'>
+			<VStack w='full' spacing='4'>
 				<Box w='full'>
-					<HStack spacing='1rem'>
+					<HStack spacing='4'>
 						<Heading>waifus</Heading>
 						{isLoggedIn && (
 							<LinkButton
@@ -104,8 +104,16 @@ const Waifus = () => {
 					<WaifuFilterOptions getWaifus={handleGetWaifus} />
 				</Box>
 
+				<CustomPagination
+					pages={pages}
+					pagesCount={pagesCount}
+					currentPage={currentPage}
+					isDisabled={isDisabled}
+					onPageChange={handleChangePage}
+				/>
+
 				<Box w='full'>
-					<SimpleGrid columns={{ sm: 2, md: 3 }} spacing='1rem'>
+					<SimpleGrid columns={{ sm: 2, md: 3 }} spacing='4'>
 						{waifus.length > 0 ? (
 							waifus.map((element) => (
 								<WaifuCard
