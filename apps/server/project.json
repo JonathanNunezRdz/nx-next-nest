@@ -3,11 +3,27 @@
 	"sourceRoot": "apps/server/src",
 	"projectType": "application",
 	"targets": {
-		"prepare": {
+		"remove-db": {
+			"executor": "nx:run-commands",
+			"options": {
+				"command": "echo READY",
+				"cwd": "apps/server"
+			},
+			"configurations": {
+				"production": {
+					"command": "echo READY"
+				},
+				"hard": {
+					"command": "docker compose rm dev-db -s -f -v"
+				}
+			}
+		},
+		"prepare-db": {
 			"executor": "nx:run-commands",
 			"options": {
 				"commands": [
 					"docker compose up dev-db -d",
+					"sleep 1",
 					"npx prisma migrate deploy --schema=../../prisma/schema.prisma"
 				],
 				"parallel": false,
@@ -19,7 +35,8 @@
 						"npx prisma migrate deploy --schema=../../prisma/schema.prisma"
 					]
 				}
-			}
+			},
+			"dependsOn": ["remove-db"]
 		},
 		"build": {
 			"executor": "@nrwl/node:webpack",
@@ -43,14 +60,14 @@
 					]
 				}
 			},
-			"dependsOn": ["prepare"]
+			"dependsOn": ["prepare-db"]
 		},
 		"serve": {
 			"executor": "@nrwl/node:node",
 			"options": {
 				"buildTarget": "server:build"
 			},
-			"dependsOn": ["prepare"]
+			"dependsOn": ["prepare-db"]
 		},
 		"lint": {
 			"executor": "@nrwl/linter:eslint",

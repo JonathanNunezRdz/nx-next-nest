@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common';
-import { EditUserDto } from '@nx-next-nest/types';
+import { EditUserDto, GetAllUsersResponse } from '@nx-next-nest/types';
 import { User } from '@prisma/client';
 import { GetUser } from '../auth/decorator';
 import { JwtGuard } from '../auth/guard';
@@ -21,10 +21,16 @@ export class UserController {
 		return user;
 	}
 
-	// @Patch('migrate')
-	// migrate() {
-	// 	return this.userService.migrate();
-	// }
+	@Get('all')
+	getAllUsers(): Promise<GetAllUsersResponse> {
+		return this.userService.getAllUsers();
+	}
+
+	@Patch('migrate')
+	migrate() {
+		// return this.userService.migrate();
+		return false;
+	}
 
 	// @Get('checkup')
 	// checkup() {

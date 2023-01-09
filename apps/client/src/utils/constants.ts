@@ -41,3 +41,14 @@ export const ImageFormats: string[] = [
 	'svg',
 	'webp',
 ];
+
+export type WaifuLevelBoolean = Record<WaifuLevel, boolean>;
+
+export type UserId = '1' | '2' | '3' | '4';
+
+export type UserIdBoolean = Record<UserId, boolean>;
+
+export type WaifuFilterInputs = WaifuLevelBoolean &
+	UserIdBoolean & {
+		name: string;
+	};

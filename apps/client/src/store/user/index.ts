@@ -1,4 +1,5 @@
 import {
+	GetAllUsersResponse,
 	HttpError,
 	SignInDto,
 	SignInResponse,
@@ -11,6 +12,23 @@ import { RootState } from '..';
 import { invalidateJWT, setJWT, validateJWT } from '../../utils';
 import api from '../api';
 import userService from './service';
+
+export const getAllUsers = createAsyncThunk<
+	GetAllUsersResponse,
+	void,
+	{ rejectValue: HttpError }
+>('user/getAll', async (_, thunkApi) => {
+	try {
+		const { data } = await userService.getAllUsers();
+		return data;
+	} catch (error) {
+		if (error instanceof AxiosError) {
+			const { response } = error as AxiosError<HttpError>;
+			return thunkApi.rejectWithValue(response.data);
+		}
+		throw error;
+	}
+});
 
 export const getUser = createAsyncThunk<User, void, { rejectValue: HttpError }>(
 	'user/getUser',
@@ -63,6 +81,11 @@ const initialState: UserState = {
 		status: 'idle',
 		error: undefined,
 	},
+	members: {
+		data: [],
+		status: 'idle',
+		error: undefined,
+	},
 };
 
 export const userSlice = createSlice({
@@ -90,14 +113,17 @@ export const userSlice = createSlice({
 			invalidateJWT();
 			api.defaults.headers.common['Authorization'] = '';
 
-			state.auth.isLoggedIn = false;
 			state.user.data = {} as User;
-			state.user.error = undefined;
 			state.user.status = 'idle';
-			state.signIn.error = undefined;
+			state.user.error = undefined;
+			state.auth.isLoggedIn = false;
 			state.signIn.status = 'idle';
-			state.signOut.error = undefined;
+			state.signIn.error = undefined;
 			state.signOut.status = 'succeeded';
+			state.signOut.error = undefined;
+			state.members.data = [];
+			state.members.status = 'idle';
+			state.members.error = undefined;
 		},
 		resetSignInStatus: (state) => {
 			state.signIn.status = 'idle';
@@ -140,6 +166,18 @@ export const userSlice = createSlice({
 					status: 'failed',
 					error: action.payload.message,
 				};
+			})
+			.addCase(getAllUsers.pending, (state) => {
+				state.members.status = 'loading';
+			})
+			.addCase(getAllUsers.fulfilled, (state, action) => {
+				state.members.data = action.payload;
+				state.members.status = 'succeeded';
+				state.members.error = undefined;
+			})
+			.addCase(getAllUsers.rejected, (state, action) => {
+				state.members.status = 'failed';
+				state.members.error = action.payload.message;
 			});
 	},
 });
@@ -159,5 +197,11 @@ export const selectUserStatus = (state: RootState) => ({
 export const selectAuth = (state: RootState) => state.user.auth;
 
 export const selectUser = (state: RootState) => state.user.user.data;
+
+export const selectAllUsers = (state: RootState) => state.user.members.data;
+export const selectAllUsersStatus = (state: RootState) => ({
+	status: state.user.members.status,
+	error: state.user.members.error,
+});
 
 export default userReducer;
