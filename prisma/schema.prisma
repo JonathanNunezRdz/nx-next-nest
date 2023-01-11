@@ -51,7 +51,7 @@ model Image {
 }
 
 model MediaImage {
-  media   Media @relation(references: [id], fields: [mediaId])
+  media   Media @relation(references: [id], fields: [mediaId], onDelete: Cascade)
   mediaId Int   @unique
 
   image   Image @relation(references: [id], fields: [imageId])
@@ -77,7 +77,7 @@ model KnownMedia {
   user   User @relation(fields: [userId], references: [id])
   userId Int
 
-  media   Media @relation(fields: [mediaId], references: [id])
+  media   Media @relation(fields: [mediaId], references: [id], onDelete: Cascade)
   mediaId Int
 
   knownAt DateTime
@@ -95,7 +95,7 @@ model Waifu {
   since DateTime
 
   image   WaifuImage?
-  media   Media       @relation(references: [id], fields: [mediaId])
+  media   Media       @relation(references: [id], fields: [mediaId], onDelete: Cascade)
   mediaId Int
   user    User        @relation(references: [id], fields: [userId])
   userId  Int
@@ -104,7 +104,7 @@ model Waifu {
 }
 
 model WaifuImage {
-  waifu   Waifu @relation(references: [id], fields: [waifuId])
+  waifu   Waifu @relation(references: [id], fields: [waifuId], onDelete: Cascade)
   waifuId Int   @unique
 
   image   Image @relation(references: [id], fields: [imageId])

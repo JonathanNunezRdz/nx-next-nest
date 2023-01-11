@@ -24,7 +24,7 @@ export const WaifuLevelLabels: Record<WaifuLevel, string> = {
 	topWaifu: 'top waifu',
 };
 
-export const MediaTypeLabels: MediaType[] = ['anime', 'manga', 'videogame'];
+export const MediaTypes = ['anime', 'manga', 'videogame'];
 
 export const useCardColor = () => useColorModeValue('teal.100', 'teal.500');
 
@@ -42,6 +42,8 @@ export const ImageFormats: string[] = [
 	'webp',
 ];
 
+export type MediaTypeBoolean = Record<MediaType, boolean>;
+
 export type WaifuLevelBoolean = Record<WaifuLevel, boolean>;
 
 export type UserId = '1' | '2' | '3' | '4';
@@ -51,4 +53,9 @@ export type UserIdBoolean = Record<UserId, boolean>;
 export type WaifuFilterInputs = WaifuLevelBoolean &
 	UserIdBoolean & {
 		name: string;
+	};
+
+export type MediaFilterInputs = MediaTypeBoolean &
+	UserIdBoolean & {
+		title: string;
 	};

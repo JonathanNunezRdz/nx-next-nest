@@ -32,6 +32,11 @@ import { MediaService } from './media.service';
 export class MediaController {
 	constructor(private mediaService: MediaService) {}
 
+	@Get('test_image/:image_url')
+	getImageURL(@Param('image_url') imageURL: string) {
+		return this.mediaService.getImageURL(imageURL);
+	}
+
 	@UseGuards(JwtGuard)
 	@Get('titles')
 	getMediaTitles(
@@ -88,6 +93,6 @@ export class MediaController {
 		@GetUser('id') userId: number,
 		@Param('id', ParseIntPipe) mediaId: number
 	) {
-		return '';
+		return this.mediaService.deleteMedia(userId, mediaId);
 	}
 }

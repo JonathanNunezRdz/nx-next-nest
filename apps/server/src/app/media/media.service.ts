@@ -12,10 +12,18 @@ import {
 	editMediaKnownAt,
 } from '../../utils';
 import { PrismaService } from '../prisma/prisma.service';
+import { StorageService } from '../storage/storage.service';
 
 @Injectable()
 export class MediaService {
-	constructor(private prisma: PrismaService) {}
+	constructor(
+		private prisma: PrismaService,
+		private storage: StorageService
+	) {}
+
+	async getImageURL(filename: string) {
+		return this.storage.getFile(filename);
+	}
 
 	async getMediaTitles(userId: number) {
 		const mediaTitles = await this.prisma.media.findMany({
@@ -87,11 +95,28 @@ export class MediaService {
 		if (media.knownBy.findIndex((users) => users.userId === userId) === -1)
 			throw new ForbiddenException('access to resources denied');
 
-		await this.prisma.media.delete({
+		const deletedMedia = await this.prisma.media.delete({
 			where: {
 				id: mediaId,
 			},
+			select: {
+				image: {
+					select: {
+						image: {
+							select: {
+								id: true,
+							},
+						},
+					},
+				},
+			},
 		});
+		await this.prisma.image.delete({
+			where: {
+				id: deletedMedia.image.image.id,
+			},
+		});
+		console.log('deleted media');
 	}
 
 	async editMedia(userId: number, dto: EditMediaDto) {
@@ -233,8 +258,10 @@ export class MediaService {
 				},
 				knownBy: {
 					every: {
-						userId: {
-							in: dto.users,
+						user: {
+							id: {
+								in: dto.users,
+							},
 						},
 					},
 				},
@@ -251,8 +278,10 @@ export class MediaService {
 				},
 				knownBy: {
 					every: {
-						userId: {
-							in: dto.users,
+						user: {
+							id: {
+								in: dto.users,
+							},
 						},
 					},
 				},

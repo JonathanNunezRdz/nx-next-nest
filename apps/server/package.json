@@ -6,11 +6,6 @@
 	"main": "pathToMain",
 	"license": "MIT",
 	"scripts": {
-		"db:dev:up": "docker compose up dev-db -d",
-		"db:dev:rm": "docker compose rm dev-db -s -f -v",
-		"db:dev:restart": "yarn db:dev:rm && yarn db:dev:up && timeout /t 3 && yarn prisma:dev:deploy",
-		"db:dev:restart:linux": "yarn db:dev:rm && yarn db:dev:up && sleep 3 && yarn prisma:dev:deploy",
-		"prisma:dev:deploy": "npx prisma migrate deploy --schema=../../prisma/schema.prisma",
 		"prisma:dev:migrate": "npx prisma migrate dev --schema=../../prisma/schema.prisma",
 		"prisma:studio": "npx prisma studio --schema=../../prisma/schema.prisma",
 		"pretest:e2e": "yarn db:test:restart && timeout /t 3",

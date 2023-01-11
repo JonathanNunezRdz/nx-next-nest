@@ -17,8 +17,19 @@ import api from '../api';
 
 // TODO: fix all routes which have an array in params
 
+const deleteMedia = (mediaId: number | string) =>
+	api.delete<void>(`/media/${mediaId}`);
+
 const getMediaWaifus = (title: string, dto: GetMediaWaifusDto) =>
-	api.get<GetMediaWaifusResponse>(`/waifu/${title}`, { params: dto });
+	api.get<GetMediaWaifusResponse>(`/waifu/${title}`, {
+		params: dto,
+		paramsSerializer(params) {
+			return stringify(params, {
+				encode: false,
+				arrayFormat: 'comma',
+			});
+		},
+	});
 
 const getMediaTitles = () => api.get<GetMediaTitlesResponse>('/media/titles');
 
@@ -52,6 +63,7 @@ const mediaService = {
 	getEditMedia,
 	editMedia,
 	getMediaTitles,
+	deleteMedia,
 };
 
 export default mediaService;

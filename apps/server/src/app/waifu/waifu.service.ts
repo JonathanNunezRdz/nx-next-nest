@@ -74,7 +74,9 @@ export class WaifuService {
 					title,
 				},
 				name,
-				level,
+				level: {
+					in: level,
+				},
 				userId: {
 					in: users,
 				},

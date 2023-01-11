@@ -12,6 +12,7 @@ import { GetAllWaifusDto } from '@nx-next-nest/types';
 import { WaifuLevel } from '@prisma/client';
 import { useEffect } from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
+import FilterUsersInput from '../../components/common/FilterUsersInput';
 
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
@@ -19,6 +20,7 @@ import {
 	selectAllUsers,
 	selectAllUsersStatus,
 } from '../../store/user';
+import { isValidWaifuLevel } from '../../utils';
 import {
 	UserId,
 	WaifuFilterInputs,
@@ -35,8 +37,8 @@ const WaifuFilterOptions = ({ getWaifus }: WaifuFilterOptionsProps) => {
 	const members = useAppSelector(selectAllUsers);
 	const { status, error } = useAppSelector(selectAllUsersStatus);
 
-	// formik
-	const { register, handleSubmit, reset, control, getValues } =
+	// react-hook-form
+	const { register, handleSubmit, reset, control } =
 		useForm<WaifuFilterInputs>({
 			defaultValues: {
 				nationalTreasure: false,
@@ -56,8 +58,7 @@ const WaifuFilterOptions = ({ getWaifus }: WaifuFilterOptionsProps) => {
 		const users: UserId[] = [];
 		const level: WaifuLevel[] = [];
 		Object.entries(data).forEach(([key, value]) => {
-			if (Object.keys(WaifuLevelLabels).includes(key) && value === true)
-				level.push(key as WaifuLevel);
+			if (isValidWaifuLevel(key) && value === true) level.push(key);
 
 			if (
 				members.findIndex((member) => member.id === Number(key)) &&
@@ -81,7 +82,7 @@ const WaifuFilterOptions = ({ getWaifus }: WaifuFilterOptionsProps) => {
 
 	useEffect(() => {
 		if (status === 'idle') dispatch(getAllUsers());
-	}, []);
+	}, [status, dispatch]);
 
 	return (
 		<Box>
@@ -129,35 +130,7 @@ const WaifuFilterOptions = ({ getWaifus }: WaifuFilterOptionsProps) => {
 						</CheckboxGroup>
 					</FormControl>
 
-					<FormControl>
-						<FormLabel htmlFor='users'>users</FormLabel>
-						<CheckboxGroup>
-							<SimpleGrid columns={{ sm: 2 }} spacing='4'>
-								{status === 'succeeded' &&
-									members.map((member) => (
-										<Controller
-											key={member.id}
-											control={control}
-											name={
-												member.id.toString() as UserId
-											}
-											defaultValue={false}
-											render={({
-												field: { onChange, value, ref },
-											}) => (
-												<Checkbox
-													onChange={onChange}
-													ref={ref}
-													isChecked={value}
-												>
-													{member.alias}
-												</Checkbox>
-											)}
-										/>
-									))}
-							</SimpleGrid>
-						</CheckboxGroup>
-					</FormControl>
+					<FilterUsersInput control={control} />
 
 					<Button onClick={resetFilters} width='full'>
 						reset

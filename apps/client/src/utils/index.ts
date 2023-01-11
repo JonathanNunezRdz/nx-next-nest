@@ -1,6 +1,6 @@
 import { JWTPayload, JWTStatus } from '@nx-next-nest/types';
-import { ImageFormat } from '@prisma/client';
-import { ImageFormats } from './constants';
+import { ImageFormat, MediaType, WaifuLevel } from '@prisma/client';
+import { ImageFormats, MediaTypes, WaifuLevelLabels } from './constants';
 
 export const invalidateJWT = () => {
 	localStorage.removeItem(process.env.NEXT_PUBLIC_JWT_LOCAL_STORAGE_KEY);
@@ -98,4 +98,12 @@ export const loadImage = (images: FileList) => {
 
 export const isValidImageFormat = (format: string): format is ImageFormat => {
 	return ImageFormats.includes(format);
+};
+
+export const isValidMediaType = (mediaType: string): mediaType is MediaType => {
+	return MediaTypes.includes(mediaType);
+};
+
+export const isValidWaifuLevel = (level: string): level is WaifuLevel => {
+	return Object.keys(WaifuLevelLabels).includes(level);
 };

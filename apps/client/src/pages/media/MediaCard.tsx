@@ -1,12 +1,4 @@
-import {
-	Box,
-	HStack,
-	ListItem,
-	Text,
-	List,
-	useDisclosure,
-	Link,
-} from '@chakra-ui/react';
+import { Box, HStack, ListItem, Text, List, Link } from '@chakra-ui/react';
 import NextLink from 'next/link';
 import { MediaResponse } from '@nx-next-nest/types';
 
@@ -22,7 +14,6 @@ interface MediaCardProps {
 }
 
 const MediaCard = ({ media, ownId, isLoggedIn }: MediaCardProps) => {
-	const { isOpen, onToggle } = useDisclosure();
 	const bg = useCardColor();
 	const knownByMe =
 		media.knownBy.findIndex((user) => user.userId === ownId) !== -1;

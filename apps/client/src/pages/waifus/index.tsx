@@ -2,7 +2,6 @@ import { usePagination } from '@ajna/pagination';
 import { AddIcon, RepeatIcon } from '@chakra-ui/icons';
 import {
 	Box,
-	Center,
 	Heading,
 	HStack,
 	IconButton,
@@ -12,8 +11,8 @@ import {
 } from '@chakra-ui/react';
 import { GetAllWaifusDto } from '@nx-next-nest/types';
 import { useCallback, useEffect } from 'react';
-import CustomPagination from '../../components/common/CustomPagination';
 
+import CustomPagination from '../../components/common/CustomPagination';
 import LinkButton from '../../components/common/LinkButton';
 import Body from '../../components/layout/Body';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';

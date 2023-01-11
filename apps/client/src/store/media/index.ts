@@ -1,5 +1,5 @@
 import {
-	CreateMediaDto,
+	CreateMedia,
 	CreateMediaResponse,
 	EditMediaDto,
 	EditMediaResponse,
@@ -16,17 +16,20 @@ import {
 } from '@nx-next-nest/types';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AxiosError } from 'axios';
+import { FirebaseError } from 'firebase/app';
+import { ref, uploadBytes } from 'firebase/storage';
+
 import { RootState } from '..';
+import { storage } from '../api/firebase';
 import mediaService from './service';
 
-export const getMediaWaifus = createAsyncThunk<
-	GetMediaWaifusResponse,
-	{ title: string; dto: GetMediaWaifusDto },
+export const deleteMedia = createAsyncThunk<
+	void,
+	{ mediaId: number | string },
 	{ rejectValue: HttpError }
->('media/getMediaWaifus', async ({ title, dto }, { rejectWithValue }) => {
+>('media/delete', async ({ mediaId }, { rejectWithValue }) => {
 	try {
-		const { data } = await mediaService.getMediaWaifus(title, dto);
-		return data;
+		await mediaService.deleteMedia(mediaId);
 	} catch (error) {
 		if (error instanceof AxiosError) {
 			const { response } = error as AxiosError<HttpError>;
@@ -35,6 +38,26 @@ export const getMediaWaifus = createAsyncThunk<
 		throw error;
 	}
 });
+
+export const getMediaWaifus = createAsyncThunk<
+	GetMediaWaifusResponse,
+	{ title: string; dto: GetMediaWaifusDto },
+	{ rejectValue: HttpError }
+>(
+	'media/getMediaWaifus',
+	async ({ title, dto }, { rejectWithValue, ...thunkApi }) => {
+		try {
+			const { data } = await mediaService.getMediaWaifus(title, dto);
+			return data;
+		} catch (error) {
+			if (error instanceof AxiosError) {
+				const { response } = error as AxiosError<HttpError>;
+				return rejectWithValue(response.data);
+			}
+			throw error;
+		}
+	}
+);
 
 export const getMediaTitles = createAsyncThunk<
 	GetMediaTitlesResponse,
@@ -106,22 +129,31 @@ export const knowMedia = createAsyncThunk<
 
 export const addMedia = createAsyncThunk<
 	CreateMediaResponse,
-	CreateMediaDto,
+	CreateMedia,
 	{ rejectValue: HttpError }
 >('media/addMedia', async (dto, { rejectWithValue }) => {
 	try {
-		const { data } = await mediaService.addMedia(dto);
+		const { data } = await mediaService.addMedia(dto.media);
+		if (dto.withImage) {
+			const path =
+				process.env.NODE_ENV === 'production'
+					? dto.path
+					: `test/${dto.path}`;
+			console.log('firebase path', path);
+			const imageRef = ref(storage, path);
+			await uploadBytes(imageRef, dto.image);
+		}
 		return data;
 	} catch (error) {
 		if (error instanceof AxiosError) {
 			const { response } = error as AxiosError<HttpError>;
 			return rejectWithValue(response.data);
+		} else if (error instanceof FirebaseError) {
+			console.log(error.code);
 		}
 		throw error;
 	}
 });
-
-// export const createImage = createAsyncThunk<>();/
 
 export const getMedias = createAsyncThunk<
 	GetMediaResponse,
@@ -174,6 +206,10 @@ const initialState: MediaState = {
 			status: 'idle',
 			error: undefined,
 		},
+	},
+	delete: {
+		error: undefined,
+		status: 'idle',
 	},
 	titles: {
 		data: [],
@@ -345,6 +381,17 @@ export const mediaSlice = createSlice({
 			.addCase(getMediaWaifus.rejected, (state, action) => {
 				state.mediaWaifus.error = action.payload.message;
 				state.mediaWaifus.status = 'failed';
+			})
+			.addCase(deleteMedia.pending, (state) => {
+				state.delete.status = 'loading';
+			})
+			.addCase(deleteMedia.fulfilled, (state) => {
+				state.delete.error = undefined;
+				state.delete.status = 'succeeded';
+			})
+			.addCase(deleteMedia.rejected, (state, action) => {
+				state.delete.error = action.payload.message;
+				state.delete.status = 'failed';
 			});
 	},
 });
@@ -373,6 +420,11 @@ export const selectEditMediaStatus = (state: RootState) => ({
 	error: state.media.edit.error,
 });
 
+export const selectDeleteMediaStatus = (state: RootState) => ({
+	status: state.media.delete.status,
+	error: state.media.delete.error,
+});
+
 export const selectMedia = (state: RootState) => state.media.get.data;
 export const selectMediaStatus = (state: RootState) => ({
 	status: state.media.get.status,
@@ -380,7 +432,7 @@ export const selectMediaStatus = (state: RootState) => ({
 });
 export const selectMediaAppliedFilters = (state: RootState) => ({
 	totalMedias: state.media.get.totalMedias,
-	...state.media.get.appliedFilters,
+	appliedFilters: state.media.get.appliedFilters,
 });
 
 export const selectMediaTitlesStatus = (state: RootState) => ({
