@@ -36,4 +36,11 @@ export class StorageService {
 		});
 		return this.getFile(res.name);
 	}
+
+	async deleteFile(filename: string): Promise<void> {
+		const res = await this.imageKit.listFiles({
+			searchQuery: `name=${filename}`,
+		});
+		console.log(res);
+	}
 }

@@ -1,4 +1,4 @@
-import { ImageFormat, Media, MediaImage } from '@prisma/client';
+import { Media, Waifu } from '@prisma/client';
 
 import { MediaKnownUser } from '.';
 import { EditMediaDto } from './edit-media.dto';
@@ -22,17 +22,9 @@ export type GetMediaResponse = {
 };
 
 export type MediaResponse = Media & {
-	waifus: {
-		id: number;
-		name: string;
-	}[];
-	image:
-		| (MediaImage & {
-				image: {
-					format: ImageFormat;
-					src?: string | undefined;
-				};
-		  })
-		| null;
+	waifus: Pick<Waifu, 'id' | 'name'>[];
 	knownBy: MediaKnownUser[];
+	image?: {
+		src: string;
+	};
 };

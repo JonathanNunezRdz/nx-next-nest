@@ -79,11 +79,13 @@ export class MediaController {
 
 	@UseGuards(JwtGuard)
 	@Post('create')
+	@UseInterceptors(FileInterceptor('file'))
 	createMedia(
 		@GetUser('id') userId: number,
-		@Body() dto: CreateMediaDto
+		@Body() mediaDto: CreateMediaDto,
+		@UploadedFile() imageFile: Express.Multer.File
 	): Promise<CreateMediaResponse> {
-		return this.mediaService.createMedia(userId, dto);
+		return this.mediaService.createMedia({ mediaDto, userId, imageFile });
 	}
 
 	@Get('')

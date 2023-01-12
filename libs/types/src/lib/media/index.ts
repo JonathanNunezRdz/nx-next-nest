@@ -1,4 +1,4 @@
-import { Image, KnownMedia, MediaType, User, UserImage } from '@prisma/client';
+import { KnownMedia, MediaType, User } from '@prisma/client';
 
 import { RequestStatus } from '../common';
 import { WaifuResponse } from '../waifu';
@@ -15,8 +15,8 @@ export * from './media.response';
 
 export type MediaKnownUser = KnownMedia & {
 	user: Pick<User, 'id' | 'alias'> & {
-		image: UserImage & {
-			image: Pick<Image, 'id' | 'format'>;
+		image?: {
+			src: string;
 		};
 	};
 };

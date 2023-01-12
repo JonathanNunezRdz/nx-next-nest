@@ -1,6 +1,7 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import {
 	CreateMediaDto,
+	CreateMediaResponse,
 	EditMediaDto,
 	GetMediaDto,
 	KnowMediaDto,
@@ -186,7 +187,24 @@ export class MediaService {
 				},
 			},
 		});
-		return media;
+
+		let src: string | undefined;
+
+		if (media.image) {
+			const imagePath = `${media.title}.${media.image.image.format}`;
+			src = this.storage.getFile(imagePath);
+		}
+
+		const mediaWithImageUrl = {
+			...media,
+			image: {
+				...media.image,
+				image: {
+					src,
+				},
+			},
+		};
+		return mediaWithImageUrl;
 	}
 
 	async knowMedia(userId: number, dto: KnowMediaDto) {
@@ -346,15 +364,17 @@ export class MediaService {
 		});
 
 		const mediasWithImageUrl = medias.map((media) => {
-			const imagePath = `${media.title}.${media.image.image.format}`;
-			const signedImageUrl = this.storage.getFile(imagePath);
+			let src: string | undefined;
+			if (media.image) {
+				const imagePath = `${media.title}.${media.image.image.format}`;
+				src = this.storage.getFile(imagePath);
+			}
 			return {
 				...media,
 				image: {
 					...media.image,
 					image: {
-						...media.image.image,
-						src: signedImageUrl,
+						src,
 					},
 				},
 			};
@@ -363,15 +383,17 @@ export class MediaService {
 		return { medias: mediasWithImageUrl, totalMedias };
 	}
 
-	async createMedia(userId: number, dto: CreateMediaDto) {
-		dto.title = dto.title.trim();
-		const createImage = createMediaImage(dto);
+	async createMedia(dto: TempDto): Promise<CreateMediaResponse> {
+		const { userId, mediaDto } = dto;
+		mediaDto.title = mediaDto.title.trim();
+		const createImage = createMediaImage(mediaDto);
+		const { title, type, knownAt } = mediaDto;
 
 		try {
 			const media = await this.prisma.media.create({
 				data: {
-					title: dto.title,
-					type: dto.type,
+					title,
+					type,
 					image: createImage,
 					knownBy: {
 						create: [
@@ -381,7 +403,7 @@ export class MediaService {
 										id: userId,
 									},
 								},
-								knownAt: dto.knownAt,
+								knownAt,
 							},
 						],
 					},
@@ -429,15 +451,38 @@ export class MediaService {
 				},
 			});
 
-			return media;
+			// TODO: upload image to imageKit and get imageUrl
+
+			let src: string | undefined;
+
+			if (media.image && dto.imageFile) {
+				src = await this.postImage(
+					dto.imageFile,
+					encodeURIComponent(media.title),
+					media.image.image.format
+				);
+			}
+
+			return {
+				...media,
+				image: {
+					src,
+				},
+			};
 		} catch (error) {
 			if (error instanceof PrismaClientKnownRequestError) {
 				if (error.code === 'P2002')
 					throw new ForbiddenException(
-						`title: '${dto.title}' is already in use`
+						`title: '${title}' is already in use`
 					);
 			}
 			throw error;
 		}
 	}
 }
+
+type TempDto = {
+	userId: number;
+	mediaDto: CreateMediaDto;
+	imageFile?: Express.Multer.File;
+};
