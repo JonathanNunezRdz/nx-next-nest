@@ -12,10 +12,9 @@ export class AppLoggerMiddleware implements NestMiddleware {
 		response.on('close', () => {
 			const { statusCode } = response;
 			const contentLength = response.get('content-length');
-
-			this.logger.log(
-				`${method} | ${originalUrl} | ${statusCode} | ${contentLength} - ${userAgent} | ${ip} - ${hostname}`
-			);
+			const message = `${method} | ${originalUrl} | ${statusCode} | ${contentLength} - ${userAgent} | ${ip} - ${hostname}`;
+			if (statusCode < 400) this.logger.log(message);
+			else this.logger.error(message);
 		});
 
 		next();
