@@ -1,56 +1,17 @@
-import {
-	Image,
-	ImageFormat,
-	KnownMedia,
-	Media,
-	MediaImage,
-	MediaType,
-	User,
-	UserImage,
-} from '@prisma/client';
+import { Image, KnownMedia, MediaType, User, UserImage } from '@prisma/client';
+
 import { RequestStatus } from '../common';
 import { WaifuResponse } from '../waifu';
 import { CreateMediaDto } from './create-media.dto';
 import { EditMediaDto } from './edit-media.dto';
 import { GetMediaDto } from './get-media.dto';
+import { GetMediaTitlesResponse, MediaResponse } from './media.response';
 
 export * from './create-media.dto';
 export * from './edit-media.dto';
 export * from './get-media.dto';
 export * from './know-media.dto';
-
-export type GetMediaTitlesResponse = {
-	id: number;
-	title: string;
-}[];
-
-export type EditMediaResponse = MediaResponse;
-
-export type GetEditMediaResponse = EditMediaDto;
-
-export type KnowMediaResponse = MediaResponse;
-
-export type CreateMediaResponse = MediaResponse;
-
-export type GetMediaResponse = {
-	medias: MediaResponse[];
-	totalMedias: number;
-};
-
-export type MediaResponse = Media & {
-	image:
-		| (MediaImage & {
-				image: {
-					format: ImageFormat;
-				};
-		  })
-		| null;
-	knownBy: MediaKnownUser[];
-	waifus: {
-		id: number;
-		name: string;
-	}[];
-};
+export * from './media.response';
 
 export type MediaKnownUser = KnownMedia & {
 	user: Pick<User, 'id' | 'alias'> & {

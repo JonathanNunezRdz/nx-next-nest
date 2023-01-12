@@ -79,7 +79,7 @@ const AddMedia = () => {
 					media: newValues,
 					withImage: true,
 					image: sendImage,
-					path: `${newValues.type}_images/${completeFileName}`,
+					path: completeFileName,
 				})
 			);
 			if (res.meta.requestStatus === 'fulfilled') router.push('/media');
@@ -107,7 +107,9 @@ const AddMedia = () => {
 				<form onSubmit={handleSubmit(onSubmit)}>
 					<VStack spacing='4'>
 						{/* TODO: add loading */}
-						<FormErrorMessageWrapper error={addMediaStatus.error} />
+						<FormErrorMessageWrapper
+							error={addMediaStatus.error?.message}
+						/>
 						<FormControl isInvalid={!!errors.title}>
 							<FormLabel htmlFor='title'>title</FormLabel>
 							<Input

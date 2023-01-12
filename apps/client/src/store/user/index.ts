@@ -147,7 +147,7 @@ export const userSlice = createSlice({
 			.addCase(signIn.rejected, (state, action) => {
 				invalidateJWT();
 				state.signIn.status = 'failed';
-				state.signIn.error = action.payload.message;
+				state.signIn.error = action.payload;
 				state.user.data = {} as User;
 			})
 			.addCase(getUser.pending, (state) => {
@@ -161,11 +161,10 @@ export const userSlice = createSlice({
 				};
 			})
 			.addCase(getUser.rejected, (state, action) => {
-				state.user = {
-					data: {} as User,
-					status: 'failed',
-					error: action.payload.message,
-				};
+				state.user.data = {} as User;
+				state.user.status = 'failed';
+				state.user.error = action.payload;
+				if (action.payload.statusCode === 412) invalidateJWT();
 			})
 			.addCase(getAllUsers.pending, (state) => {
 				state.members.status = 'loading';
@@ -177,7 +176,7 @@ export const userSlice = createSlice({
 			})
 			.addCase(getAllUsers.rejected, (state, action) => {
 				state.members.status = 'failed';
-				state.members.error = action.payload.message;
+				state.members.error = action.payload;
 			});
 	},
 });

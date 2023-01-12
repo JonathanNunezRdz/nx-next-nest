@@ -124,7 +124,8 @@ export const waifuSlice = createSlice({
 
 			if (waifuId === -1 || index === -1) {
 				state.edit.local.status = 'failed';
-				state.edit.local.error = 'waifuId not found in local data';
+				state.edit.local.error.message =
+					'waifuId not found in local data';
 			} else {
 				const waifu = state.get.data[index];
 				state.edit.data.waifuId = waifu.id;
@@ -150,7 +151,7 @@ export const waifuSlice = createSlice({
 				state.get.status = 'succeeded';
 			})
 			.addCase(getAllWaifus.rejected, (state, action) => {
-				state.get.error = action.payload.message;
+				state.get.error = action.payload;
 				state.get.status = 'failed';
 			})
 			.addCase(addWaifu.pending, (state) => {
@@ -162,7 +163,7 @@ export const waifuSlice = createSlice({
 				state.add.status = 'succeeded';
 			})
 			.addCase(addWaifu.rejected, (state, action) => {
-				state.add.error = action.payload.message;
+				state.add.error = action.payload;
 				state.add.status = 'failed';
 			})
 			.addCase(editWaifu.pending, (state) => {
@@ -180,7 +181,7 @@ export const waifuSlice = createSlice({
 				state.edit.status = 'succeeded';
 			})
 			.addCase(editWaifu.rejected, (state, action) => {
-				state.edit.error = action.payload.message;
+				state.edit.error = action.payload;
 				state.edit.status = 'failed';
 			});
 	},

@@ -10,8 +10,11 @@ import {
 	Patch,
 	Post,
 	Query,
+	UploadedFile,
 	UseGuards,
+	UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
 	CreateMediaDto,
 	CreateMediaResponse,
@@ -23,7 +26,9 @@ import {
 	GetMediaTitlesResponse,
 	KnowMediaDto,
 	KnowMediaResponse,
+	PostImageDto,
 } from '@nx-next-nest/types';
+
 import { GetUser } from '../auth/decorator';
 import { JwtGuard } from '../auth/guard';
 import { MediaService } from './media.service';
@@ -31,6 +36,15 @@ import { MediaService } from './media.service';
 @Controller('media')
 export class MediaController {
 	constructor(private mediaService: MediaService) {}
+
+	@Post('test_image')
+	@UseInterceptors(FileInterceptor('file'))
+	postImage(
+		@Body() dto: PostImageDto,
+		@UploadedFile() file: Express.Multer.File
+	) {
+		return this.mediaService.postImage(file, dto.filename, dto.format);
+	}
 
 	@Get('test_image/:image_url')
 	getImageURL(@Param('image_url') imageURL: string) {

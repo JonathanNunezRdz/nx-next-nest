@@ -16,11 +16,8 @@ import {
 } from '@nx-next-nest/types';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AxiosError } from 'axios';
-import { FirebaseError } from 'firebase/app';
-import { ref, uploadBytes } from 'firebase/storage';
 
 import { RootState } from '..';
-import { storage } from '../api/firebase';
 import mediaService from './service';
 
 export const deleteMedia = createAsyncThunk<
@@ -135,21 +132,20 @@ export const addMedia = createAsyncThunk<
 	try {
 		const { data } = await mediaService.addMedia(dto.media);
 		if (dto.withImage) {
-			const path =
-				process.env.NODE_ENV === 'production'
-					? dto.path
-					: `test/${dto.path}`;
-			console.log('firebase path', path);
-			const imageRef = ref(storage, path);
-			await uploadBytes(imageRef, dto.image);
+			const { data: imageUrl } = await mediaService.postMediaImage(
+				{
+					format: dto.media.imageFormat,
+					filename: dto.media.title,
+				},
+				dto.image
+			);
+			console.log('image uploaded', imageUrl);
 		}
 		return data;
 	} catch (error) {
 		if (error instanceof AxiosError) {
 			const { response } = error as AxiosError<HttpError>;
 			return rejectWithValue(response.data);
-		} else if (error instanceof FirebaseError) {
-			console.log(error.code);
 		}
 		throw error;
 	}
@@ -250,7 +246,8 @@ export const mediaSlice = createSlice({
 
 			if (mediaId === -1 || state.get.data.length === 0 || index === -1) {
 				state.edit.local.status = 'failed';
-				state.edit.local.error = 'mediaId not found in local data';
+				state.edit.local.error.message =
+					'mediaId not found in local data';
 			} else {
 				const media = state.get.data.find(
 					(elem) => elem.id === mediaId
@@ -290,7 +287,7 @@ export const mediaSlice = createSlice({
 				state.get.status = 'succeeded';
 			})
 			.addCase(getMedias.rejected, (state, action) => {
-				state.get.error = action.payload.message;
+				state.get.error = action.payload;
 				state.get.status = 'failed';
 			})
 			.addCase(addMedia.pending, (state) => {
@@ -302,7 +299,7 @@ export const mediaSlice = createSlice({
 				state.add.status = 'succeeded';
 			})
 			.addCase(addMedia.rejected, (state, action) => {
-				state.add.error = action.payload.message;
+				state.add.error = action.payload;
 				state.add.status = 'failed';
 			})
 			.addCase(knowMedia.pending, (state) => {
@@ -320,7 +317,7 @@ export const mediaSlice = createSlice({
 				state.know.status = 'succeeded';
 			})
 			.addCase(knowMedia.rejected, (state, action) => {
-				state.know.error = action.payload.message;
+				state.know.error = action.payload;
 				state.know.status = 'failed';
 			})
 			.addCase(getMediaToEditFromServer.pending, (state) => {
@@ -333,7 +330,7 @@ export const mediaSlice = createSlice({
 				state.edit.server.status = 'succeeded';
 			})
 			.addCase(getMediaToEditFromServer.rejected, (state, action) => {
-				state.edit.server.error = action.payload.message;
+				state.edit.server.error = action.payload;
 				state.edit.server.status = 'failed';
 			})
 			.addCase(editMedia.pending, (state) => {
@@ -352,7 +349,7 @@ export const mediaSlice = createSlice({
 				state.edit.status = 'succeeded';
 			})
 			.addCase(editMedia.rejected, (state, action) => {
-				state.edit.error = action.payload.message;
+				state.edit.error = action.payload;
 				state.edit.status = 'failed';
 			})
 			.addCase(getMediaTitles.pending, (state) => {
@@ -365,7 +362,7 @@ export const mediaSlice = createSlice({
 				state.titles.error = undefined;
 			})
 			.addCase(getMediaTitles.rejected, (state, action) => {
-				state.titles.error = action.payload.message;
+				state.titles.error = action.payload;
 				state.titles.status = 'failed';
 			})
 			.addCase(getMediaWaifus.pending, (state, action) => {
@@ -379,7 +376,7 @@ export const mediaSlice = createSlice({
 				state.mediaWaifus.status = 'succeeded';
 			})
 			.addCase(getMediaWaifus.rejected, (state, action) => {
-				state.mediaWaifus.error = action.payload.message;
+				state.mediaWaifus.error = action.payload;
 				state.mediaWaifus.status = 'failed';
 			})
 			.addCase(deleteMedia.pending, (state) => {
@@ -390,7 +387,7 @@ export const mediaSlice = createSlice({
 				state.delete.status = 'succeeded';
 			})
 			.addCase(deleteMedia.rejected, (state, action) => {
-				state.delete.error = action.payload.message;
+				state.delete.error = action.payload;
 				state.delete.status = 'failed';
 			});
 	},

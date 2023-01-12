@@ -1,32 +1,39 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { App, cert, initializeApp, ServiceAccount } from 'firebase-admin/app';
-import { getStorage, Storage } from 'firebase-admin/storage';
-import serviceAccountKey from './serviceAccountKey.json';
+import ImageKit from 'imagekit';
+import 'multer';
 
 @Injectable()
 export class StorageService {
-	private readonly app: App;
-	private readonly storage: Storage;
+	private readonly imageKit: ImageKit;
 
 	constructor(config: ConfigService) {
-		serviceAccountKey.private_key = config.get<string>(
-			'FIREBASE_PRIVATE_KEY'
-		);
-
-		try {
-			this.app = initializeApp({
-				credential: cert(serviceAccountKey as ServiceAccount),
-				storageBucket: 'wia-web-app.appspot.com',
-			});
-			this.storage = getStorage(this.app);
-		} catch (error) {
-			console.error('firebase error', error);
-			throw new InternalServerErrorException(error);
-		}
+		this.imageKit = new ImageKit({
+			publicKey: 'public_A7N6XWKGXgakPLZBrM1FvYdRS7s=',
+			privateKey: config.get('IMAGE_KIT_PRIVATE_KEY'),
+			urlEndpoint: 'https://ik.imagekit.io/wiaimages',
+		});
 	}
 
-	async getFile(path: string): Promise<string> {
-		return this.storage.bucket().file(path).cloudStorageURI.href;
+	getFile(path: string): string {
+		return this.imageKit.url({
+			path: `/v1/${path}`,
+			signed: true,
+			expireSeconds: 60,
+		});
+	}
+
+	async uploadFile(
+		file: Express.Multer.File,
+		filename: string,
+		format: string
+	): Promise<string> {
+		const res = await this.imageKit.upload({
+			file: file.buffer,
+			fileName: `${filename}.${format}`,
+			folder: 'v1',
+			useUniqueFileName: false,
+		});
+		return this.getFile(res.name);
 	}
 }

@@ -18,50 +18,19 @@ interface ImageCardProps {
 const ImageCard = ({ image, type, imageName }: ImageCardProps) => {
 	const has = !!image;
 	if (!has) return;
-
-	const [url, setUrl] = useState('');
-	const [loading, setLoading] = useState(false);
-	const [tried, setTried] = useState(false);
-	const imagePath = `${type}_images/${encodeURIComponent(imageName)}.${
-		image.image.format
-	}`;
-	useEffect(() => {
-		const get = async () => {
-			if (!tried) {
-				try {
-					setLoading(true);
-					const res = await getDownloadURL(ref(storage, imagePath));
-					setUrl(res);
-				} catch (error) {
-					console.error(error);
-				}
-				setLoading(false);
-				setTried(true);
-			}
-		};
-		get();
-	}, []);
-	if (loading)
-		return (
+	return (
+		<Box>
 			<Center>
-				<Loading />
+				<Image
+					objectFit='cover'
+					src={image.image.src}
+					alt={`${imageName} image`}
+					fallback={<Loading />}
+					borderRadius='4'
+				/>
 			</Center>
-		);
-	if (url)
-		return (
-			<Box>
-				<Center>
-					<Image
-						objectFit='cover'
-						src={url}
-						alt={`${imageName} image`}
-						fallback={<Loading />}
-						borderRadius='4'
-					/>
-				</Center>
-			</Box>
-		);
-	return <Box></Box>;
+		</Box>
+	);
 };
 
 export default ImageCard;

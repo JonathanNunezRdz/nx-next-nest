@@ -10,12 +10,21 @@ import {
 	GetMediaWaifusResponse,
 	KnowMediaDto,
 	KnowMediaResponse,
+	PostImageDto,
 } from '@nx-next-nest/types';
 import { stringify } from 'qs';
 
 import api from '../api';
 
 // TODO: fix all routes which have an array in params
+
+const postMediaImage = (dto: PostImageDto, file: File) => {
+	const formData = new FormData();
+	formData.append('filename', dto.filename);
+	formData.append('file', file);
+	formData.append('format', dto.format);
+	return api.post<string>('/media/test_image', formData);
+};
 
 const deleteMedia = (mediaId: number | string) =>
 	api.delete<void>(`/media/${mediaId}`);
@@ -64,6 +73,7 @@ const mediaService = {
 	editMedia,
 	getMediaTitles,
 	deleteMedia,
+	postMediaImage,
 };
 
 export default mediaService;

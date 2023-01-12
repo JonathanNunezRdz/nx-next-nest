@@ -21,6 +21,14 @@ export class MediaService {
 		private storage: StorageService
 	) {}
 
+	async postImage(
+		file: Express.Multer.File,
+		filename: string,
+		format: string
+	) {
+		return this.storage.uploadFile(file, filename, format);
+	}
+
 	async getImageURL(filename: string) {
 		return this.storage.getFile(filename);
 	}
@@ -337,7 +345,22 @@ export class MediaService {
 			},
 		});
 
-		return { medias, totalMedias };
+		const mediasWithImageUrl = medias.map((media) => {
+			const imagePath = `${media.title}.${media.image.image.format}`;
+			const signedImageUrl = this.storage.getFile(imagePath);
+			return {
+				...media,
+				image: {
+					...media.image,
+					image: {
+						...media.image.image,
+						src: signedImageUrl,
+					},
+				},
+			};
+		});
+
+		return { medias: mediasWithImageUrl, totalMedias };
 	}
 
 	async createMedia(userId: number, dto: CreateMediaDto) {
