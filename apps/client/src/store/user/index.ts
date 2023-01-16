@@ -1,5 +1,6 @@
 import {
 	GetAllUsersResponse,
+	GetUserResponse,
 	HttpError,
 	SignInDto,
 	SignInResponse,
@@ -8,10 +9,30 @@ import {
 import type { User } from '@prisma/client';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { AxiosError } from 'axios';
+
 import { RootState } from '..';
 import { invalidateJWT, setJWT, validateJWT } from '../../utils';
 import api from '../api';
 import userService from './service';
+
+// get actions
+
+export const getUser = createAsyncThunk<
+	GetUserResponse,
+	void,
+	{ rejectValue: HttpError }
+>('user/getUser', async (_, thunkApi) => {
+	try {
+		const { data } = await userService.getUser();
+		return data;
+	} catch (error) {
+		if (error instanceof AxiosError) {
+			const { response } = error as AxiosError<HttpError>;
+			return thunkApi.rejectWithValue(response!.data);
+		}
+		throw error;
+	}
+});
 
 export const getAllUsers = createAsyncThunk<
 	GetAllUsersResponse,
@@ -24,27 +45,13 @@ export const getAllUsers = createAsyncThunk<
 	} catch (error) {
 		if (error instanceof AxiosError) {
 			const { response } = error as AxiosError<HttpError>;
-			return thunkApi.rejectWithValue(response.data);
+			return thunkApi.rejectWithValue(response!.data);
 		}
 		throw error;
 	}
 });
 
-export const getUser = createAsyncThunk<User, void, { rejectValue: HttpError }>(
-	'user/getUser',
-	async (_, thunkApi) => {
-		try {
-			const { data } = await userService.getUser();
-			return data;
-		} catch (error) {
-			if (error instanceof AxiosError) {
-				const { response } = error as AxiosError<HttpError>;
-				return thunkApi.rejectWithValue(response.data);
-			}
-			throw error;
-		}
-	}
-);
+// post actions
 
 export const signIn = createAsyncThunk<
 	SignInResponse,
@@ -57,15 +64,19 @@ export const signIn = createAsyncThunk<
 	} catch (error) {
 		if (error instanceof AxiosError) {
 			const { response } = error as AxiosError<HttpError>;
-			return thunkApi.rejectWithValue(response.data);
+			return thunkApi.rejectWithValue(response!.data);
 		}
 		throw error;
 	}
 });
 
+// patch actions
+
+// delete actions
+
 const initialState: UserState = {
 	user: {
-		data: {} as User,
+		data: {} as UserState['user']['data'],
 		status: 'idle',
 		error: undefined,
 	},
@@ -113,7 +124,7 @@ export const userSlice = createSlice({
 			invalidateJWT();
 			api.defaults.headers.common['Authorization'] = '';
 
-			state.user.data = {} as User;
+			state.user.data = {} as UserState['user']['data'];
 			state.user.status = 'idle';
 			state.user.error = undefined;
 			state.auth.isLoggedIn = false;
@@ -164,7 +175,7 @@ export const userSlice = createSlice({
 				state.user.data = {} as User;
 				state.user.status = 'failed';
 				state.user.error = action.payload;
-				if (action.payload.statusCode === 412) invalidateJWT();
+				if (action.payload?.statusCode === 412) invalidateJWT();
 			})
 			.addCase(getAllUsers.pending, (state) => {
 				state.members.status = 'loading';

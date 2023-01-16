@@ -1,13 +1,30 @@
-import { GetAllUsersResponse, SignInResponse } from '@nx-next-nest/types';
-import { User } from '@prisma/client';
+import {
+	GetAllUsersResponse,
+	GetUserResponse,
+	SignInResponse,
+} from '@nx-next-nest/types';
+
 import api from '../api';
 
-const getUser = () => api.get<User>('/user/me');
+// get services
 
-const signIn = (email: string, password: string) =>
-	api.post<SignInResponse>('/auth/signin', { email, password });
+function getUser() {
+	return api.get<GetUserResponse>('/user/me');
+}
 
-const getAllUsers = () => api.get<GetAllUsersResponse>('/user/all');
+function getAllUsers() {
+	return api.get<GetAllUsersResponse>('/user/all');
+}
+
+// post services
+
+function signIn(email: string, password: string) {
+	return api.post<SignInResponse>('/auth/signin', { email, password });
+}
+
+// patch services
+
+// delete services
 
 const userService = {
 	signIn,
