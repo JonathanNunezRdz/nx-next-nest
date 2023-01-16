@@ -1,18 +1,18 @@
-import { ImageFormat } from '@prisma/client';
+import { ImageFormat, User } from '@prisma/client';
 import { IsEnum, IsOptional, IsString } from 'class-validator';
 
 export class EditUserDto {
 	@IsString()
 	@IsOptional()
-	alias?: string;
+	alias?: User['alias'];
 
 	@IsString()
 	@IsOptional()
-	firstName?: string;
+	firstName?: User['firstName'];
 
 	@IsString()
 	@IsOptional()
-	lastName?: string;
+	lastName?: User['lastName'];
 
 	@IsString()
 	@IsOptional()
@@ -25,4 +25,10 @@ export class EditUserDto {
 	})
 	@IsOptional()
 	imageFormat?: ImageFormat;
+}
+
+export interface EditUserService {
+	userId: User['id'];
+	userDto: EditUserDto;
+	imageFile?: Express.Multer.File;
 }

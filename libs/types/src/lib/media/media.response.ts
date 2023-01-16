@@ -4,8 +4,8 @@ import { MediaKnownUser } from '.';
 import { EditMediaDto } from './edit-media.dto';
 
 export type GetMediaTitlesResponse = {
-	id: number;
-	title: string;
+	id: Media['id'];
+	title: Media['title'];
 }[];
 
 export type EditMediaResponse = MediaResponse;

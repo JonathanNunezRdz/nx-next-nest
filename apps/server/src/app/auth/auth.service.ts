@@ -2,6 +2,7 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { SignInDto, SignUpDto } from '@nx-next-nest/types';
+import { User } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { hash, verify } from 'argon2';
 
@@ -20,10 +21,10 @@ export class AuthService {
 		return { message: 'Hello World' };
 	}
 
-	async signup(dto: SignUpDto) {
+	async signUp(dto: SignUpDto) {
 		const { lastName, firstName, alias, email, password, secret, uid } =
 			dto;
-		const valid = await verify(this.config.get('SIGN_UP_KEY'), secret);
+		const valid = await verify(this.config.get('SIGN_UP_KEY')!, secret);
 		if (!valid) {
 			throw new ForbiddenException('incorrect credentials');
 		}
@@ -65,7 +66,7 @@ export class AuthService {
 		}
 	}
 
-	async signin(dto: SignInDto) {
+	async signIn(dto: SignInDto) {
 		const user = await this.prisma.user.findUnique({
 			where: {
 				email: dto.email,
@@ -80,7 +81,7 @@ export class AuthService {
 	}
 
 	async signToken(
-		userId: number,
+		userId: User['id'],
 		email: string
 	): Promise<{ accessToken: string }> {
 		const payload = {

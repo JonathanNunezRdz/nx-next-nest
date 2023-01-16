@@ -1,14 +1,21 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import type { EditUserDto } from '@nx-next-nest/types';
+import type {
+	EditUserResponse,
+	EditUserService,
+	GetAllUsersResponse,
+	GetUserResponse,
+} from '@nx-next-nest/types';
+import { User } from '@prisma/client';
 // import type { ImageFormat, Prisma, PrismaPromise } from '@prisma/client';
 // import { hash } from 'argon2';
 // import { applicationDefault, initializeApp } from 'firebase-admin/app';
 // import { getStorage } from 'firebase-admin/storage';
 // import mongoose, { Schema } from 'mongoose';
 
-import { upsertUserImage } from '../../utils';
+import { formatImageFileName, upsertUserImage } from '../../utils';
 import { PrismaService } from '../prisma/prisma.service';
+import { StorageService } from '../storage/storage.service';
 
 // import animes from '../../../tmp/dumps/animes.json';
 // import mangas from '../../../tmp/dumps/mangas.json';
@@ -18,7 +25,11 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class UserService {
-	constructor(private prisma: PrismaService, private config: ConfigService) {}
+	constructor(
+		private prisma: PrismaService,
+		private config: ConfigService,
+		private storage: StorageService
+	) {}
 
 	// async mediaFirebase() {
 	// 	const ImageFormats: string[] = [
@@ -632,25 +643,14 @@ export class UserService {
 	// 	console.log('created waifu images');
 	// }
 
-	async editUser(userId: number, dto: EditUserDto) {
-		const { alias, firstName, lastName } = dto;
-		const upsertUserImageOptions = upsertUserImage(dto);
-		const user = await this.prisma.user.update({
+	// get services
+
+	async getMe(userId: User['id']): Promise<GetUserResponse> {
+		const rawUser = await this.prisma.user.findUnique({
 			where: {
 				id: userId,
 			},
-			data: {
-				alias,
-				firstName,
-				lastName,
-				image: upsertUserImageOptions,
-			},
-			select: {
-				id: true,
-				alias: true,
-				firstName: true,
-				lastName: true,
-				email: true,
+			include: {
 				image: {
 					select: {
 						image: {
@@ -662,21 +662,143 @@ export class UserService {
 				},
 			},
 		});
+
+		if (!rawUser) throw new NotFoundException('user not found');
+
+		let image: GetUserResponse['image'];
+
+		if (rawUser.image) {
+			const imageFileName = formatImageFileName(
+				rawUser.id,
+				rawUser.image.image.format
+			);
+			image = {
+				src: this.storage.getFile(imageFileName),
+			};
+		}
+
+		const user: GetUserResponse = {
+			...rawUser,
+			image,
+		};
+
 		return user;
 	}
 
-	async getAllUsers() {
-		const users = await this.prisma.user.findMany({
-			select: {
-				id: true,
-				alias: true,
+	async getAllUsers(): Promise<GetAllUsersResponse> {
+		const rawUsers = await this.prisma.user.findMany({
+			include: {
 				image: {
 					select: {
-						image: true,
+						image: {
+							select: {
+								format: true,
+							},
+						},
 					},
 				},
 			},
 		});
+		const users: GetAllUsersResponse = rawUsers.map((user) => {
+			let image: GetAllUsersResponse[0]['image'];
+			if (user.image) {
+				const imageFileName = formatImageFileName(
+					user.id,
+					user.image.image.format
+				);
+				image = {
+					src: this.storage.getFile(imageFileName),
+				};
+			}
+			return {
+				...user,
+				hash: undefined,
+				image,
+			};
+		});
+
 		return users;
+	}
+
+	// post services
+
+	// patch services
+
+	async editUser(dto: EditUserService): Promise<EditUserResponse> {
+		const { userDto, userId, imageFile } = dto;
+		let { alias, firstName, lastName } = userDto;
+		if (alias) alias = alias.trim();
+		if (firstName) firstName = firstName.trim();
+		if (lastName) lastName = lastName.trim();
+
+		const upsertUserImageOptions = upsertUserImage(userDto);
+
+		const oldUser = await this.prisma.user.findUnique({
+			where: {
+				id: userId,
+			},
+			select: {
+				image: {
+					select: {
+						image: {
+							select: {
+								format: true,
+							},
+						},
+					},
+				},
+			},
+		});
+
+		if (!oldUser) throw new NotFoundException('user not found');
+
+		const rawUser = await this.prisma.user.update({
+			where: {
+				id: userId,
+			},
+			data: {
+				alias,
+				firstName,
+				lastName,
+				image: upsertUserImageOptions,
+			},
+			include: {
+				image: {
+					select: {
+						image: {
+							select: {
+								format: true,
+							},
+						},
+					},
+				},
+			},
+		});
+
+		let image: EditUserResponse['image'];
+
+		if (imageFile && rawUser.image) {
+			if (oldUser.image) {
+				const deleteImageFileName = formatImageFileName(
+					rawUser.id,
+					oldUser.image.image.format
+				);
+				await this.storage.deleteFile(deleteImageFileName);
+			}
+			const imageFileName = formatImageFileName(
+				rawUser.id,
+				rawUser.image.image.format
+			);
+			image = {
+				src: await this.storage.uploadFile(imageFile, imageFileName),
+			};
+		}
+
+		const user: EditUserResponse = {
+			...rawUser,
+			image,
+		};
+
+		return user;
 	}
 }

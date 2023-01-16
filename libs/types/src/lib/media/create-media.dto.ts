@@ -1,4 +1,4 @@
-import { ImageFormat, MediaType } from '@prisma/client';
+import { ImageFormat, Media, MediaType, User } from '@prisma/client';
 import {
 	IsDateString,
 	IsEnum,
@@ -10,7 +10,7 @@ import {
 export class CreateMediaDto {
 	@IsString()
 	@IsNotEmpty()
-	title: string;
+	title: Media['title'];
 
 	@IsEnum(MediaType, {
 		message: `type must be a valid option: ${Object.keys(MediaType).join(
@@ -18,7 +18,7 @@ export class CreateMediaDto {
 		)}`,
 	})
 	@IsNotEmpty()
-	type: MediaType;
+	type: Media['type'];
 
 	@IsDateString()
 	@IsNotEmpty()
@@ -31,4 +31,10 @@ export class CreateMediaDto {
 	})
 	@IsOptional()
 	imageFormat?: ImageFormat;
+}
+
+export interface CreateMediaService {
+	userId: User['id'];
+	mediaDto: CreateMediaDto;
+	imageFile?: Express.Multer.File;
 }

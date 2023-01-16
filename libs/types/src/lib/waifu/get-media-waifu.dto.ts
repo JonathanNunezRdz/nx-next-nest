@@ -1,11 +1,11 @@
-import { User, WaifuLevel } from '@prisma/client';
+import { Media, User, Waifu, WaifuLevel } from '@prisma/client';
 import { Transform } from 'class-transformer';
 import { ArrayNotEmpty, IsArray, IsOptional, IsString } from 'class-validator';
 
 export class GetMediaWaifusDto {
 	@IsString()
 	@IsOptional()
-	name?: string;
+	name?: Waifu['name'];
 
 	@Transform(({ value }) => value.split(',').map(Number))
 	@IsArray()
@@ -18,4 +18,9 @@ export class GetMediaWaifusDto {
 	@ArrayNotEmpty()
 	@IsOptional()
 	level?: WaifuLevel[];
+}
+
+export interface GetMediaWaifusService {
+	title: Media['title'];
+	waifuDto: GetMediaWaifusDto;
 }

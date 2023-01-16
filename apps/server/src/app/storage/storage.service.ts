@@ -10,14 +10,14 @@ export class StorageService {
 	constructor(config: ConfigService) {
 		this.imageKit = new ImageKit({
 			publicKey: 'public_A7N6XWKGXgakPLZBrM1FvYdRS7s=',
-			privateKey: config.get('IMAGE_KIT_PRIVATE_KEY'),
+			privateKey: config.get('IMAGE_KIT_PRIVATE_KEY') as string,
 			urlEndpoint: 'https://ik.imagekit.io/wiaimages',
 		});
 	}
 
-	getFile(path: string): string {
+	getFile(imageFileName: string): string {
 		return this.imageKit.url({
-			path: `/v1/${path}`,
+			path: `/v1/${imageFileName}`,
 			signed: true,
 			expireSeconds: 60,
 		});
@@ -25,22 +25,24 @@ export class StorageService {
 
 	async uploadFile(
 		file: Express.Multer.File,
-		filename: string,
-		format: string
+		imageFileName: string
 	): Promise<string> {
 		const res = await this.imageKit.upload({
 			file: file.buffer,
-			fileName: `${filename}.${format}`,
+			fileName: imageFileName,
 			folder: 'v1',
 			useUniqueFileName: false,
 		});
 		return this.getFile(res.name);
 	}
 
-	async deleteFile(filename: string): Promise<void> {
-		const res = await this.imageKit.listFiles({
-			searchQuery: `name=${filename}`,
+	async deleteFile(imageFileName: string): Promise<void> {
+		const [file] = await this.imageKit.listFiles({
+			searchQuery: `name=${imageFileName}`,
 		});
-		console.log(res);
+		if (file) {
+			await this.imageKit.deleteFile(file.fileId);
+			console.log('delete file:', file.fileId, file.filePath);
+		}
 	}
 }

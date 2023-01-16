@@ -12,7 +12,7 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -29,17 +29,17 @@ model User {
 }
 
 model UserImage {
-  user   User @relation(references: [id], fields: [userId])
-  userId Int  @unique
+  user   User   @relation(references: [id], fields: [userId])
+  userId String @unique
 
-  image   Image @relation(references: [id], fields: [imageId])
-  imageId Int   @unique
+  image   Image  @relation(references: [id], fields: [imageId])
+  imageId String @unique
 
   @@id([userId, imageId])
 }
 
 model Image {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -51,17 +51,17 @@ model Image {
 }
 
 model MediaImage {
-  media   Media @relation(references: [id], fields: [mediaId], onDelete: Cascade)
-  mediaId Int   @unique
+  media   Media  @relation(references: [id], fields: [mediaId], onDelete: Cascade)
+  mediaId String @unique
 
-  image   Image @relation(references: [id], fields: [imageId])
-  imageId Int   @unique
+  image   Image  @relation(references: [id], fields: [imageId])
+  imageId String @unique
 
   @@id([mediaId, imageId])
 }
 
 model Media {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -74,11 +74,11 @@ model Media {
 }
 
 model KnownMedia {
-  user   User @relation(fields: [userId], references: [id])
-  userId Int
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
 
-  media   Media @relation(fields: [mediaId], references: [id], onDelete: Cascade)
-  mediaId Int
+  media   Media  @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  mediaId String
 
   knownAt DateTime
 
@@ -86,7 +86,7 @@ model KnownMedia {
 }
 
 model Waifu {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -96,19 +96,19 @@ model Waifu {
 
   image   WaifuImage?
   media   Media       @relation(references: [id], fields: [mediaId], onDelete: Cascade)
-  mediaId Int
+  mediaId String
   user    User        @relation(references: [id], fields: [userId])
-  userId  Int
+  userId  String
 
   @@unique([name, mediaId])
 }
 
 model WaifuImage {
-  waifu   Waifu @relation(references: [id], fields: [waifuId], onDelete: Cascade)
-  waifuId Int   @unique
+  waifu   Waifu  @relation(references: [id], fields: [waifuId], onDelete: Cascade)
+  waifuId String @unique
 
-  image   Image @relation(references: [id], fields: [imageId])
-  imageId Int   @unique
+  image   Image  @relation(references: [id], fields: [imageId])
+  imageId String @unique
 
   @@id([waifuId, imageId])
 }
