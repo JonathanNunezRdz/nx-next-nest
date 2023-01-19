@@ -54,10 +54,12 @@ const AddMedia = () => {
 			title: '',
 			type: 'anime',
 			knownAt: formatDate(),
-			imageFormat: null,
+			imageFormat: undefined,
 		},
 	});
 	const onSubmit: SubmitHandler<CreateMediaDto> = async (data) => {
+		console.log('submitting');
+
 		const newValues = {
 			...data,
 			knownAt: prepareDate(data.knownAt),
@@ -76,14 +78,20 @@ const AddMedia = () => {
 			});
 			const res = await dispatch(
 				addMedia({
-					media: newValues,
-					withImage: true,
-					image: sendImage,
-					path: completeFileName,
+					mediaDto: newValues,
+					imageFile: sendImage,
 				})
 			);
 			if (res.meta.requestStatus === 'fulfilled') router.push('/media');
 		} else {
+			// remove imageFormat if undefined
+			const { imageFormat, ...rest } = newValues;
+			const res = await dispatch(
+				addMedia({
+					mediaDto: rest,
+				})
+			);
+			if (res.meta.requestStatus === 'fulfilled') router.push('/media');
 		}
 	};
 

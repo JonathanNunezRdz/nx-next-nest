@@ -1,11 +1,11 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { Media, User } from '@prisma/client';
-import { IsInt } from 'class-validator';
+import { IsUUID } from 'class-validator';
 
 import { CreateMediaDto } from './create-media.dto';
 
 export class EditMediaDto extends PartialType(CreateMediaDto) {
-	@IsInt()
+	@IsUUID(4)
 	mediaId: Media['id'];
 }
 
@@ -18,4 +18,9 @@ export interface EditMediaService {
 export interface GetEditMediaService {
 	userId: User['id'];
 	mediaId: Media['id'];
+}
+
+export interface EditMediaThunk {
+	editDto: EditMediaDto;
+	imageFile?: File;
 }

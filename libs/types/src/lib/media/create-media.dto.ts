@@ -38,3 +38,8 @@ export interface CreateMediaService {
 	mediaDto: CreateMediaDto;
 	imageFile?: Express.Multer.File;
 }
+
+export interface CreateMediaThunk {
+	mediaDto: CreateMediaDto;
+	imageFile?: File;
+}

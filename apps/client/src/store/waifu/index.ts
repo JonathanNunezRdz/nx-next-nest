@@ -8,45 +8,14 @@ import {
 	HttpError,
 	WaifuState,
 } from '@nx-next-nest/types';
+import { User, Waifu } from '@prisma/client';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AxiosError } from 'axios';
 
 import { RootState } from '..';
 import waifuService from './service';
 
-export const editWaifu = createAsyncThunk<
-	EditWaifuResponse,
-	EditWaifuDto,
-	{ rejectValue: HttpError }
->('waifu/edit', async (dto, { rejectWithValue }) => {
-	try {
-		const { data } = await waifuService.editWaifu(dto);
-		return data;
-	} catch (error) {
-		if (error instanceof AxiosError) {
-			const { response } = error as AxiosError<HttpError>;
-			return rejectWithValue(response.data);
-		}
-		throw error;
-	}
-});
-
-export const addWaifu = createAsyncThunk<
-	CreateWaifuResponse,
-	CreateWaifuDto,
-	{ rejectValue: HttpError }
->('waifu/add', async (dto, { rejectWithValue }) => {
-	try {
-		const { data } = await waifuService.addWaifu(dto);
-		return data;
-	} catch (error) {
-		if (error instanceof AxiosError) {
-			const { response } = error as AxiosError<HttpError>;
-			return rejectWithValue(response.data);
-		}
-		throw error;
-	}
-});
+// get actions
 
 export const getAllWaifus = createAsyncThunk<
 	GetAllWaifusResponse,
@@ -59,11 +28,51 @@ export const getAllWaifus = createAsyncThunk<
 	} catch (error) {
 		if (error instanceof AxiosError) {
 			const { response } = error as AxiosError<HttpError>;
-			return rejectWithValue(response.data);
+			return rejectWithValue(response!.data);
 		}
 		throw error;
 	}
 });
+
+// post actions
+
+export const addWaifu = createAsyncThunk<
+	CreateWaifuResponse,
+	CreateWaifuDto,
+	{ rejectValue: HttpError }
+>('waifu/add', async (dto, { rejectWithValue }) => {
+	try {
+		const { data } = await waifuService.addWaifu(dto);
+		return data;
+	} catch (error) {
+		if (error instanceof AxiosError) {
+			const { response } = error as AxiosError<HttpError>;
+			return rejectWithValue(response!.data);
+		}
+		throw error;
+	}
+});
+
+// patch actions
+
+export const editWaifu = createAsyncThunk<
+	EditWaifuResponse,
+	EditWaifuDto,
+	{ rejectValue: HttpError }
+>('waifu/edit', async (dto, { rejectWithValue }) => {
+	try {
+		const { data } = await waifuService.editWaifu(dto);
+		return data;
+	} catch (error) {
+		if (error instanceof AxiosError) {
+			const { response } = error as AxiosError<HttpError>;
+			return rejectWithValue(response!.data);
+		}
+		throw error;
+	}
+});
+
+// delete actions
 
 const initialState: WaifuState = {
 	get: {
@@ -115,19 +124,35 @@ export const waifuSlice = createSlice({
 		},
 		getWaifuToEditFromLocal: (
 			state,
-			action: PayloadAction<{ waifuId: number; userId: number }>
+			action: PayloadAction<{ waifuId: Waifu['id']; userId: User['id'] }>
 		) => {
 			const { waifuId, userId } = action.payload;
 			const index = state.get.data.findIndex(
 				(elem) => elem.id === waifuId
 			);
 
-			if (waifuId === -1 || index === -1) {
+			if (
+				waifuId === '-1' ||
+				state.get.data.length === 0 ||
+				index === -1
+			) {
 				state.edit.local.status = 'failed';
-				state.edit.local.error.message =
-					'waifuId not found in local data';
+				state.edit.local.error = {
+					message: 'waifuId not found in local data',
+					error: '',
+					statusCode: 418,
+				};
 			} else {
 				const waifu = state.get.data[index];
+				const isOwn = waifu.userId === userId;
+
+				if (!isOwn) {
+					state.edit.local.error = {
+						message: `this waifu isn't yours`,
+						error: '',
+						statusCode: 403,
+					};
+				}
 				state.edit.data.waifuId = waifu.id;
 				state.edit.data.name = waifu.name;
 				state.edit.data.level = waifu.level;

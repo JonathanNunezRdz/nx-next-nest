@@ -2,7 +2,6 @@ import { KnownMedia, MediaType, User } from '@prisma/client';
 
 import { RequestStatus } from '../common';
 import { WaifuResponse } from '../waifu';
-import { CreateMediaDto } from './create-media.dto';
 import { EditMediaDto } from './edit-media.dto';
 import { GetMediaDto } from './get-media.dto';
 import { GetMediaTitlesResponse, MediaResponse } from './media.response';
@@ -49,17 +48,3 @@ export interface MediaLabel {
 	present: { [k in MediaType]: string };
 	past: { [k in MediaType]: string };
 }
-
-export interface CreateMediaWithoutImage {
-	media: CreateMediaDto;
-	withImage: false;
-}
-
-export interface CreateMediaWithImage {
-	media: CreateMediaDto;
-	withImage: true;
-	image: File;
-	path: string;
-}
-
-export type CreateMedia = CreateMediaWithImage | CreateMediaWithoutImage;

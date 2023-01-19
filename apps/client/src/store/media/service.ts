@@ -1,7 +1,8 @@
 import {
-	CreateMediaDto,
 	CreateMediaResponse,
-	EditMediaDto,
+	CreateMediaThunk,
+	EditMediaResponse,
+	EditMediaThunk,
 	GetEditMediaResponse,
 	GetMediaDto,
 	GetMediaResponse,
@@ -42,13 +43,17 @@ function getEditMedia(mediaId: number) {
 
 // post services
 
-function addMedia(dto: CreateMediaDto, image: File) {
+function addMedia(dto: CreateMediaThunk) {
+	const { mediaDto, imageFile } = dto;
+
 	const formData = new FormData();
-	for (const key of Object.keys(dto)) {
-		formData.append(key, dto[key]);
+	for (const key of Object.keys(mediaDto)) {
+		formData.append(key, mediaDto[key]);
 	}
-	formData.append('file', image);
-	return api.post<CreateMediaResponse>('/media/create', formData);
+
+	if (imageFile) formData.append('file', imageFile);
+
+	return api.post<CreateMediaResponse>('/media', formData);
 }
 
 // patch services
@@ -57,8 +62,17 @@ function knownMedia(dto: KnowMediaDto) {
 	return api.patch<KnowMediaResponse>('/media/know', dto);
 }
 
-function editMedia(dto: EditMediaDto) {
-	return api.patch('/media', dto);
+function editMedia(dto: EditMediaThunk) {
+	const { editDto, imageFile } = dto;
+
+	const formData = new FormData();
+	for (const key of Object.keys(editDto)) {
+		formData.append(key, editDto['key']);
+	}
+
+	if (imageFile) formData.append('file', imageFile);
+
+	return api.patch<EditMediaResponse>('/media', formData);
 }
 
 // delete services
@@ -67,16 +81,16 @@ function deleteMedia(mediaId: number | string) {
 	return api.delete<void>(`/media/${mediaId}`);
 }
 
-const postMediaImage = (dto: PostImageDto, file: File) => {
+function postMediaImage(dto: PostImageDto, file: File) {
 	const formData = new FormData();
 	formData.append('filename', dto.filename);
 	formData.append('file', file);
 	formData.append('format', dto.format);
 	return api.post<string>('/media/test_image', formData);
-};
+}
 
-const getMediaWaifus = (title: string, dto: GetMediaWaifusDto) =>
-	api.get<GetMediaWaifusResponse>(`/waifu/${title}`, {
+function getMediaWaifus(title: string, dto: GetMediaWaifusDto) {
+	return api.get<GetMediaWaifusResponse>(`/waifu/${title}`, {
 		params: dto,
 		paramsSerializer(params) {
 			return stringify(params, {
@@ -85,6 +99,7 @@ const getMediaWaifus = (title: string, dto: GetMediaWaifusDto) =>
 			});
 		},
 	});
+}
 
 const mediaService = {
 	getMediaWaifus,

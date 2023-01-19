@@ -31,6 +31,10 @@ export class UserService {
 		private storage: StorageService
 	) {}
 
+	async copyFiles() {
+		await this.storage.copyFile();
+	}
+
 	// async mediaFirebase() {
 	// 	const ImageFormats: string[] = [
 	// 		'apng',
@@ -677,8 +681,10 @@ export class UserService {
 			};
 		}
 
+		const { hash, ...rest } = rawUser;
+
 		const user: GetUserResponse = {
-			...rawUser,
+			...rest,
 			image,
 		};
 

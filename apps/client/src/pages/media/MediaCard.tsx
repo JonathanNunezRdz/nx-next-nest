@@ -6,10 +6,11 @@ import MediaActionButtons from './MediaActionButtons';
 import KnownBy from './KnownBy';
 import ImageCard from '../../components/common/ImageCard';
 import { useCardColor } from '../../utils/constants';
+import { User } from '@prisma/client';
 
 interface MediaCardProps {
 	media: MediaResponse;
-	ownId: number;
+	ownId: User['id'];
 	isLoggedIn: boolean;
 }
 

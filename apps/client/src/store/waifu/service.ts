@@ -7,13 +7,13 @@ import {
 	GetAllWaifusResponse,
 } from '@nx-next-nest/types';
 import { stringify } from 'qs';
+
 import api from '../api';
 
-const editWaifu = (dto: EditWaifuDto) =>
-	api.patch<EditWaifuResponse>('/waifu', dto);
+// get services
 
-const getAllWaifus = (dto: GetAllWaifusDto) =>
-	api.get<GetAllWaifusResponse>('/waifu', {
+function getAllWaifus(dto: GetAllWaifusDto) {
+	return api.get<GetAllWaifusResponse>('/waifu', {
 		params: dto,
 		paramsSerializer(params) {
 			return stringify(params, {
@@ -22,9 +22,21 @@ const getAllWaifus = (dto: GetAllWaifusDto) =>
 			});
 		},
 	});
+}
 
-const addWaifu = (dto: CreateWaifuDto) =>
-	api.post<CreateWaifuResponse>('/waifu', dto);
+// post services
+
+function addWaifu(dto: CreateWaifuDto) {
+	return api.post<CreateWaifuResponse>('/waifu', dto);
+}
+
+// patch services
+
+function editWaifu(dto: EditWaifuDto) {
+	return api.patch<EditWaifuResponse>('/waifu', dto);
+}
+
+// delete services
 
 const waifuService = {
 	editWaifu,

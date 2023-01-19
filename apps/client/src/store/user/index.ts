@@ -175,7 +175,11 @@ export const userSlice = createSlice({
 				state.user.data = {} as User;
 				state.user.status = 'failed';
 				state.user.error = action.payload;
-				if (action.payload?.statusCode === 412) invalidateJWT();
+				if (
+					action.payload?.statusCode === 412 ||
+					action.payload?.statusCode === 400
+				)
+					invalidateJWT();
 			})
 			.addCase(getAllUsers.pending, (state) => {
 				state.members.status = 'loading';

@@ -1,8 +1,9 @@
 import {
-	CreateMedia,
 	CreateMediaResponse,
+	CreateMediaThunk,
 	EditMediaDto,
 	EditMediaResponse,
+	EditMediaThunk,
 	GetEditMediaResponse,
 	GetMediaDto,
 	GetMediaResponse,
@@ -14,11 +15,123 @@ import {
 	KnowMediaResponse,
 	MediaState,
 } from '@nx-next-nest/types';
+import { Media, User } from '@prisma/client';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AxiosError } from 'axios';
 
 import { RootState } from '..';
+import { mediaLabel } from '../../utils/constants';
 import mediaService from './service';
+
+// get actions
+
+export const getMedias = createAsyncThunk<
+	GetMediaResponse,
+	GetMediaDto,
+	{ rejectValue: HttpError }
+>('media/getMedias', async (dto, { rejectWithValue }) => {
+	try {
+		const { data } = await mediaService.getMedias(dto);
+		return data;
+	} catch (error) {
+		if (error instanceof AxiosError) {
+			const { response } = error as AxiosError<HttpError>;
+			return rejectWithValue(response!.data);
+		}
+		throw error;
+	}
+});
+
+export const getMediaTitles = createAsyncThunk<
+	GetMediaTitlesResponse,
+	void,
+	{ rejectValue: HttpError }
+>('media/getMediatitles', async (_, { rejectWithValue }) => {
+	try {
+		const { data } = await mediaService.getMediaTitles();
+		return data;
+	} catch (error) {
+		if (error instanceof AxiosError) {
+			const { response } = error as AxiosError<HttpError>;
+			return rejectWithValue(response!.data);
+		}
+		throw error;
+	}
+});
+
+export const getMediaToEditFromServer = createAsyncThunk<
+	GetEditMediaResponse,
+	number,
+	{ rejectValue: HttpError }
+>('media/getEditMedia', async (mediaId, { rejectWithValue }) => {
+	try {
+		const { data } = await mediaService.getEditMedia(mediaId);
+		return data;
+	} catch (error) {
+		if (error instanceof AxiosError) {
+			const { response } = error as AxiosError<HttpError>;
+			return rejectWithValue(response!.data);
+		}
+		throw error;
+	}
+});
+
+// post actions
+
+export const addMedia = createAsyncThunk<
+	CreateMediaResponse,
+	CreateMediaThunk,
+	{ rejectValue: HttpError }
+>('media/addMedia', async (dto, { rejectWithValue }) => {
+	try {
+		const { data } = await mediaService.addMedia(dto);
+		return data;
+	} catch (error) {
+		if (error instanceof AxiosError) {
+			const { response } = error as AxiosError<HttpError>;
+			return rejectWithValue(response!.data);
+		}
+		throw error;
+	}
+});
+
+// patch actions
+
+export const knowMedia = createAsyncThunk<
+	KnowMediaResponse,
+	KnowMediaDto,
+	{ rejectValue: HttpError }
+>('media/knowMedia', async (dto, { rejectWithValue }) => {
+	try {
+		const { data } = await mediaService.knownMedia(dto);
+		return data;
+	} catch (error) {
+		if (error instanceof AxiosError) {
+			const { response } = error as AxiosError<HttpError>;
+			return rejectWithValue(response!.data);
+		}
+		throw error;
+	}
+});
+
+export const editMedia = createAsyncThunk<
+	EditMediaResponse,
+	EditMediaThunk,
+	{ rejectValue: HttpError }
+>('media/editMedia', async (dto, { rejectWithValue }) => {
+	try {
+		const { data } = await mediaService.editMedia(dto);
+		return data;
+	} catch (error) {
+		if (error instanceof AxiosError) {
+			const { response } = error as AxiosError<HttpError>;
+			return rejectWithValue(response!.data);
+		}
+		throw error;
+	}
+});
+
+// delete actions
 
 export const deleteMedia = createAsyncThunk<
 	void,
@@ -30,7 +143,7 @@ export const deleteMedia = createAsyncThunk<
 	} catch (error) {
 		if (error instanceof AxiosError) {
 			const { response } = error as AxiosError<HttpError>;
-			return rejectWithValue(response.data);
+			return rejectWithValue(response!.data);
 		}
 		throw error;
 	}
@@ -49,124 +162,12 @@ export const getMediaWaifus = createAsyncThunk<
 		} catch (error) {
 			if (error instanceof AxiosError) {
 				const { response } = error as AxiosError<HttpError>;
-				return rejectWithValue(response.data);
+				return rejectWithValue(response!.data);
 			}
 			throw error;
 		}
 	}
 );
-
-export const getMediaTitles = createAsyncThunk<
-	GetMediaTitlesResponse,
-	void,
-	{ rejectValue: HttpError }
->('media/getMediatitles', async (_, { rejectWithValue }) => {
-	try {
-		const { data } = await mediaService.getMediaTitles();
-		return data;
-	} catch (error) {
-		if (error instanceof AxiosError) {
-			const { response } = error as AxiosError<HttpError>;
-			return rejectWithValue(response.data);
-		}
-		throw error;
-	}
-});
-
-export const editMedia = createAsyncThunk<
-	EditMediaResponse,
-	EditMediaDto,
-	{ rejectValue: HttpError }
->('media/editMedia', async (dto, { rejectWithValue }) => {
-	try {
-		const { data } = await mediaService.editMedia(dto);
-		return data;
-	} catch (error) {
-		if (error instanceof AxiosError) {
-			const { response } = error as AxiosError<HttpError>;
-			return rejectWithValue(response.data);
-		}
-		throw error;
-	}
-});
-
-export const getMediaToEditFromServer = createAsyncThunk<
-	GetEditMediaResponse,
-	number,
-	{ rejectValue: HttpError }
->('media/getEditMedia', async (mediaId, { rejectWithValue }) => {
-	try {
-		const { data } = await mediaService.getEditMedia(mediaId);
-		return data;
-	} catch (error) {
-		if (error instanceof AxiosError) {
-			const { response } = error as AxiosError<HttpError>;
-			return rejectWithValue(response.data);
-		}
-		throw error;
-	}
-});
-
-export const knowMedia = createAsyncThunk<
-	KnowMediaResponse,
-	KnowMediaDto,
-	{ rejectValue: HttpError }
->('media/knowMedia', async (dto, { rejectWithValue }) => {
-	try {
-		const { data } = await mediaService.knownMedia(dto);
-		return data;
-	} catch (error) {
-		if (error instanceof AxiosError) {
-			const { response } = error as AxiosError<HttpError>;
-			return rejectWithValue(response.data);
-		}
-		throw error;
-	}
-});
-
-export const addMedia = createAsyncThunk<
-	CreateMediaResponse,
-	CreateMedia,
-	{ rejectValue: HttpError }
->('media/addMedia', async (dto, { rejectWithValue }) => {
-	try {
-		const { data } = await mediaService.addMedia(dto.media);
-		if (dto.withImage) {
-			const { data: imageUrl } = await mediaService.postMediaImage(
-				{
-					format: dto.media.imageFormat,
-					filename: dto.media.title,
-				},
-				dto.image
-			);
-			console.log('image uploaded', imageUrl);
-		}
-		return data;
-	} catch (error) {
-		if (error instanceof AxiosError) {
-			const { response } = error as AxiosError<HttpError>;
-			return rejectWithValue(response.data);
-		}
-		throw error;
-	}
-});
-
-export const getMedias = createAsyncThunk<
-	GetMediaResponse,
-	GetMediaDto,
-	{ rejectValue: HttpError }
->('media/getMedias', async (dto, { rejectWithValue }) => {
-	try {
-		const { data } = await mediaService.getMedias(dto);
-		return data;
-	} catch (error) {
-		if (error instanceof AxiosError) {
-			const { response } = error as AxiosError<HttpError>;
-			return rejectWithValue(response.data);
-		}
-		throw error;
-	}
-});
 
 const initialState: MediaState = {
 	get: {
@@ -237,28 +238,49 @@ export const mediaSlice = createSlice({
 		},
 		getMediaToEditFromLocal: (
 			state,
-			action: PayloadAction<{ mediaId: number; userId: number }>
+			action: PayloadAction<{ mediaId: Media['id']; userId: User['id'] }>
 		) => {
 			const { mediaId, userId } = action.payload;
 			const index = state.get.data.findIndex(
 				(elem) => elem.id === mediaId
 			);
 
-			if (mediaId === -1 || state.get.data.length === 0 || index === -1) {
+			if (
+				mediaId === '-1' ||
+				state.get.data.length === 0 ||
+				index === -1
+			) {
 				state.edit.local.status = 'failed';
-				state.edit.local.error.message =
-					'mediaId not found in local data';
+				state.edit.local.error = {
+					message: 'mediaId not found in local data',
+					error: '',
+					statusCode: 418,
+				};
 			} else {
-				const media = state.get.data.find(
-					(elem) => elem.id === mediaId
+				const media = state.get.data[index];
+				const userIndex = media.knownBy.findIndex(
+					(user) => user.userId === userId
 				);
-				state.edit.data.mediaId = media.id;
-				state.edit.data.title = media.title;
-				state.edit.data.type = media.type;
-				state.edit.data.knownAt = new Date(
-					media.knownBy.find((user) => user.userId === userId).knownAt
-				).toISOString();
-				state.edit.local.status = 'succeeded';
+
+				if (userIndex === -1) {
+					state.edit.local.status = 'failed';
+					state.edit.local.error = {
+						message: `you haven't ${
+							mediaLabel.past[media.type]
+						} this media`,
+						error: '',
+						statusCode: 403,
+					};
+				} else {
+					state.edit.data.mediaId = media.id;
+					state.edit.data.title = media.title;
+					state.edit.data.type = media.type;
+					state.edit.data.knownAt = new Date(
+						media.knownBy[userIndex].knownAt
+					).toISOString();
+					state.edit.local.status = 'succeeded';
+					state.edit.local.error = undefined;
+				}
 			}
 		},
 		resetMediaTitles: (state) => {

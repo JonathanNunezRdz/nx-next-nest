@@ -18,15 +18,11 @@ import { UserService } from './user.service';
 export class UserController {
 	constructor(private userService: UserService) {}
 
-	@UseGuards(JwtGuard)
-	@Patch()
-	@UseInterceptors(FileInterceptor('file'))
-	editUser(
-		@GetUser('id') userId: User['id'],
-		@Body() userDto: EditUserDto,
-		@UploadedFile() imageFile: Express.Multer.File
-	) {
-		return this.userService.editUser({ userDto, userId, imageFile });
+	// get routes
+
+	@Get('test-copy')
+	copyFiles() {
+		return this.userService.copyFiles();
 	}
 
 	@UseGuards(JwtGuard)
@@ -40,11 +36,28 @@ export class UserController {
 		return this.userService.getAllUsers();
 	}
 
+	// post routes
+
+	// patch routes
+
+	@UseGuards(JwtGuard)
+	@Patch()
+	@UseInterceptors(FileInterceptor('file'))
+	editUser(
+		@GetUser('id') userId: User['id'],
+		@Body() userDto: EditUserDto,
+		@UploadedFile() imageFile: Express.Multer.File
+	) {
+		return this.userService.editUser({ userDto, userId, imageFile });
+	}
+
 	@Patch('migrate')
 	migrate() {
 		// return this.userService.migrate();
 		return false;
 	}
+
+	// delete routes
 
 	// @Get('checkup')
 	// checkup() {

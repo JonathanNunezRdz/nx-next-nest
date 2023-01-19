@@ -3,6 +3,8 @@ import { ConfigService } from '@nestjs/config';
 import ImageKit from 'imagekit';
 import 'multer';
 
+// TODO: move/copy images from firebase to imageKit
+
 @Injectable()
 export class StorageService {
 	private readonly imageKit: ImageKit;
@@ -16,10 +18,12 @@ export class StorageService {
 	}
 
 	getFile(imageFileName: string): string {
+		// TODO: fix different folders
 		return this.imageKit.url({
 			path: `/v1/${imageFileName}`,
 			signed: true,
 			expireSeconds: 60,
+			transformation: [{ quality: 50 }, { width: 0.5 }],
 		});
 	}
 
@@ -44,5 +48,14 @@ export class StorageService {
 			await this.imageKit.deleteFile(file.fileId);
 			console.log('delete file:', file.fileId, file.filePath);
 		}
+	}
+
+	async copyFile() {
+		const res = await this.imageKit.copyFile({
+			sourceFilePath:
+				'/wiaimages/gcs-anime/5d19223e-a69b-43a9-9884-5b4838f7f596.jpg',
+			destinationPath: '/v1',
+		});
+		console.dir(res);
 	}
 }

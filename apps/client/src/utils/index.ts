@@ -75,7 +75,7 @@ export function parseWaifuId(waifuId: string | string[]) {
 	}
 }
 
-export function loadImage(images: FileList) {
+export function loadImage(images: FileList | null) {
 	return new Promise<{ result: string; format: ImageFormat; image: File }>(
 		(resolve, reject) => {
 			if (images && images[0]) {
