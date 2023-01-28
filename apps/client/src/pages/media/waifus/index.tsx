@@ -12,11 +12,11 @@ import { useEffect } from 'react';
 import Body from 'apps/client/src/components/layout/Body';
 import { useAppDispatch, useAppSelector } from 'apps/client/src/store/hooks';
 import {
-	getMediaWaifus,
 	resetMediaWaifus,
 	selectMediaWaifus,
 	selectMediaWaifusStatus,
 } from 'apps/client/src/store/media';
+import { getMediaWaifusAction } from 'apps/client/src/store/getMediaWaifusAction';
 import { selectAuth, selectUser } from 'apps/client/src/store/user';
 
 import WaifuCard from '../../waifus/WaifuCard';
@@ -34,7 +34,7 @@ const MediaWaifus = () => {
 		if (router.isReady) {
 			if (status === 'idle') {
 				dispatch(
-					getMediaWaifus({
+					getMediaWaifusAction({
 						title: mediaTitle as string,
 						dto: {},
 					})

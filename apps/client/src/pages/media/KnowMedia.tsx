@@ -18,7 +18,8 @@ import NextLink from 'next/link';
 import Form from '../../components/common/Form';
 import PageTitle from '../../components/common/PageTitle';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { knowMedia, selectKnowMediaStatus } from '../../store/media';
+import { selectKnowMediaStatus } from '../../store/media';
+import { knowMediaAction } from '../../store/knowMediaAction';
 import { formatDate, prepareDate } from '../../utils';
 import { mediaLabel } from '../../utils/constants';
 import ProtectedPage from '../../components/auth/ProtectedPage';
@@ -40,7 +41,7 @@ const KnowMedia = () => {
 				...values,
 				knownAt: prepareDate(values.knownAt),
 			};
-			const res = await dispatch(knowMedia(newValues));
+			const res = await dispatch(knowMediaAction(newValues));
 			if (res.meta.requestStatus === 'fulfilled') router.push('/media');
 		},
 	});

@@ -205,6 +205,10 @@ export class MediaService {
 
 		const knownAt = media.knownBy.find((user) => user.userId === userId);
 
+		// TODO: change GetEditMediaResponse to actually send
+		// the image src if there is one present on the current
+		// media
+
 		if (typeof knownAt === 'undefined')
 			throw new ForbiddenException('access to resources denied');
 

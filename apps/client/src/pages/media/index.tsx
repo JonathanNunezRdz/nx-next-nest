@@ -14,11 +14,11 @@ import { GetMediaDto } from '@nx-next-nest/types';
 
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
-	getMedias,
 	selectMedia,
 	selectMediaAppliedFilters,
 	selectMediaStatus,
 } from '../../store/media';
+import { getMediasAction } from '../../store/media/actions';
 import MediaCard from './MediaCard';
 import { selectAuth, selectUser } from '../../store/user';
 import Body from '../../components/layout/Body';
@@ -58,7 +58,7 @@ const Media: FC = () => {
 	const handleGetMedia = useCallback(
 		(options: GetMediaDto) => {
 			setCurrentPage(options.page);
-			dispatch(getMedias(options));
+			dispatch(getMediasAction(options));
 		},
 		[dispatch]
 	);

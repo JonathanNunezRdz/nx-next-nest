@@ -18,11 +18,8 @@ import NextLink from 'next/link';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import {
-	addMedia,
-	resetAddMediaStatus,
-	selectAddMediaStatus,
-} from '../../store/media';
+import { resetAddMediaStatus, selectAddMediaStatus } from '../../store/media';
+import { addMedia } from '../../store/addMedia';
 import ProtectedPage from '../../components/auth/ProtectedPage';
 import { formatDate, loadImage, prepareDate } from '../../utils';
 import { mediaLabel } from '../../utils/constants';

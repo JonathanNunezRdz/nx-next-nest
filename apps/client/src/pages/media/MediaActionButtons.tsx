@@ -4,11 +4,8 @@ import { MediaType } from '@prisma/client';
 
 import LinkButton from '../../components/common/LinkButton';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import {
-	deleteMedia,
-	getMedias,
-	selectMediaAppliedFilters,
-} from '../../store/media';
+import { getMedias, selectMediaAppliedFilters } from '../../store/media';
+import { deleteMediaAction } from '../../store/deleteMediaAction';
 
 interface KnowQuery {
 	knownByMe: false;
@@ -33,7 +30,7 @@ const MediaActionButtons = ({ isLoggedIn, query }: MediaActionButtonsProps) => {
 	const { appliedFilters } = useAppSelector(selectMediaAppliedFilters);
 	const handleDeleteMedia = async () => {
 		const res = await dispatch(
-			deleteMedia({ mediaId: query.mediaIdString })
+			deleteMediaAction({ mediaId: query.mediaIdString })
 		);
 		if (res.meta.requestStatus === 'fulfilled')
 			dispatch(getMedias(appliedFilters));

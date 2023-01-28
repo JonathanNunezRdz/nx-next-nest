@@ -14,11 +14,11 @@ import TitleInput from '../../components/common/TitleInput';
 import TypeInput from '../../components/common/TypeInput';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
-	editMedia,
 	resetGetMediaToEdit,
 	selectEditMedia,
 	selectEditMediaStatus,
 } from '../../store/media';
+import { editMediaAction } from '../../store/editMediaAction';
 
 import { formatDate, prepareDate } from '../../utils';
 import { mediaLabel } from '../../utils/constants';
@@ -41,7 +41,7 @@ const EditMedia = () => {
 				...values,
 				knownAt: prepareDate(values.knownAt),
 			};
-			const res = await dispatch(editMedia(newValues));
+			const res = await dispatch(editMediaAction(newValues));
 			if (res.meta.requestStatus === 'fulfilled') router.push('/media');
 		},
 	});
