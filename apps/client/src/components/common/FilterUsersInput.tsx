@@ -19,6 +19,7 @@ import { UserId } from '../../utils/constants';
 import Loading from './Loading';
 
 interface FilterUsersInputProps {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	control: Control<any, any>;
 }
 
@@ -26,7 +27,7 @@ const FilterUsersInput = ({ control }: FilterUsersInputProps) => {
 	// reducers
 	const dispatch = useAppDispatch();
 	const members = useAppSelector(selectAllUsers);
-	const { status, error } = useAppSelector(selectAllUsersStatus);
+	const { status } = useAppSelector(selectAllUsersStatus);
 	const user = useAppSelector(selectUser);
 
 	// effects

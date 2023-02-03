@@ -1,4 +1,4 @@
-import { Box, Center, Spinner } from '@chakra-ui/react';
+import { Center, Spinner } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
 import { ReactNode, useEffect } from 'react';
 

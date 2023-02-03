@@ -19,7 +19,7 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { resetAddMediaStatus, selectAddMediaStatus } from '../../store/media';
-import { addMedia } from '../../store/addMedia';
+import { addMediaAction } from '../../store/media/actions';
 import ProtectedPage from '../../components/auth/ProtectedPage';
 import { formatDate, loadImage, prepareDate } from '../../utils';
 import { mediaLabel } from '../../utils/constants';
@@ -74,7 +74,7 @@ const AddMedia = () => {
 				type: imageFile.type,
 			});
 			const res = await dispatch(
-				addMedia({
+				addMediaAction({
 					mediaDto: newValues,
 					imageFile: sendImage,
 				})
@@ -84,7 +84,7 @@ const AddMedia = () => {
 			// remove imageFormat if undefined
 			const { imageFormat, ...rest } = newValues;
 			const res = await dispatch(
-				addMedia({
+				addMediaAction({
 					mediaDto: rest,
 				})
 			);
@@ -148,7 +148,9 @@ const AddMedia = () => {
 							/>
 						</FormControl>
 
-						{currentImage && <Image src={currentImage} />}
+						{currentImage && (
+							<Image src={currentImage} alt='upload image' />
+						)}
 						<FormControl>
 							<FormLabel htmlFor='image'>image</FormLabel>
 							<Input

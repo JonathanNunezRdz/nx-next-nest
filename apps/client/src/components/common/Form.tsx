@@ -11,6 +11,7 @@ const Form = ({ children, onSubmit }: FormProps) => {
 	// TODO: check if children are rendering with isDisabled as false
 	const childrenWithDisabled = React.Children.map(children, (child) => {
 		if (React.isValidElement(child)) {
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			return React.cloneElement<any>(child, { isDisabled: false });
 		}
 	});
