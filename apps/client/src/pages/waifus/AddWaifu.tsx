@@ -20,11 +20,8 @@ import {
 	selectMediaTitlesStatus,
 } from '../../store/media';
 import { selectAuth } from '../../store/user';
-import {
-	addWaifu,
-	resetAddWaifuStatus,
-	selectAddWaifuStatus,
-} from '../../store/waifu';
+import { resetAddWaifuStatus, selectAddWaifuStatus } from '../../store/waifu';
+import { addWaifuAction } from '../../store/addWaifuAction';
 
 const AddWaifu = () => {
 	const dispatch = useAppDispatch();
@@ -44,7 +41,7 @@ const AddWaifu = () => {
 				...values,
 				mediaId: Number(values.mediaId),
 			};
-			const res = await dispatch(addWaifu(newValues));
+			const res = await dispatch(addWaifuAction(newValues));
 			if (res.meta.requestStatus === 'fulfilled') router.push('/waifus');
 		},
 		validate: (values) => {

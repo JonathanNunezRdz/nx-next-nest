@@ -1,22 +1,19 @@
 import { getAxiosError } from '@client/src/utils';
 import {
+	CreateWaifuDto,
+	CreateWaifuResponse,
 	HttpError,
-	KnowMediaDto,
-	KnowMediaResponse,
 } from '@nx-next-nest/types';
 import { createAsyncThunk } from '@reduxjs/toolkit';
+import waifuService from '../service';
 
-import mediaService from '../service';
-
-// patch actions
-
-export const knowMediaAction = createAsyncThunk<
-	KnowMediaResponse,
-	KnowMediaDto,
+export const addWaifuAction = createAsyncThunk<
+	CreateWaifuResponse,
+	CreateWaifuDto,
 	{ rejectValue: HttpError }
->('media/knowMedia', async (dto, { rejectWithValue }) => {
+>('waifu/add', async (dto, { rejectWithValue }) => {
 	try {
-		const { data } = await mediaService.knownMedia(dto);
+		const { data } = await waifuService.addWaifu(dto);
 		return data;
 	} catch (error) {
 		const errorData = getAxiosError(error);

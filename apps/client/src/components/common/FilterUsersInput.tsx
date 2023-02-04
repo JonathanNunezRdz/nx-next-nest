@@ -5,18 +5,20 @@ import {
 	FormLabel,
 	SimpleGrid,
 } from '@chakra-ui/react';
-import { useEffect } from 'react';
-import { Control, Controller } from 'react-hook-form';
-
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { useAppDispatch, useAppSelector } from '@client/src/store/hooks';
 import {
-	getAllUsers,
 	selectAllUsers,
 	selectAllUsersStatus,
 	selectUser,
-} from '../../store/user';
-import { UserId } from '../../utils/constants';
+} from '@client/src/store/user';
+import { getAllUsersAction } from '@client/src/store/user/actions';
+import { UserId } from '@client/src/utils/constants';
+import { useEffect } from 'react';
+import { Control, Controller } from 'react-hook-form';
+
 import Loading from './Loading';
+
+// TODO: important -> change UserId (from constants) to work with uuids
 
 interface FilterUsersInputProps {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -32,7 +34,7 @@ const FilterUsersInput = ({ control }: FilterUsersInputProps) => {
 
 	// effects
 	useEffect(() => {
-		if (status === 'idle') dispatch(getAllUsers());
+		if (status === 'idle') dispatch(getAllUsersAction());
 	}, [status, dispatch]);
 
 	if (status === 'loading') return <Loading />;
@@ -46,7 +48,7 @@ const FilterUsersInput = ({ control }: FilterUsersInputProps) => {
 						<Controller
 							key={member.id}
 							control={control}
-							name={member.id.toString() as UserId}
+							name={member.id as UserId}
 							defaultValue={false}
 							render={({ field: { onChange, value, ref } }) => (
 								<Checkbox

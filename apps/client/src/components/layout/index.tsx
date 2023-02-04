@@ -4,10 +4,10 @@ import { type FC, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
 	selectUserStatus,
-	getUser,
 	selectSignInStatus,
 	getLoggedStatus,
 } from '../../store/user';
+import { getUserAction } from '../../store/getUserAction';
 import Footer from './Footer';
 import Header from './header';
 
@@ -22,7 +22,7 @@ const Layout: FC<LayoutProps> = ({ children }) => {
 
 	useEffect(() => {
 		if (signInStatus.status === 'succeeded' && userStatus.status === 'idle')
-			dispatch(getUser());
+			dispatch(getUserAction());
 	}, [signInStatus.status, userStatus.status, dispatch]);
 
 	useEffect(() => {

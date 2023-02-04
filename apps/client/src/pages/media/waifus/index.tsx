@@ -9,16 +9,15 @@ import {
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 
-import Body from 'apps/client/src/components/layout/Body';
-import { useAppDispatch, useAppSelector } from 'apps/client/src/store/hooks';
+import { getMediaWaifusAction } from '@client/src/store/media/actions';
+import { useAppDispatch, useAppSelector } from '@client/src/store/hooks';
+import { selectAuth, selectUser } from '@client/src/store/user';
 import {
 	resetMediaWaifus,
 	selectMediaWaifus,
 	selectMediaWaifusStatus,
-} from 'apps/client/src/store/media';
-import { getMediaWaifusAction } from 'apps/client/src/store/getMediaWaifusAction';
-import { selectAuth, selectUser } from 'apps/client/src/store/user';
-
+} from '@client/src/store/media';
+import Body from '@client/src/components/layout/Body';
 import WaifuCard from '../../waifus/WaifuCard';
 
 const MediaWaifus = () => {
@@ -27,7 +26,7 @@ const MediaWaifus = () => {
 	const mediaTitle = router.query.mediaTitle;
 	const { isLoggedIn } = useAppSelector(selectAuth);
 	const { id: ownId } = useAppSelector(selectUser);
-	const { status, error } = useAppSelector(selectMediaWaifusStatus);
+	const { status } = useAppSelector(selectMediaWaifusStatus);
 	const mediaWaifus = useAppSelector(selectMediaWaifus);
 
 	useEffect(() => {
@@ -41,7 +40,7 @@ const MediaWaifus = () => {
 				);
 			}
 		}
-	}, [dispatch, mediaTitle, router.isReady]);
+	}, [dispatch, mediaTitle, router.isReady, status]);
 
 	useEffect(() => {
 		return () => {

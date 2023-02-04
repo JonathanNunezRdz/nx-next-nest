@@ -1,78 +1,9 @@
-import {
-	CreateWaifuDto,
-	CreateWaifuResponse,
-	EditWaifuDto,
-	EditWaifuResponse,
-	GetAllWaifusDto,
-	GetAllWaifusResponse,
-	HttpError,
-	WaifuState,
-} from '@nx-next-nest/types';
+import { EditWaifuDto, WaifuState } from '@nx-next-nest/types';
 import { User, Waifu } from '@prisma/client';
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { AxiosError } from 'axios';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import { RootState } from '..';
-import waifuService from './service';
-
-// get actions
-
-export const getAllWaifus = createAsyncThunk<
-	GetAllWaifusResponse,
-	GetAllWaifusDto,
-	{ rejectValue: HttpError }
->('waifu/getAllWaifus', async (dto, { rejectWithValue }) => {
-	try {
-		const { data } = await waifuService.getAllWaifus(dto);
-		return data;
-	} catch (error) {
-		if (error instanceof AxiosError) {
-			const { response } = error as AxiosError<HttpError>;
-			return rejectWithValue(response!.data);
-		}
-		throw error;
-	}
-});
-
-// post actions
-
-export const addWaifu = createAsyncThunk<
-	CreateWaifuResponse,
-	CreateWaifuDto,
-	{ rejectValue: HttpError }
->('waifu/add', async (dto, { rejectWithValue }) => {
-	try {
-		const { data } = await waifuService.addWaifu(dto);
-		return data;
-	} catch (error) {
-		if (error instanceof AxiosError) {
-			const { response } = error as AxiosError<HttpError>;
-			return rejectWithValue(response!.data);
-		}
-		throw error;
-	}
-});
-
-// patch actions
-
-export const editWaifu = createAsyncThunk<
-	EditWaifuResponse,
-	EditWaifuDto,
-	{ rejectValue: HttpError }
->('waifu/edit', async (dto, { rejectWithValue }) => {
-	try {
-		const { data } = await waifuService.editWaifu(dto);
-		return data;
-	} catch (error) {
-		if (error instanceof AxiosError) {
-			const { response } = error as AxiosError<HttpError>;
-			return rejectWithValue(response!.data);
-		}
-		throw error;
-	}
-});
-
-// delete actions
+import { addWaifuAction, editWaifuAction, getAllWaifusAction } from './actions';
 
 const initialState: WaifuState = {
 	get: {
@@ -164,38 +95,38 @@ export const waifuSlice = createSlice({
 	},
 	extraReducers(builder) {
 		builder
-			.addCase(getAllWaifus.pending, (state) => {
+			.addCase(getAllWaifusAction.pending, (state) => {
 				state.get.error = undefined;
 				state.get.status = 'loading';
 			})
-			.addCase(getAllWaifus.fulfilled, (state, action) => {
+			.addCase(getAllWaifusAction.fulfilled, (state, action) => {
 				state.get.data = action.payload.waifus;
 				state.get.totalWaifus = action.payload.totalWaifus;
 				state.get.appliedFilters = action.meta.arg;
 				state.get.error = undefined;
 				state.get.status = 'succeeded';
 			})
-			.addCase(getAllWaifus.rejected, (state, action) => {
+			.addCase(getAllWaifusAction.rejected, (state, action) => {
 				state.get.error = action.payload;
 				state.get.status = 'failed';
 			})
-			.addCase(addWaifu.pending, (state) => {
+			.addCase(addWaifuAction.pending, (state) => {
 				state.add.status = 'loading';
 			})
-			.addCase(addWaifu.fulfilled, (state, action) => {
+			.addCase(addWaifuAction.fulfilled, (state, action) => {
 				state.get.data.unshift(action.payload);
 				state.add.error = undefined;
 				state.add.status = 'succeeded';
 			})
-			.addCase(addWaifu.rejected, (state, action) => {
+			.addCase(addWaifuAction.rejected, (state, action) => {
 				state.add.error = action.payload;
 				state.add.status = 'failed';
 			})
-			.addCase(editWaifu.pending, (state) => {
+			.addCase(editWaifuAction.pending, (state) => {
 				state.edit.error = undefined;
 				state.edit.status = 'loading';
 			})
-			.addCase(editWaifu.fulfilled, (state, action) => {
+			.addCase(editWaifuAction.fulfilled, (state, action) => {
 				const index = state.get.data.findIndex(
 					(waifu) => waifu.id === action.payload.id
 				);
@@ -205,7 +136,7 @@ export const waifuSlice = createSlice({
 				state.edit.error = undefined;
 				state.edit.status = 'succeeded';
 			})
-			.addCase(editWaifu.rejected, (state, action) => {
+			.addCase(editWaifuAction.rejected, (state, action) => {
 				state.edit.error = action.payload;
 				state.edit.status = 'failed';
 			});

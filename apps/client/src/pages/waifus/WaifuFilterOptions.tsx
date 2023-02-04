@@ -8,24 +8,20 @@ import {
 	Input,
 	SimpleGrid,
 } from '@chakra-ui/react';
-import { GetAllWaifusDto } from '@nx-next-nest/types';
-import { WaifuLevel } from '@prisma/client';
-import { useEffect } from 'react';
-import { Controller, SubmitHandler, useForm } from 'react-hook-form';
-import FilterUsersInput from '../../components/common/FilterUsersInput';
-
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import {
-	getAllUsers,
-	selectAllUsers,
-	selectAllUsersStatus,
-} from '../../store/user';
-import { isValidWaifuLevel } from '../../utils';
+import FilterUsersInput from '@client/src/components/common/FilterUsersInput';
+import { useAppDispatch, useAppSelector } from '@client/src/store/hooks';
+import { selectAllUsers, selectAllUsersStatus } from '@client/src/store/user';
+import { getAllUsersAction } from '@client/src/store/user/actions';
+import { isValidWaifuLevel } from '@client/src/utils';
 import {
 	UserId,
 	WaifuFilterInputs,
 	WaifuLevelLabels,
-} from '../../utils/constants';
+} from '@client/src/utils/constants';
+import { GetAllWaifusDto } from '@nx-next-nest/types';
+import { WaifuLevel } from '@prisma/client';
+import { useEffect } from 'react';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 
 interface WaifuFilterOptionsProps {
 	getWaifus: (options: GetAllWaifusDto) => void;
@@ -35,7 +31,7 @@ const WaifuFilterOptions = ({ getWaifus }: WaifuFilterOptionsProps) => {
 	// reducers
 	const dispatch = useAppDispatch();
 	const members = useAppSelector(selectAllUsers);
-	const { status, error } = useAppSelector(selectAllUsersStatus);
+	const { status } = useAppSelector(selectAllUsersStatus);
 
 	// react-hook-form
 	const { register, handleSubmit, reset, control } =
@@ -61,7 +57,7 @@ const WaifuFilterOptions = ({ getWaifus }: WaifuFilterOptionsProps) => {
 			if (isValidWaifuLevel(key) && value === true) level.push(key);
 
 			if (
-				members.findIndex((member) => member.id === Number(key)) &&
+				members.findIndex((member) => member.id === key) &&
 				value === true
 			)
 				users.push(key as UserId);
@@ -72,7 +68,7 @@ const WaifuFilterOptions = ({ getWaifus }: WaifuFilterOptionsProps) => {
 			limit: 9,
 			name: data.name,
 			level,
-			users: users.map(Number),
+			users,
 		});
 	};
 	const resetFilters = () => {
@@ -81,7 +77,7 @@ const WaifuFilterOptions = ({ getWaifus }: WaifuFilterOptionsProps) => {
 	};
 
 	useEffect(() => {
-		if (status === 'idle') dispatch(getAllUsers());
+		if (status === 'idle') dispatch(getAllUsersAction());
 	}, [status, dispatch]);
 
 	return (

@@ -1,10 +1,11 @@
+import { getAxiosError } from '@client/src/utils';
 import {
 	GetMediaWaifusDto,
 	GetMediaWaifusResponse,
 	HttpError,
 } from '@nx-next-nest/types';
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { AxiosError } from 'axios';
+
 import mediaService from '../service';
 
 export const getMediaWaifusAction = createAsyncThunk<
@@ -16,10 +17,7 @@ export const getMediaWaifusAction = createAsyncThunk<
 		const { data } = await mediaService.getMediaWaifus(title, dto);
 		return data;
 	} catch (error) {
-		if (error instanceof AxiosError) {
-			const { response } = error as AxiosError<HttpError>;
-			return rejectWithValue(response!.data);
-		}
-		throw error;
+		const errorData = getAxiosError(error);
+		return rejectWithValue(errorData);
 	}
 });

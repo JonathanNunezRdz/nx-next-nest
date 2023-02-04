@@ -13,6 +13,7 @@ import {
 	KnowMediaResponse,
 	PostImageDto,
 } from '@nx-next-nest/types';
+import { Media } from '@prisma/client';
 import { stringify } from 'qs';
 
 import api from '../api';
@@ -37,7 +38,7 @@ function getMediaTitles() {
 	return api.get<GetMediaTitlesResponse>('/media/titles');
 }
 
-function getEditMedia(mediaId: number) {
+function getEditMedia(mediaId: Media['id']) {
 	return api.get<GetEditMediaResponse>(`/media/edit/${mediaId}`);
 }
 

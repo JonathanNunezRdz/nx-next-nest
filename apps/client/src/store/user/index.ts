@@ -1,78 +1,11 @@
-import {
-	GetAllUsersResponse,
-	GetUserResponse,
-	HttpError,
-	SignInDto,
-	SignInResponse,
-	UserState,
-} from '@nx-next-nest/types';
+import { invalidateJWT, setJWT, validateJWT } from '@client/src/utils';
+import { UserState } from '@nx-next-nest/types';
 import type { User } from '@prisma/client';
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { AxiosError } from 'axios';
+import { createSlice } from '@reduxjs/toolkit';
 
 import { RootState } from '..';
-import { invalidateJWT, setJWT, validateJWT } from '../../utils';
 import api from '../api';
-import userService from './service';
-
-// get actions
-
-export const getUser = createAsyncThunk<
-	GetUserResponse,
-	void,
-	{ rejectValue: HttpError }
->('user/getUser', async (_, thunkApi) => {
-	try {
-		const { data } = await userService.getUser();
-		return data;
-	} catch (error) {
-		if (error instanceof AxiosError) {
-			const { response } = error as AxiosError<HttpError>;
-			return thunkApi.rejectWithValue(response!.data);
-		}
-		throw error;
-	}
-});
-
-export const getAllUsers = createAsyncThunk<
-	GetAllUsersResponse,
-	void,
-	{ rejectValue: HttpError }
->('user/getAll', async (_, thunkApi) => {
-	try {
-		const { data } = await userService.getAllUsers();
-		return data;
-	} catch (error) {
-		if (error instanceof AxiosError) {
-			const { response } = error as AxiosError<HttpError>;
-			return thunkApi.rejectWithValue(response!.data);
-		}
-		throw error;
-	}
-});
-
-// post actions
-
-export const signIn = createAsyncThunk<
-	SignInResponse,
-	SignInDto,
-	{ rejectValue: HttpError }
->('user/signIn', async ({ email, password }, thunkApi) => {
-	try {
-		const { data } = await userService.signIn(email, password);
-		return data;
-	} catch (error) {
-		if (error instanceof AxiosError) {
-			const { response } = error as AxiosError<HttpError>;
-			return thunkApi.rejectWithValue(response!.data);
-		}
-		throw error;
-	}
-});
-
-// patch actions
-
-// delete actions
+import { getAllUsersAction, getUserAction, signInAction } from './actions';
 
 const initialState: UserState = {
 	user: {
@@ -143,10 +76,10 @@ export const userSlice = createSlice({
 	},
 	extraReducers(builder) {
 		builder
-			.addCase(signIn.pending, (state) => {
+			.addCase(signInAction.pending, (state) => {
 				state.signIn.status = 'loading';
 			})
-			.addCase(signIn.fulfilled, (state, action) => {
+			.addCase(signInAction.fulfilled, (state, action) => {
 				setJWT(action.payload.accessToken);
 				api.defaults.headers.common[
 					'Authorization'
@@ -155,23 +88,23 @@ export const userSlice = createSlice({
 				state.signIn.error = undefined;
 				state.auth.isLoggedIn = true;
 			})
-			.addCase(signIn.rejected, (state, action) => {
+			.addCase(signInAction.rejected, (state, action) => {
 				invalidateJWT();
 				state.signIn.status = 'failed';
 				state.signIn.error = action.payload;
 				state.user.data = {} as User;
 			})
-			.addCase(getUser.pending, (state) => {
+			.addCase(getUserAction.pending, (state) => {
 				state.user.status = 'loading';
 			})
-			.addCase(getUser.fulfilled, (state, action) => {
+			.addCase(getUserAction.fulfilled, (state, action) => {
 				state.user = {
 					data: action.payload,
 					status: 'succeeded',
 					error: undefined,
 				};
 			})
-			.addCase(getUser.rejected, (state, action) => {
+			.addCase(getUserAction.rejected, (state, action) => {
 				state.user.data = {} as User;
 				state.user.status = 'failed';
 				state.user.error = action.payload;
@@ -181,15 +114,15 @@ export const userSlice = createSlice({
 				)
 					invalidateJWT();
 			})
-			.addCase(getAllUsers.pending, (state) => {
+			.addCase(getAllUsersAction.pending, (state) => {
 				state.members.status = 'loading';
 			})
-			.addCase(getAllUsers.fulfilled, (state, action) => {
+			.addCase(getAllUsersAction.fulfilled, (state, action) => {
 				state.members.data = action.payload;
 				state.members.status = 'succeeded';
 				state.members.error = undefined;
 			})
-			.addCase(getAllUsers.rejected, (state, action) => {
+			.addCase(getAllUsersAction.rejected, (state, action) => {
 				state.members.status = 'failed';
 				state.members.error = action.payload;
 			});

@@ -4,8 +4,8 @@ import {
 	HttpError,
 } from '@nx-next-nest/types';
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { AxiosError } from 'axios';
 
+import { getAxiosError } from '@client/src/utils';
 import mediaService from '../service';
 
 export const addMediaAction = createAsyncThunk<
@@ -17,10 +17,7 @@ export const addMediaAction = createAsyncThunk<
 		const { data } = await mediaService.addMedia(dto);
 		return data;
 	} catch (error) {
-		if (error instanceof AxiosError) {
-			const { response } = error as AxiosError<HttpError>;
-			return rejectWithValue(response!.data);
-		}
-		throw error;
+		const data = getAxiosError(error);
+		return rejectWithValue(data);
 	}
 });

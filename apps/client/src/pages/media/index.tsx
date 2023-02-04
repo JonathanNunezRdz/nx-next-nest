@@ -12,19 +12,19 @@ import { FC, useCallback, useEffect } from 'react';
 import { usePagination } from '@ajna/pagination';
 import { GetMediaDto } from '@nx-next-nest/types';
 
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import MediaCard from './MediaCard';
+import MediaFilterOptions from './MediaFilterOptions';
+import { useAppDispatch, useAppSelector } from '@client/src/store/hooks';
+import { selectAuth, selectUser } from '@client/src/store/user';
 import {
 	selectMedia,
 	selectMediaAppliedFilters,
 	selectMediaStatus,
-} from '../../store/media';
-import { getMediasAction } from '../../store/media/actions';
-import MediaCard from './MediaCard';
-import { selectAuth, selectUser } from '../../store/user';
-import Body from '../../components/layout/Body';
-import LinkButton from '../../components/common/LinkButton';
-import MediaFilterOptions from './MediaFilterOptions';
-import CustomPagination from '../../components/common/CustomPagination';
+} from '@client/src/store/media';
+import { getMediasAction } from '@client/src/store/media/actions';
+import Body from '@client/src/components/layout/Body';
+import LinkButton from '@client/src/components/common/LinkButton';
+import CustomPagination from '@client/src/components/common/CustomPagination';
 
 // TODO: design media filter options
 
@@ -60,7 +60,7 @@ const Media: FC = () => {
 			setCurrentPage(options.page);
 			dispatch(getMediasAction(options));
 		},
-		[dispatch]
+		[dispatch, setCurrentPage]
 	);
 	const handleChangePage = (nextPage: number) => {
 		if (nextPage === appliedFilters.page) return;
@@ -74,6 +74,7 @@ const Media: FC = () => {
 	// effects
 	useEffect(() => {
 		handleGetMedia(appliedFilters);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [handleGetMedia]);
 
 	return (

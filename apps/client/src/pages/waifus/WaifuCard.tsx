@@ -1,21 +1,14 @@
-import {
-	Box,
-	HStack,
-	Stat,
-	StatHelpText,
-	StatLabel,
-	StatNumber,
-	Text,
-} from '@chakra-ui/react';
+import { Box, HStack, Text } from '@chakra-ui/react';
+import ImageCard from '@client/src/components/common/ImageCard';
+import { useCardColor, WaifuLevelLabels } from '@client/src/utils/constants';
 import { WaifuResponse } from '@nx-next-nest/types';
-import ImageCard from '../../components/common/ImageCard';
+import { User } from '@prisma/client';
 
-import { useCardColor, WaifuLevelLabels } from '../../utils/constants';
 import WaifuActionButtons from './WaifuActionButtons';
 
 interface WaifuCardProps {
 	waifu: WaifuResponse;
-	ownId: number;
+	ownId: User['id'];
 	isLoggedIn: boolean;
 }
 

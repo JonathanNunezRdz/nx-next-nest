@@ -13,11 +13,8 @@ import PageTitle from '../../components/common/PageTitle';
 import WaifuLevelInput from '../../components/common/WaifuLevelInput';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { selectMediaTitles } from '../../store/media';
-import {
-	editWaifu,
-	selectEditWaifu,
-	selectEditWaifuStatus,
-} from '../../store/waifu';
+import { selectEditWaifu, selectEditWaifuStatus } from '../../store/waifu';
+import { editWaifuAction } from '../../store/editWaifuAction';
 
 const EditWaifu = () => {
 	const dispatch = useAppDispatch();
@@ -38,7 +35,7 @@ const EditWaifu = () => {
 				...values,
 				mediaId: Number(values.mediaId),
 			};
-			const res = await dispatch(editWaifu(newValues));
+			const res = await dispatch(editWaifuAction(newValues));
 			if (res.meta.requestStatus === 'fulfilled') router.push('/waifus');
 		},
 	});

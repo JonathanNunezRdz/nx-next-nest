@@ -1,15 +1,24 @@
-import { JWTPayload, JWTStatus } from '@nx-next-nest/types';
+import { HttpError, JWTPayload, JWTStatus } from '@nx-next-nest/types';
 import { ImageFormat, MediaType, WaifuLevel } from '@prisma/client';
+import { AxiosError } from 'axios';
 import { ImageFormats, MediaTypes, WaifuLevelLabels } from './constants';
 
+export function getJWTFromLocalStorage() {
+	if (typeof process.env.NEXT_PUBLIC_JWT_LOCAL_STORAGE_KEY === 'undefined') {
+		throw new Error('env not set');
+	}
+	return localStorage.getItem(process.env.NEXT_PUBLIC_JWT_LOCAL_STORAGE_KEY);
+}
+
 export function invalidateJWT() {
-	localStorage.removeItem(process.env.NEXT_PUBLIC_JWT_LOCAL_STORAGE_KEY!);
+	if (typeof process.env.NEXT_PUBLIC_JWT_LOCAL_STORAGE_KEY === 'undefined') {
+		throw new Error('env not set');
+	}
+	localStorage.removeItem(process.env.NEXT_PUBLIC_JWT_LOCAL_STORAGE_KEY);
 }
 
 export function validateJWT(): JWTStatus {
-	const jwt = localStorage.getItem(
-		process.env.NEXT_PUBLIC_JWT_LOCAL_STORAGE_KEY!
-	);
+	const jwt = getJWTFromLocalStorage();
 
 	if (jwt !== null) {
 		const payloadString = Buffer.from(
@@ -32,7 +41,10 @@ export function validateJWT(): JWTStatus {
 }
 
 export function setJWT(jwt: string) {
-	localStorage.setItem(process.env.NEXT_PUBLIC_JWT_LOCAL_STORAGE_KEY!, jwt);
+	if (typeof process.env.NEXT_PUBLIC_JWT_LOCAL_STORAGE_KEY === 'undefined') {
+		throw new Error('env not set');
+	}
+	localStorage.setItem(process.env.NEXT_PUBLIC_JWT_LOCAL_STORAGE_KEY, jwt);
 }
 
 export function formatDate(dateString?: string) {
@@ -64,15 +76,10 @@ export function parseMediaId(mediaId: string | string[]) {
 	}
 }
 
-export function parseWaifuId(waifuId: string | string[]) {
+export function parseWaifuId(waifuId: string | string[] | undefined) {
 	if (typeof waifuId === 'object' || typeof waifuId === 'undefined')
-		return -1;
-	try {
-		const id = parseInt(waifuId, 10);
-		return id;
-	} catch (error) {
-		return -1;
-	}
+		throw new Error('waifuId must be a string');
+	return waifuId;
 }
 
 export function loadImage(images: FileList | null) {
@@ -83,7 +90,8 @@ export function loadImage(images: FileList | null) {
 				reader.onload = (event) => {
 					if (event.target) {
 						const format = images[0].type.split('/').pop();
-						if (isValidImageFormat(format!)) {
+						if (typeof format === 'undefined') return;
+						if (isValidImageFormat(format)) {
 							resolve({
 								result: event.target.result as string,
 								format,
@@ -108,4 +116,13 @@ export function isValidMediaType(mediaType: string): mediaType is MediaType {
 
 export function isValidWaifuLevel(level: string): level is WaifuLevel {
 	return Object.keys(WaifuLevelLabels).includes(level);
+}
+
+export function getAxiosError(error: unknown) {
+	if (error instanceof AxiosError) {
+		const { response } = error as AxiosError<HttpError>;
+		if (typeof response === 'undefined') throw error;
+		return response.data;
+	}
+	throw error;
 }

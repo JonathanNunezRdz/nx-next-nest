@@ -16,11 +16,8 @@ import FormErrorMessageWrapper from '../../components/common/FormErrorMessageWra
 
 import Body from '../../components/layout/Body';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import {
-	resetSignInStatus,
-	selectSignInStatus,
-	signIn,
-} from '../../store/user';
+import { resetSignInStatus, selectSignInStatus } from '../../store/user';
+import { signInAction } from '../../store/signInAction';
 
 const SignIn: FC = () => {
 	const dispatch = useAppDispatch();
@@ -32,7 +29,7 @@ const SignIn: FC = () => {
 			password: '',
 		},
 		onSubmit: async ({ email, password }) => {
-			const res = await dispatch(signIn({ email, password }));
+			const res = await dispatch(signInAction({ email, password }));
 			if (res.meta.requestStatus === 'fulfilled') {
 				if (router.query.redirect) {
 					router.push(router.query.redirect as string);
