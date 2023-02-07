@@ -24,7 +24,12 @@ export class AuthService {
 	async signUp(dto: SignUpDto) {
 		const { lastName, firstName, alias, email, password, secret, uid } =
 			dto;
-		const valid = await verify(this.config.get('SIGN_UP_KEY')!, secret);
+
+		const ENV_SECRET = this.config.get<string>('SIGN_UP_KEY');
+		if (typeof ENV_SECRET === 'undefined')
+			throw new ForbiddenException('not authorized');
+
+		const valid = await verify(ENV_SECRET, secret);
 		if (!valid) {
 			throw new ForbiddenException('incorrect credentials');
 		}

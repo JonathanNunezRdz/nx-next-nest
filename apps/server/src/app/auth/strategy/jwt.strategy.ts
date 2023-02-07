@@ -32,6 +32,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 			});
 			if (!rawUser) throw new PreconditionFailedException();
 
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			const { hash, ...user } = rawUser;
 
 			return user;

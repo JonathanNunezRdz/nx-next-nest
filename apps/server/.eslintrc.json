@@ -1,14 +1,14 @@
 {
 	"parser": "@typescript-eslint/parser",
 	"parserOptions": {
-		"project": "tsconfig.json",
-		"tsconfigRootDir": ".",
+		"project": ["./tsconfig.json"],
+		"tsconfigRootDir": "apps/server",
 		"sourceType": "module"
 	},
-	"plugins": ["@typescript-eslint/eslint-plugin"],
+	"plugins": ["@typescript-eslint"],
 	"extends": [
-		"plugin:@typescript-eslint/recomended",
-		"plugin:prettier/recomended",
+		"plugin:@typescript-eslint/recommended",
+		"plugin:prettier/recommended",
 		"../../.eslintrc.json"
 	],
 	"root": false,
@@ -42,5 +42,6 @@
 			"files": ["*.js", "*.jsx"],
 			"rules": {}
 		}
-	]
+	],
+	"ignorePatterns": ["jest.config.ts", "test/*"]
 }

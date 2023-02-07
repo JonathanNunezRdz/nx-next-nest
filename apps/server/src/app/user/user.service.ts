@@ -681,9 +681,11 @@ export class UserService {
 			};
 		}
 
+		// remove hash from rawUser
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		const { hash, ...rest } = rawUser;
 
-		const user: GetUserResponse = {
+		const user = {
 			...rest,
 			image,
 		};

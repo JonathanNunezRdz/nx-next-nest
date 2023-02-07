@@ -224,7 +224,8 @@ export class MediaService {
 
 	async createMedia(dto: CreateMediaService): Promise<CreateMediaResponse> {
 		const { userId, mediaDto } = dto;
-		let { title, type, knownAt } = mediaDto;
+		let { title } = mediaDto;
+		const { type, knownAt } = mediaDto;
 		title = mediaDto.title.trim();
 
 		const createImage = createMediaImage(mediaDto);
@@ -424,7 +425,8 @@ export class MediaService {
 
 	async editMedia(dto: EditMediaService): Promise<EditMediaResponse> {
 		const { editDto, userId, imageFile } = dto;
-		let { title, type, mediaId } = editDto;
+		let { title } = editDto;
+		const { type, mediaId } = editDto;
 		if (title) title = title.trim();
 
 		const editMediaImageOptions = editMediaImage(editDto);

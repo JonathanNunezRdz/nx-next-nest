@@ -183,7 +183,8 @@ export class WaifuService {
 
 	async createWaifu(dto: CreateWaifuService): Promise<CreateWaifuResponse> {
 		const { waifuDto, userId } = dto;
-		let { name, level, mediaId } = waifuDto;
+		let { name } = waifuDto;
+		const { level, mediaId } = waifuDto;
 		name = name.trim();
 
 		const createWaifuImageOption = createWaifuImage(waifuDto);
@@ -286,7 +287,8 @@ export class WaifuService {
 
 	async editWaifu(dto: EditWaifuService): Promise<EditWaifuResponse> {
 		const { userId, waifuDto, imageFile } = dto;
-		let { name, level, waifuId } = waifuDto;
+		let { name } = waifuDto;
+		const { level, waifuId } = waifuDto;
 		if (name) name = name.trim();
 
 		const upsertWaifuImageOptions = upsertWaifuImage(waifuDto);

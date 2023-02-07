@@ -1,9 +1,9 @@
 {
-	"name": "name",
-	"description": "description",
-	"authors": "author",
+	"name": "server",
+	"description": "server for the wia",
+	"authors": "Jonathan Nunez",
 	"version": "1.0.0",
-	"main": "pathToMain",
+	"main": "./src/main.ts",
 	"license": "MIT",
 	"scripts": {
 		"prisma:dev:migrate": "npx prisma migrate dev --schema=../../prisma/schema.prisma",
