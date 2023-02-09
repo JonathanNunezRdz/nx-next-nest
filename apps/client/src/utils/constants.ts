@@ -50,12 +50,10 @@ export type UserId = '1' | '2' | '3' | '4';
 
 export type UserIdBoolean = Record<UserId, boolean>;
 
-export type WaifuFilterInputs = WaifuLevelBoolean &
-	UserIdBoolean & {
-		name: string;
-	};
+export type WaifuFilterInputs = WaifuLevelBoolean & {
+	name: string;
+};
 
-export type MediaFilterInputs = MediaTypeBoolean &
-	UserIdBoolean & {
-		title: string;
-	};
+export type MediaFilterInputs = MediaTypeBoolean & {
+	title: string;
+};

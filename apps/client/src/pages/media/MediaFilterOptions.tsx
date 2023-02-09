@@ -8,22 +8,21 @@ import {
 	Input,
 	SimpleGrid,
 } from '@chakra-ui/react';
+import FilterUsersInput from '@client/src/components/common/FilterUsersInput';
+import { useAppSelector } from '@client/src/store/hooks';
+import { selectAllUsers } from '@client/src/store/user';
+import { isValidMediaType } from '@client/src/utils';
+import { MediaFilterInputs, MediaTypes } from '@client/src/utils/constants';
 import { GetMediaDto } from '@nx-next-nest/types';
 import { MediaType } from '@prisma/client';
 import { SubmitHandler, useForm, Controller } from 'react-hook-form';
-import FilterUsersInput from '../../components/common/FilterUsersInput';
-
-import { useAppSelector } from '../../store/hooks';
-import { selectAllUsers } from '../../store/user';
-import { isValidMediaType } from '../../utils';
-import { MediaFilterInputs, MediaTypes, UserId } from '../../utils/constants';
 
 interface MediaFilterOptionsProps {
 	getMedia: (options: GetMediaDto) => void;
 }
 
 const MediaFilterOptions = ({ getMedia }: MediaFilterOptionsProps) => {
-	// reducers
+	// redux
 	const members = useAppSelector(selectAllUsers);
 
 	// react-hook-form
@@ -34,23 +33,19 @@ const MediaFilterOptions = ({ getMedia }: MediaFilterOptionsProps) => {
 				manga: false,
 				videogame: false,
 				title: '',
-				'1': false,
-				'2': false,
-				'3': false,
-				'4': false,
 			},
 		});
 	const onSubmit: SubmitHandler<MediaFilterInputs> = (data) => {
-		const users: UserId[] = [];
+		const users: string[] = [];
 		const type: MediaType[] = [];
 		Object.entries(data).forEach(([key, value]) => {
 			if (isValidMediaType(key) && value === true) type.push(key);
 
 			if (
-				members.findIndex((member) => member.id === Number(key)) > -1 &&
+				members.findIndex((member) => member.id === key) > -1 &&
 				value === true
 			) {
-				users.push(key as UserId);
+				users.push(key);
 			}
 		});
 
@@ -59,7 +54,7 @@ const MediaFilterOptions = ({ getMedia }: MediaFilterOptionsProps) => {
 			limit: 9,
 			title: data.title,
 			type,
-			users: users.map(Number),
+			users,
 		});
 	};
 

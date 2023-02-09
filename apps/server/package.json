@@ -6,8 +6,6 @@
 	"main": "./src/main.ts",
 	"license": "MIT",
 	"scripts": {
-		"prisma:dev:migrate": "npx prisma migrate dev --schema=../../prisma/schema.prisma",
-		"prisma:studio": "npx prisma studio --schema=../../prisma/schema.prisma",
 		"pretest:e2e": "yarn db:test:restart && timeout /t 3",
 		"test:e2e": "npx env-cmd -f .env.test jest --watch --no-cache --config ./test/jest-e2e.json",
 		"pretest:e2e:linux": "yarn db:test:restart:linux && sleep 3",

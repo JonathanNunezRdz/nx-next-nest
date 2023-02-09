@@ -1,13 +1,13 @@
 import { Box } from '@chakra-ui/react';
+import { useAppDispatch, useAppSelector } from '@client/src/store/hooks';
+import {
+	getLoggedStatus,
+	selectSignInStatus,
+	selectUserStatus,
+} from '@client/src/store/user';
+import { getUserAction } from '@client/src/store/user/actions';
 import { type FC, useEffect } from 'react';
 
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import {
-	selectUserStatus,
-	selectSignInStatus,
-	getLoggedStatus,
-} from '../../store/user';
-import { getUserAction } from '../../store/getUserAction';
 import Footer from './Footer';
 import Header from './header';
 

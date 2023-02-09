@@ -12,7 +12,6 @@ import {
 	selectUser,
 } from '@client/src/store/user';
 import { getAllUsersAction } from '@client/src/store/user/actions';
-import { UserId } from '@client/src/utils/constants';
 import { useEffect } from 'react';
 import { Control, Controller } from 'react-hook-form';
 
@@ -48,7 +47,7 @@ const FilterUsersInput = ({ control }: FilterUsersInputProps) => {
 						<Controller
 							key={member.id}
 							control={control}
-							name={member.id as UserId}
+							name={member.id}
 							defaultValue={false}
 							render={({ field: { onChange, value, ref } }) => (
 								<Checkbox

@@ -14,7 +14,6 @@ import { selectAllUsers, selectAllUsersStatus } from '@client/src/store/user';
 import { getAllUsersAction } from '@client/src/store/user/actions';
 import { isValidWaifuLevel } from '@client/src/utils';
 import {
-	UserId,
 	WaifuFilterInputs,
 	WaifuLevelLabels,
 } from '@client/src/utils/constants';
@@ -44,14 +43,10 @@ const WaifuFilterOptions = ({ getWaifus }: WaifuFilterOptionsProps) => {
 				jonin: false,
 				topWaifu: false,
 				name: '',
-				'1': false,
-				'2': false,
-				'3': false,
-				'4': false,
 			},
 		});
 	const onSubmit: SubmitHandler<WaifuFilterInputs> = (data) => {
-		const users: UserId[] = [];
+		const users: string[] = [];
 		const level: WaifuLevel[] = [];
 		Object.entries(data).forEach(([key, value]) => {
 			if (isValidWaifuLevel(key) && value === true) level.push(key);
@@ -60,7 +55,7 @@ const WaifuFilterOptions = ({ getWaifus }: WaifuFilterOptionsProps) => {
 				members.findIndex((member) => member.id === key) &&
 				value === true
 			)
-				users.push(key as UserId);
+				users.push(key);
 		});
 
 		getWaifus({
