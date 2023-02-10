@@ -1,10 +1,13 @@
 import { KnownMedia, MediaType, User } from '@prisma/client';
 
-import { RequestStatus } from '../common';
+import { MyImage, RequestStatus } from '../common';
 import { WaifuResponse } from '../waifu';
-import { EditMediaDto } from './edit-media.dto';
 import { GetMediaDto } from './get-media.dto';
-import { GetMediaTitlesResponse, MediaResponse } from './media.response';
+import {
+	GetEditMediaResponse,
+	GetMediaTitlesResponse,
+	MediaResponse,
+} from './media.response';
 
 export * from './create-media.dto';
 export * from './delete-media.dto';
@@ -15,9 +18,7 @@ export * from './media.response';
 
 export type MediaKnownUser = KnownMedia & {
 	user: Pick<User, 'id' | 'alias'> & {
-		image?: {
-			src: string;
-		};
+		image?: MyImage;
 	};
 };
 
@@ -30,7 +31,7 @@ export interface MediaState {
 	add: RequestStatus;
 	know: RequestStatus;
 	edit: {
-		data: EditMediaDto;
+		data: GetEditMediaResponse;
 		local: RequestStatus;
 		server: RequestStatus;
 	} & RequestStatus;

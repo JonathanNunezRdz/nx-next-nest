@@ -28,14 +28,14 @@ import FormErrorMessageWrapper from '../../components/common/FormErrorMessageWra
 import MediaTypeOptions from '../../components/common/MediaTypeOptions';
 
 const AddMedia = () => {
-	// redux
+	// redux hooks
 	const dispatch = useAppDispatch();
 	const addMediaStatus = useAppSelector(selectAddMediaStatus);
 
-	// next
+	// next hooks
 	const router = useRouter();
 
-	// hooks
+	// react hooks
 	const [currentImage, setCurrentImage] = useState<string>('');
 	const [imageFile, setImageFile] = useState<File>();
 

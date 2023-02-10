@@ -1,4 +1,4 @@
-import { EditMediaDto, MediaState } from '@nx-next-nest/types';
+import { GetEditMediaResponse, MediaState } from '@nx-next-nest/types';
 import { Media, User } from '@prisma/client';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
@@ -38,7 +38,7 @@ const initialState: MediaState = {
 		error: undefined,
 	},
 	edit: {
-		data: {} as EditMediaDto,
+		data: {} as GetEditMediaResponse,
 		status: 'idle',
 		error: undefined,
 		local: {
@@ -72,7 +72,7 @@ export const mediaSlice = createSlice({
 	initialState,
 	reducers: {
 		resetGetMediaToEdit: (state) => {
-			state.edit.data = {} as EditMediaDto;
+			state.edit.data = {} as GetEditMediaResponse;
 			state.edit.local.status = 'idle';
 			state.edit.local.error = undefined;
 			state.edit.server.status = 'idle';
@@ -118,12 +118,12 @@ export const mediaSlice = createSlice({
 						statusCode: 403,
 					};
 				} else {
-					state.edit.data.mediaId = media.id;
+					state.edit.data.id = media.id;
 					state.edit.data.title = media.title;
 					state.edit.data.type = media.type;
 					state.edit.data.knownAt = new Date(
 						media.knownBy[userIndex].knownAt
-					).toISOString();
+					);
 					state.edit.local.status = 'succeeded';
 					state.edit.local.error = undefined;
 				}

@@ -32,3 +32,7 @@ export interface InvalidJWT {
 }
 
 export type JWTStatus = ValidJWT | InvalidJWT;
+
+export type MyImage = {
+	src: string;
+};

@@ -198,6 +198,16 @@ export class MediaService {
 						userId: true,
 					},
 				},
+				image: {
+					include: {
+						image: {
+							select: {
+								id: true,
+								format: true,
+							},
+						},
+					},
+				},
 			},
 		});
 
@@ -212,11 +222,21 @@ export class MediaService {
 		if (typeof knownAt === 'undefined')
 			throw new ForbiddenException('access to resources denied');
 
+		let image: GetMediaResponse['medias'][0]['image'];
+		if (media.image) {
+			const imagePath = formatImageFileName(
+				media.id,
+				media.image.image.format
+			);
+			image = { src: this.storage.getFile(imagePath) };
+		}
+
 		return {
-			mediaId: media.id,
+			id: media.id,
 			title: media.title,
 			type: media.type,
-			knownAt: knownAt.knownAt.toISOString(),
+			knownAt: knownAt.knownAt,
+			image,
 		};
 	}
 

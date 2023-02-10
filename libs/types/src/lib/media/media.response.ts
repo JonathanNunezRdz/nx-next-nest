@@ -1,7 +1,7 @@
 import { Media, Waifu } from '@prisma/client';
 
 import { MediaKnownUser } from '.';
-import { EditMediaDto } from './edit-media.dto';
+import { MyImage } from '../common';
 
 export type GetMediaTitlesResponse = {
 	id: Media['id'];
@@ -10,7 +10,10 @@ export type GetMediaTitlesResponse = {
 
 export type EditMediaResponse = MediaResponse;
 
-export type GetEditMediaResponse = EditMediaDto;
+export type GetEditMediaResponse = RawMedia & {
+	knownAt: Date;
+	image?: MyImage;
+};
 
 export type KnowMediaResponse = MediaResponse;
 
@@ -24,7 +27,7 @@ export type GetMediaResponse = {
 export type MediaResponse = Media & {
 	waifus: Pick<Waifu, 'id' | 'name'>[];
 	knownBy: MediaKnownUser[];
-	image?: {
-		src: string;
-	};
+	image?: MyImage;
 };
+
+export type RawMedia = Omit<Media, 'createdAt' | 'updatedAt'>;

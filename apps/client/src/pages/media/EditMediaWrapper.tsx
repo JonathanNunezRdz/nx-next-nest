@@ -1,16 +1,15 @@
-import { useRouter } from 'next/router';
-import { useEffect } from 'react';
-
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { useAppDispatch, useAppSelector } from '@client/src/store/hooks';
 import {
 	getMediaToEditFromLocal,
-	getMediaToEditFromServer,
 	resetGetMediaToEdit,
 	selectEditLocalMediaStatus,
 	selectEditServerMediaStatus,
-} from '../../store/media';
-import { selectUser, selectUserStatus } from '../../store/user';
-import { parseMediaId } from '../../utils';
+} from '@client/src/store/media';
+import { getMediaToEditFromServerAction } from '@client/src/store/media/actions';
+import { selectUser, selectUserStatus } from '@client/src/store/user';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
+
 import EditMedia from './EditMedia';
 
 const EditMediaWrapper = () => {
@@ -18,7 +17,7 @@ const EditMediaWrapper = () => {
 	const router = useRouter();
 	const user = useAppSelector(selectUser);
 	const userStatus = useAppSelector(selectUserStatus);
-	const mediaId = parseMediaId(router.query.mediaIdString);
+	const mediaId = router.query.mediaIdString as string;
 	const localMediaStatus = useAppSelector(selectEditLocalMediaStatus);
 	const serverMediaStatus = useAppSelector(selectEditServerMediaStatus);
 
@@ -30,7 +29,7 @@ const EditMediaWrapper = () => {
 				localMediaStatus.status === 'failed' &&
 				serverMediaStatus.status === 'idle'
 			) {
-				dispatch(getMediaToEditFromServer(mediaId));
+				dispatch(getMediaToEditFromServerAction(mediaId));
 			}
 		}
 	}, [
