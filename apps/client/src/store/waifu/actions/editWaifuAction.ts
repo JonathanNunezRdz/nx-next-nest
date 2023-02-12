@@ -1,7 +1,7 @@
 import { getAxiosError } from '@client/src/utils';
 import {
-	EditWaifuDto,
 	EditWaifuResponse,
+	EditWaifuThunk,
 	HttpError,
 } from '@nx-next-nest/types';
 import { createAsyncThunk } from '@reduxjs/toolkit';
@@ -9,7 +9,7 @@ import waifuService from '../service';
 
 export const editWaifuAction = createAsyncThunk<
 	EditWaifuResponse,
-	EditWaifuDto,
+	EditWaifuThunk,
 	{ rejectValue: HttpError }
 >('waifu/edit', async (dto, { rejectWithValue }) => {
 	try {

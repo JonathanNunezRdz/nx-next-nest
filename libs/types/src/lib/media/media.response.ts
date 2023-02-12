@@ -3,19 +3,12 @@ import { Media, Waifu } from '@prisma/client';
 import { MediaKnownUser } from '.';
 import { MyImage } from '../common';
 
-export type GetMediaTitlesResponse = {
-	id: Media['id'];
-	title: Media['title'];
-}[];
-
 export type EditMediaResponse = MediaResponse;
 
 export type GetEditMediaResponse = RawMedia & {
 	knownAt: Date;
 	image?: MyImage;
 };
-
-export type KnowMediaResponse = MediaResponse;
 
 export type CreateMediaResponse = MediaResponse;
 
@@ -31,3 +24,10 @@ export type MediaResponse = Media & {
 };
 
 export type RawMedia = Omit<Media, 'createdAt' | 'updatedAt'>;
+
+export type GetMediaTitlesResponse = {
+	id: Media['id'];
+	title: Media['title'];
+}[];
+
+export type KnowMediaResponse = MediaResponse;

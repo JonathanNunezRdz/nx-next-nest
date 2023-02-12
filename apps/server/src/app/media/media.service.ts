@@ -222,7 +222,7 @@ export class MediaService {
 		if (typeof knownAt === 'undefined')
 			throw new ForbiddenException('access to resources denied');
 
-		let image: GetMediaResponse['medias'][0]['image'];
+		let image: GetEditMediaResponse['image'];
 		if (media.image) {
 			const imagePath = formatImageFileName(
 				media.id,

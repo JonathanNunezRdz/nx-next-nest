@@ -13,3 +13,13 @@ export interface EditWaifuService {
 	waifuDto: EditWaifuDto;
 	imageFile?: Express.Multer.File;
 }
+
+export interface GetEditWaifuService {
+	userId: User['id'];
+	waifuId: Waifu['id'];
+}
+
+export interface EditWaifuThunk {
+	editDto: EditWaifuDto;
+	imageFile?: File;
+}

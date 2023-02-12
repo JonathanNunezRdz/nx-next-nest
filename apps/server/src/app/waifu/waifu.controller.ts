@@ -18,10 +18,11 @@ import {
 	EditWaifuResponse,
 	GetAllWaifusDto,
 	GetAllWaifusResponse,
+	GetEditWaifuResponse,
 	GetMediaWaifusDto,
 	GetMediaWaifusResponse,
 } from '@nx-next-nest/types';
-import { User } from '@prisma/client';
+import { User, Waifu } from '@prisma/client';
 
 import { GetUser } from '../auth/decorator';
 import { JwtGuard } from '../auth/guard';
@@ -44,6 +45,15 @@ export class WaifuController {
 		@Query() waifuDto: GetMediaWaifusDto
 	): Promise<GetMediaWaifusResponse> {
 		return this.waifuService.getMediaWaifus({ title, waifuDto });
+	}
+
+	@UseGuards(JwtGuard)
+	@Get('edit/:id')
+	getEditWaifu(
+		@GetUser('id') userId: User['id'],
+		@Param('id') waifuId: Waifu['id']
+	): Promise<GetEditWaifuResponse> {
+		return this.waifuService.getEditWaifu({ userId, waifuId });
 	}
 
 	// post routes

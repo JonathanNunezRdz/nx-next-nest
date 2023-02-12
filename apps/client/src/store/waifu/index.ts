@@ -1,9 +1,14 @@
-import { EditWaifuDto, WaifuState } from '@nx-next-nest/types';
+import { GetEditWaifuResponse, WaifuState } from '@nx-next-nest/types';
 import { User, Waifu } from '@prisma/client';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import { RootState } from '..';
-import { addWaifuAction, editWaifuAction, getAllWaifusAction } from './actions';
+import {
+	addWaifuAction,
+	editWaifuAction,
+	getAllWaifusAction,
+	getWaifuToEditFromServerAction,
+} from './actions';
 
 const initialState: WaifuState = {
 	get: {
@@ -24,7 +29,7 @@ const initialState: WaifuState = {
 		error: undefined,
 	},
 	edit: {
-		data: {} as EditWaifuDto,
+		data: {} as GetEditWaifuResponse,
 		server: {
 			status: 'idle',
 			error: undefined,
@@ -47,7 +52,7 @@ export const waifuSlice = createSlice({
 			state.add.error = undefined;
 		},
 		resetGetWaifuToEdit: (state) => {
-			state.edit.data = {} as EditWaifuDto;
+			state.edit.data = {} as GetEditWaifuResponse;
 			state.edit.local.status = 'idle';
 			state.edit.local.error = undefined;
 			state.edit.server.status = 'idle';
@@ -84,7 +89,7 @@ export const waifuSlice = createSlice({
 						statusCode: 403,
 					};
 				}
-				state.edit.data.waifuId = waifu.id;
+				state.edit.data.id = waifu.id;
 				state.edit.data.name = waifu.name;
 				state.edit.data.level = waifu.level;
 				state.edit.data.mediaId = waifu.mediaId;
@@ -122,6 +127,25 @@ export const waifuSlice = createSlice({
 				state.add.error = action.payload;
 				state.add.status = 'failed';
 			})
+			.addCase(getWaifuToEditFromServerAction.pending, (state) => {
+				state.edit.server.error = undefined;
+				state.edit.server.status = 'loading';
+			})
+			.addCase(
+				getWaifuToEditFromServerAction.fulfilled,
+				(state, action) => {
+					state.edit.data = action.payload;
+					state.edit.server.error = undefined;
+					state.edit.server.status = 'succeeded';
+				}
+			)
+			.addCase(
+				getWaifuToEditFromServerAction.rejected,
+				(state, action) => {
+					state.edit.server.error = action.payload;
+					state.edit.server.status = 'failed';
+				}
+			)
 			.addCase(editWaifuAction.pending, (state) => {
 				state.edit.error = undefined;
 				state.edit.status = 'loading';

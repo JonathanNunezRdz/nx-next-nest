@@ -1,11 +1,13 @@
 import {
-	CreateWaifuDto,
 	CreateWaifuResponse,
-	EditWaifuDto,
+	CreateWaifuThunk,
 	EditWaifuResponse,
+	EditWaifuThunk,
 	GetAllWaifusDto,
 	GetAllWaifusResponse,
+	GetEditWaifuResponse,
 } from '@nx-next-nest/types';
+import { Waifu } from '@prisma/client';
 import { stringify } from 'qs';
 
 import api from '../api';
@@ -24,15 +26,26 @@ function getAllWaifus(dto: GetAllWaifusDto) {
 	});
 }
 
+function getEditWaifu(waifuId: Waifu['id']) {
+	return api.get<GetEditWaifuResponse>(`waifu/edit/${waifuId}`);
+}
+
 // post services
 
-function addWaifu(dto: CreateWaifuDto) {
-	return api.post<CreateWaifuResponse>('/waifu', dto);
+function addWaifu(dto: CreateWaifuThunk) {
+	const { waifuDto, imageFile } = dto;
+
+	const formData = new FormData();
+	for (const [key, value] of Object.entries(waifuDto)) {
+		formData.append(key, value);
+	}
+	if (imageFile) formData.append('file', imageFile);
+	return api.post<CreateWaifuResponse>('/waifu', formData);
 }
 
 // patch services
 
-function editWaifu(dto: EditWaifuDto) {
+function editWaifu(dto: EditWaifuThunk) {
 	return api.patch<EditWaifuResponse>('/waifu', dto);
 }
 
@@ -42,6 +55,7 @@ const waifuService = {
 	editWaifu,
 	getAllWaifus,
 	addWaifu,
+	getEditWaifu,
 };
 
 export default waifuService;

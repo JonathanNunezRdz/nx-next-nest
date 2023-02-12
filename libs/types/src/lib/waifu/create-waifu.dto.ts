@@ -37,3 +37,8 @@ export interface CreateWaifuService {
 	waifuDto: CreateWaifuDto;
 	imageFile?: Express.Multer.File;
 }
+
+export interface CreateWaifuThunk {
+	waifuDto: CreateWaifuDto;
+	imageFile?: File;
+}

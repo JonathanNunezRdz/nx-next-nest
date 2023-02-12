@@ -1,5 +1,3 @@
-export * from './post-image.dto';
-
 export type Status = 'idle' | 'loading' | 'succeeded' | 'failed';
 
 export type CommonError = string | string[] | undefined;

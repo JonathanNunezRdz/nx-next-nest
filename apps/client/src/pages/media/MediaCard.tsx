@@ -1,12 +1,21 @@
-import { Box, HStack, ListItem, Text, List, Link } from '@chakra-ui/react';
+import {
+	Box,
+	HStack,
+	ListItem,
+	Text,
+	List,
+	LinkBox,
+	LinkOverlay,
+	Button,
+} from '@chakra-ui/react';
 import NextLink from 'next/link';
 import { MediaResponse } from '@nx-next-nest/types';
+import { User } from '@prisma/client';
 
 import MediaActionButtons from './MediaActionButtons';
 import KnownBy from './KnownBy';
-import ImageCard from '../../components/common/ImageCard';
-import { useCardColor } from '../../utils/constants';
-import { User } from '@prisma/client';
+import { useCardColor } from '@client/src/utils/constants';
+import ImageCard from '@client/src/components/common/ImageCard';
 
 interface MediaCardProps {
 	media: MediaResponse;
@@ -60,7 +69,8 @@ const MediaCard = ({ media, ownId, isLoggedIn }: MediaCardProps) => {
 						)}
 					</List>
 				</Box>
-				{hasWaifus && (
+
+				<LinkBox>
 					<NextLink
 						href={{
 							pathname: '/media/waifus',
@@ -70,9 +80,13 @@ const MediaCard = ({ media, ownId, isLoggedIn }: MediaCardProps) => {
 						}}
 						passHref
 					>
-						<Link opacity='0.8'>show all</Link>
+						<LinkOverlay>
+							<Button size='sm' width='full'>
+								view/add waifus
+							</Button>
+						</LinkOverlay>
 					</NextLink>
-				)}
+				</LinkBox>
 			</Box>
 		</Box>
 	);

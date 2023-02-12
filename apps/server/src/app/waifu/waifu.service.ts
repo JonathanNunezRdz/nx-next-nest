@@ -10,6 +10,8 @@ import {
 	EditWaifuService,
 	GetAllWaifusDto,
 	GetAllWaifusResponse,
+	GetEditWaifuResponse,
+	GetEditWaifuService,
 	GetMediaWaifusResponse,
 	GetMediaWaifusService,
 } from '@nx-next-nest/types';
@@ -161,22 +163,89 @@ export class WaifuService {
 			},
 		});
 
-		const waifus: GetMediaWaifusResponse = rawWaifus.map((waifu) => {
-			let image: GetMediaWaifusResponse[0]['image'];
-			if (waifu.image) {
-				const imageFileName = formatImageFileName(
-					waifu.id,
-					waifu.image.image.format
-				);
-				image = { src: this.storage.getFile(imageFileName) };
-			}
-			return {
-				...waifu,
-				image,
-			};
+		const rawMedia = await this.prisma.media.findUnique({
+			where: {
+				title,
+			},
+			select: {
+				type: true,
+			},
 		});
 
-		return waifus;
+		if (!rawMedia) throw new NotFoundException('media not found');
+
+		const waifus: GetMediaWaifusResponse['waifus'] = rawWaifus.map(
+			(waifu) => {
+				let image: GetMediaWaifusResponse['waifus'][0]['image'];
+				if (waifu.image) {
+					const imageFileName = formatImageFileName(
+						waifu.id,
+						waifu.image.image.format
+					);
+					image = { src: this.storage.getFile(imageFileName) };
+				}
+				return {
+					...waifu,
+					image,
+				};
+			}
+		);
+
+		return {
+			waifus,
+			type: rawMedia.type,
+		};
+	}
+
+	async getEditWaifu(
+		dto: GetEditWaifuService
+	): Promise<GetEditWaifuResponse> {
+		const { userId, waifuId } = dto;
+
+		const rawWaifu = await this.prisma.waifu.findFirst({
+			where: {
+				id: waifuId,
+				userId,
+			},
+			select: {
+				id: true,
+				name: true,
+				level: true,
+				mediaId: true,
+				userId: true,
+				image: {
+					include: {
+						image: {
+							select: {
+								id: true,
+								format: true,
+							},
+						},
+					},
+				},
+			},
+		});
+
+		if (!rawWaifu) throw new NotFoundException('waifu not found');
+
+		let image: GetEditWaifuResponse['image'];
+
+		if (rawWaifu.image) {
+			const imagePath = formatImageFileName(
+				rawWaifu.id,
+				rawWaifu.image.image.format
+			);
+			image = { src: this.storage.getFile(imagePath) };
+		}
+
+		return {
+			id: rawWaifu.id,
+			name: rawWaifu.name,
+			level: rawWaifu.level,
+			mediaId: rawWaifu.mediaId,
+			userId: rawWaifu.userId,
+			image,
+		};
 	}
 
 	// post services

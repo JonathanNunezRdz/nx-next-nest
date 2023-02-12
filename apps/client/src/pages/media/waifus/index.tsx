@@ -27,7 +27,7 @@ const MediaWaifus = () => {
 	const { isLoggedIn } = useAppSelector(selectAuth);
 	const { id: ownId } = useAppSelector(selectUser);
 	const { status } = useAppSelector(selectMediaWaifusStatus);
-	const mediaWaifus = useAppSelector(selectMediaWaifus);
+	const { waifus, mediaType } = useAppSelector(selectMediaWaifus);
 
 	useEffect(() => {
 		if (router.isReady) {
@@ -50,26 +50,21 @@ const MediaWaifus = () => {
 
 	return (
 		<Body h>
-			<VStack w='full' spacing='1rem'>
+			<VStack w='full' spacing='4'>
 				<Box w='full'>
-					<HStack spacing='1rem'>
+					<HStack spacing='4'>
 						<Box>
 							<Heading>{mediaTitle}</Heading>
 							<Text>
-								{status === 'succeeded'
-									? mediaWaifus[0].media.type
-									: 'Loading'}
+								{status === 'succeeded' ? mediaType : 'Loading'}
 							</Text>
 						</Box>
 					</HStack>
 				</Box>
 				<Box w='full'>
-					<SimpleGrid
-						columns={{ sm: 1, md: 2, lg: 3 }}
-						spacing='1rem'
-					>
-						{mediaWaifus.length > 0 ? (
-							mediaWaifus.map((waifu) => (
+					<SimpleGrid columns={{ sm: 1, md: 2, lg: 3 }} spacing='4'>
+						{waifus.length > 0 ? (
+							waifus.map((waifu) => (
 								<WaifuCard
 									key={waifu.id}
 									waifu={waifu}

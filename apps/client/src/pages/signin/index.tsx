@@ -7,22 +7,26 @@ import {
 	Input,
 	VStack,
 } from '@chakra-ui/react';
+import FormErrorMessageWrapper from '@client/src/components/common/FormErrorMessageWrapper';
+import Body from '@client/src/components/layout/Body';
+import { useAppDispatch, useAppSelector } from '@client/src/store/hooks';
+import { resetSignInStatus, selectSignInStatus } from '@client/src/store/user';
+import { signInAction } from '@client/src/store/user/actions';
 import { SignInDto } from '@nx-next-nest/types';
 import { FormikErrors, useFormik } from 'formik';
 import { NextSeo } from 'next-seo';
 import { useRouter } from 'next/router';
 import { FC, useEffect } from 'react';
-import FormErrorMessageWrapper from '../../components/common/FormErrorMessageWrapper';
-
-import Body from '../../components/layout/Body';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { resetSignInStatus, selectSignInStatus } from '../../store/user';
-import { signInAction } from '../../store/signInAction';
 
 const SignIn: FC = () => {
+	// redux hooks
 	const dispatch = useAppDispatch();
-	const router = useRouter();
 	const signInStatus = useAppSelector(selectSignInStatus);
+
+	// next hooks
+	const router = useRouter();
+
+	// formik
 	const formik = useFormik<SignInDto>({
 		initialValues: {
 			email: '',
@@ -63,7 +67,9 @@ const SignIn: FC = () => {
 			<NextSeo title='sign in' />
 			<form onSubmit={formik.handleSubmit} noValidate>
 				<VStack px='1.5rem' py='1rem' spacing='1rem'>
-					<FormErrorMessageWrapper error={signInStatus.error} />
+					<FormErrorMessageWrapper
+						error={signInStatus.error?.message}
+					/>
 					<FormControl
 						isInvalid={
 							!!formik.errors.email && formik.touched.email

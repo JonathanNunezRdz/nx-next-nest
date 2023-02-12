@@ -65,20 +65,25 @@ export function prepareDate(dateString: string) {
 	return new Date(`${dateString}T00:00:00`).toISOString();
 }
 
-export function parseMediaId(mediaId: string | string[]) {
+export function parseMediaId(mediaId: string | string[] | undefined) {
 	if (typeof mediaId === 'object' || typeof mediaId === 'undefined')
-		return -1;
-	try {
-		const id = parseInt(mediaId, 10);
-		return id;
-	} catch (error) {
-		return -1;
-	}
+		return '';
+	return mediaId;
+}
+
+export function parseMediaType(mediaType: string | string[] | undefined) {
+	if (
+		typeof mediaType === 'object' ||
+		typeof mediaType === 'undefined' ||
+		!isValidMediaType(mediaType)
+	)
+		return false;
+	return mediaType;
 }
 
 export function parseWaifuId(waifuId: string | string[] | undefined) {
 	if (typeof waifuId === 'object' || typeof waifuId === 'undefined')
-		throw new Error('waifuId must be a string');
+		return '';
 	return waifuId;
 }
 
@@ -126,3 +131,12 @@ export function getAxiosError(error: unknown) {
 	}
 	throw error;
 }
+
+export const formatImageFileName = (
+	name: string,
+	format: ImageFormat | string | undefined
+) => {
+	if (typeof format === 'undefined' || !isValidImageFormat(format))
+		throw new Error('not a valid format');
+	return `${encodeURIComponent(name)}.${format}`;
+};

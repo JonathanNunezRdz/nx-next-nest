@@ -7,10 +7,14 @@ import {
 import { ParsedUrlQueryInput } from 'querystring';
 import NextLink from 'next/link';
 
+interface MyIconButtonProps extends IconButtonProps {
+	icon: Required<IconButtonProps>['icon'];
+}
+
 interface LinkButtonProps {
 	pathname: string;
 	query?: string | ParsedUrlQueryInput;
-	iconButtonProps: IconButtonProps;
+	iconButtonProps: MyIconButtonProps;
 }
 
 const LinkButton = ({ pathname, query, iconButtonProps }: LinkButtonProps) => {

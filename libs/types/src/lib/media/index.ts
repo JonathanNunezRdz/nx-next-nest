@@ -42,6 +42,7 @@ export interface MediaState {
 	mediaWaifus: {
 		title: string;
 		data: WaifuResponse[];
+		type: MediaType | undefined;
 	} & RequestStatus;
 }
 

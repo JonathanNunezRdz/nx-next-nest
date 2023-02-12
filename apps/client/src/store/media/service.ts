@@ -11,7 +11,6 @@ import {
 	GetMediaWaifusResponse,
 	KnowMediaDto,
 	KnowMediaResponse,
-	PostImageDto,
 } from '@nx-next-nest/types';
 import { Media } from '@prisma/client';
 import { stringify } from 'qs';
@@ -48,8 +47,8 @@ function addMedia(dto: CreateMediaThunk) {
 	const { mediaDto, imageFile } = dto;
 
 	const formData = new FormData();
-	for (const key of Object.keys(mediaDto)) {
-		formData.append(key, mediaDto[key]);
+	for (const [key, value] of Object.entries(mediaDto)) {
+		formData.append(key, value);
 	}
 
 	if (imageFile) formData.append('file', imageFile);
@@ -67,8 +66,8 @@ function editMedia(dto: EditMediaThunk) {
 	const { editDto, imageFile } = dto;
 
 	const formData = new FormData();
-	for (const key of Object.keys(editDto)) {
-		formData.append(key, editDto['key']);
+	for (const [key, value] of Object.keys(editDto)) {
+		formData.append(key, value);
 	}
 
 	if (imageFile) formData.append('file', imageFile);
@@ -80,14 +79,6 @@ function editMedia(dto: EditMediaThunk) {
 
 function deleteMedia(mediaId: number | string) {
 	return api.delete<void>(`/media/${mediaId}`);
-}
-
-function postMediaImage(dto: PostImageDto, file: File) {
-	const formData = new FormData();
-	formData.append('filename', dto.filename);
-	formData.append('file', file);
-	formData.append('format', dto.format);
-	return api.post<string>('/media/test_image', formData);
 }
 
 function getMediaWaifus(title: string, dto: GetMediaWaifusDto) {
@@ -111,7 +102,6 @@ const mediaService = {
 	editMedia,
 	getMediaTitles,
 	deleteMedia,
-	postMediaImage,
 };
 
 export default mediaService;

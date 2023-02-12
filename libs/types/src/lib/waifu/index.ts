@@ -1,7 +1,6 @@
 import { RequestStatus } from '../common';
-import { EditWaifuDto } from './edit-waifu.dto';
 import { GetAllWaifusDto } from './get-all-waifus.dto';
-import { WaifuResponse } from './waifu.response';
+import { GetEditWaifuResponse, WaifuResponse } from './waifu.response';
 
 export * from './create-waifu.dto';
 export * from './edit-waifu.dto';
@@ -17,7 +16,7 @@ export interface WaifuState {
 	} & RequestStatus;
 	add: RequestStatus;
 	edit: {
-		data: EditWaifuDto;
+		data: GetEditWaifuResponse;
 		local: RequestStatus;
 		server: RequestStatus;
 	} & RequestStatus;

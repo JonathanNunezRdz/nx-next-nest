@@ -64,6 +64,7 @@ const initialState: MediaState = {
 		data: [],
 		status: 'idle',
 		error: undefined,
+		type: undefined,
 	},
 };
 
@@ -245,7 +246,8 @@ export const mediaSlice = createSlice({
 				state.mediaWaifus.error = undefined;
 			})
 			.addCase(getMediaWaifusAction.fulfilled, (state, action) => {
-				state.mediaWaifus.data = action.payload;
+				state.mediaWaifus.data = action.payload.waifus;
+				state.mediaWaifus.type = action.payload.type;
 				state.mediaWaifus.error = undefined;
 				state.mediaWaifus.status = 'succeeded';
 			})
@@ -312,8 +314,10 @@ export const selectMediaTitlesStatus = (state: RootState) => ({
 });
 export const selectMediaTitles = (state: RootState) => state.media.titles.data;
 
-export const selectMediaWaifus = (state: RootState) =>
-	state.media.mediaWaifus.data;
+export const selectMediaWaifus = (state: RootState) => ({
+	waifus: state.media.mediaWaifus.data,
+	mediaType: state.media.mediaWaifus.type,
+});
 export const selectMediaWaifusStatus = (state: RootState) => ({
 	status: state.media.mediaWaifus.status,
 	error: state.media.mediaWaifus.error,

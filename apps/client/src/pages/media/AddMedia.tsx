@@ -16,16 +16,23 @@ import { CreateMediaDto } from '@nx-next-nest/types';
 import { useRouter } from 'next/router';
 import NextLink from 'next/link';
 import { SubmitHandler, useForm } from 'react-hook-form';
-
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { resetAddMediaStatus, selectAddMediaStatus } from '../../store/media';
-import { addMediaAction } from '../../store/media/actions';
-import ProtectedPage from '../../components/auth/ProtectedPage';
-import { formatDate, loadImage, prepareDate } from '../../utils';
-import { mediaLabel } from '../../utils/constants';
-import PageTitle from '../../components/common/PageTitle';
-import FormErrorMessageWrapper from '../../components/common/FormErrorMessageWrapper';
-import MediaTypeOptions from '../../components/common/MediaTypeOptions';
+import { useAppDispatch, useAppSelector } from '@client/src/store/hooks';
+import {
+	resetAddMediaStatus,
+	selectAddMediaStatus,
+} from '@client/src/store/media';
+import {
+	formatDate,
+	formatImageFileName,
+	loadImage,
+	prepareDate,
+} from '@client/src/utils';
+import { addMediaAction } from '@client/src/store/media/actions';
+import ProtectedPage from '@client/src/components/auth/ProtectedPage';
+import PageTitle from '@client/src/components/common/PageTitle';
+import FormErrorMessageWrapper from '@client/src/components/common/FormErrorMessageWrapper';
+import MediaTypeOptions from '@client/src/components/common/MediaTypeOptions';
+import { mediaLabel } from '@client/src/utils/constants';
 
 const AddMedia = () => {
 	// redux hooks
@@ -54,6 +61,8 @@ const AddMedia = () => {
 			imageFormat: undefined,
 		},
 	});
+
+	// functions
 	const onSubmit: SubmitHandler<CreateMediaDto> = async (data) => {
 		console.log('submitting');
 
@@ -62,15 +71,16 @@ const AddMedia = () => {
 			knownAt: prepareDate(data.knownAt),
 			title: data.title.trim(),
 		};
-		let sendImage: File;
 
 		// TODO: IMPORTANT! after saving to database, send image to server to upload from there
 
 		if (imageFile) {
 			const format = imageFile.type.split('/').pop();
-			const encodedImageName = encodeURIComponent(newValues.title);
-			const completeFileName = `${encodedImageName}.${format}`;
-			sendImage = new File([imageFile], completeFileName, {
+			const completeFileName = formatImageFileName(
+				newValues.title,
+				format
+			);
+			const sendImage = new File([imageFile], completeFileName, {
 				type: imageFile.type,
 			});
 			const res = await dispatch(
@@ -160,6 +170,8 @@ const AddMedia = () => {
 								variant='filled'
 								accept='image/*'
 								onChange={handleImageChange}
+								py='2'
+								height='auto'
 							/>
 						</FormControl>
 						<HStack>

@@ -42,14 +42,19 @@ const EditMedia = () => {
 	// react hooks
 	const [currentImage, setCurrentImage] = useState<string>('');
 	const [imageFile, setImageFile] = useState<File>();
+	useEffect(() => {
+		return () => {
+			dispatch(resetGetMediaToEdit());
+		};
+	}, [dispatch]);
 
 	// react-hook-form
 	const {
 		register,
 		handleSubmit,
-		formState: { errors, isDirty },
 		setValue,
 		watch,
+		formState: { errors, isDirty },
 	} = useForm<EditMediaDto>({
 		defaultValues: {
 			mediaId: mediaToEdit.id,
@@ -67,9 +72,7 @@ const EditMedia = () => {
 			...data,
 			knownAt: data.knownAt && prepareDate(data.knownAt),
 			title: data.title?.trim(),
-			type: data.type,
 		};
-		let sendImage: File;
 
 		if (imageFile) {
 			const format = imageFile.type.split('/').pop();
@@ -77,7 +80,7 @@ const EditMedia = () => {
 				newValues.title || mediaToEdit.title
 			);
 			const completeFileName = `${encodedImageName}.${format}`;
-			sendImage = new File([imageFile], completeFileName, {
+			const sendImage = new File([imageFile], completeFileName, {
 				type: imageFile.type,
 			});
 			const res = await dispatch(
@@ -102,12 +105,7 @@ const EditMedia = () => {
 		setValue('imageFormat', res.format);
 	};
 
-	useEffect(() => {
-		return () => {
-			dispatch(resetGetMediaToEdit());
-		};
-	}, [dispatch]);
-
+	// render
 	return (
 		<ProtectedPage originalUrl='/media/edit'>
 			<VStack w='full' spacing='1rem'>
