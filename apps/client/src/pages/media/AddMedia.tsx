@@ -8,7 +8,6 @@ import {
 	FormControl,
 	FormLabel,
 	Input,
-	Image,
 	FormErrorMessage,
 	Select,
 } from '@chakra-ui/react';
@@ -33,6 +32,7 @@ import PageTitle from '@client/src/components/common/PageTitle';
 import FormErrorMessageWrapper from '@client/src/components/common/FormErrorMessageWrapper';
 import MediaTypeOptions from '@client/src/components/common/MediaTypeOptions';
 import { mediaLabel } from '@client/src/utils/constants';
+import ImageCard from '@client/src/components/common/ImageCard';
 
 const AddMedia = () => {
 	// redux hooks
@@ -71,8 +71,6 @@ const AddMedia = () => {
 			knownAt: prepareDate(data.knownAt),
 			title: data.title.trim(),
 		};
-
-		// TODO: IMPORTANT! after saving to database, send image to server to upload from there
 
 		if (imageFile) {
 			const format = imageFile.type.split('/').pop();
@@ -159,7 +157,11 @@ const AddMedia = () => {
 						</FormControl>
 
 						{currentImage && (
-							<Image src={currentImage} alt='upload image' />
+							<ImageCard
+								image={{ src: currentImage }}
+								imageName={watch('title')}
+								type={watch('type')}
+							/>
 						)}
 						<FormControl>
 							<FormLabel htmlFor='image'>image</FormLabel>

@@ -24,7 +24,7 @@ const ImageCard = ({ image, type, imageName }: ImageCardProps) => {
 					src={image.src}
 					alt={`${imageName} image`}
 					fallback={<Loading />}
-					borderRadius='4'
+					borderRadius='8'
 				/>
 			</Center>
 		</Box>

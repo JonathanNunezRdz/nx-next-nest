@@ -31,7 +31,8 @@
 				"commands": [
 					"docker compose up dev-db -d",
 					"sleep 1",
-					"npx prisma migrate deploy --schema=../../prisma/schema.prisma"
+					"npx prisma migrate deploy --schema=../../prisma/schema.prisma",
+					"npx prisma db seed"
 				],
 				"parallel": false,
 				"cwd": "apps/server"

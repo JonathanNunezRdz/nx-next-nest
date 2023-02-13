@@ -18,5 +18,8 @@
 		"open:terminal": "@powershell -NoProfile -ExecutionPolicy Unrestricted -Command ./ps.ps1"
 	},
 	"dependencies": {},
-	"type": "module"
+	"type": "module",
+	"prisma": {
+		"seed": "ts-node ../../prisma/seed.ts"
+	}
 }
