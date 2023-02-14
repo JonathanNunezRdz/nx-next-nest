@@ -49,13 +49,4 @@ export class StorageService {
 			console.log('delete file:', file.fileId, file.filePath);
 		}
 	}
-
-	async copyFile() {
-		const res = await this.imageKit.copyFile({
-			sourceFilePath:
-				'/wiaimages/gcs-anime/5d19223e-a69b-43a9-9884-5b4838f7f596.jpg',
-			destinationPath: '/v1',
-		});
-		console.dir(res);
-	}
 }

@@ -20,9 +20,9 @@ export class UserController {
 
 	// get routes
 
-	@Get('test-copy')
+	@Get('test-rename')
 	copyFiles() {
-		return this.userService.copyFiles();
+		return this.userService.renameImagesToIds();
 	}
 
 	@UseGuards(JwtGuard)
