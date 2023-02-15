@@ -19,12 +19,10 @@ import {
 } from '@nx-next-nest/types';
 import { User } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
-
 import {
 	createMediaImage,
 	editMediaImage,
 	editMediaKnownAt,
-	formatImageFileName,
 } from '../../utils';
 import { PrismaService } from '../prisma/prisma.service';
 import { StorageService } from '../storage/storage.service';
@@ -132,9 +130,10 @@ export class MediaService {
 		const medias: GetMediaResponse['medias'] = rawMedias.map((media) => {
 			let image: GetMediaResponse['medias'][0]['image'];
 			if (media.image) {
-				const imagePath = formatImageFileName(
+				const imagePath = this.storage.formatImagePath(
 					media.id,
-					media.image.image.format
+					media.image.image.format,
+					'media'
 				);
 				image = { src: this.storage.getFile(imagePath) };
 			}
@@ -215,18 +214,15 @@ export class MediaService {
 
 		const knownAt = media.knownBy.find((user) => user.userId === userId);
 
-		// TODO: change GetEditMediaResponse to actually send
-		// the image src if there is one present on the current
-		// media
-
 		if (typeof knownAt === 'undefined')
 			throw new ForbiddenException('access to resources denied');
 
 		let image: GetEditMediaResponse['image'];
 		if (media.image) {
-			const imagePath = formatImageFileName(
+			const imagePath = this.storage.formatImagePath(
 				media.id,
-				media.image.image.format
+				media.image.image.format,
+				'media'
 			);
 			image = { src: this.storage.getFile(imagePath) };
 		}
@@ -308,9 +304,10 @@ export class MediaService {
 			let image: CreateMediaResponse['image'];
 
 			if (rawMedia.image && dto.imageFile) {
-				const imageFileName = formatImageFileName(
+				const imageFileName = this.storage.formatImagePath(
 					rawMedia.id,
-					rawMedia.image.image.format
+					rawMedia.image.image.format,
+					'media'
 				);
 				image = {
 					src: await this.storage.uploadFile(
@@ -417,9 +414,10 @@ export class MediaService {
 		let image: KnowMediaResponse['image'];
 
 		if (rawMedia.image) {
-			const imageFileName = formatImageFileName(
+			const imageFileName = this.storage.formatImagePath(
 				rawMedia.id,
-				rawMedia.image.image.format
+				rawMedia.image.image.format,
+				'media'
 			);
 			image = {
 				src: this.storage.getFile(imageFileName),
@@ -534,16 +532,18 @@ export class MediaService {
 			// originalMedia did have an image before
 			if (oldMedia.image) {
 				// delete old image
-				const deleteImageFileName = formatImageFileName(
+				const deleteImageFileName = this.storage.formatImagePath(
 					rawMedia.id,
-					oldMedia.image.image.format
+					oldMedia.image.image.format,
+					'media'
 				);
 				await this.storage.deleteFile(deleteImageFileName);
 			}
 			// upload new image
-			const imageFileName = formatImageFileName(
+			const imageFileName = this.storage.formatImagePath(
 				rawMedia.id,
-				rawMedia.image.image.format
+				rawMedia.image.image.format,
+				'media'
 			);
 			image = {
 				src: await this.storage.uploadFile(imageFile, imageFileName),
@@ -614,9 +614,10 @@ export class MediaService {
 		console.log('deleted media');
 
 		if (deletedMedia.image) {
-			const deleteImageFileName = formatImageFileName(
+			const deleteImageFileName = this.storage.formatImagePath(
 				deletedMedia.id,
-				deletedMedia.image.image.format
+				deletedMedia.image.image.format,
+				'media'
 			);
 			await this.storage.deleteFile(deleteImageFileName);
 			console.log('deleted media image');

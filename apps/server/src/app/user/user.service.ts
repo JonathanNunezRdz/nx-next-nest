@@ -13,14 +13,14 @@ import { User } from '@prisma/client';
 // import { getStorage } from 'firebase-admin/storage';
 // import mongoose, { Schema } from 'mongoose';
 
-import { formatImageFileName, upsertUserImage } from '../../utils';
+import { upsertUserImage } from '../../utils';
 import { PrismaService } from '../prisma/prisma.service';
 import { StorageService } from '../storage/storage.service';
 
 // import animes from '../../../tmp/dumps/animes.json';
 // import mangas from '../../../tmp/dumps/mangas.json';
 // import users from '../../../tmp/dumps/users.json';
-import { readdir } from 'fs/promises';
+// import { readdir } from 'fs/promises';
 // import videogames from '../../../tmp/dumps/videogames.json';
 // import waifus from '../../../tmp/dumps/waifus.json';
 
@@ -132,39 +132,40 @@ export class UserService {
 
 		// await Promise.all(promises);
 
-		const imageDir = `/home/jonas/Downloads/google/bucket/wia-web-app.appspot.com/waifu_images`;
-		const images = (
-			await readdir(imageDir, { withFileTypes: true })
-		).filter((dir) => !dir.isDirectory());
-		const waifus = await this.prisma.waifu.findMany({
-			select: {
-				id: true,
-				name: true,
-				image: {
-					select: {
-						image: {
-							select: {
-								format: true,
-							},
-						},
-					},
-				},
-			},
-		});
+		// const imageDir = `/home/jonas/Downloads/google/bucket/wia-web-app.appspot.com/waifu_images`;
+		// const images = (
+		// 	await readdir(imageDir, { withFileTypes: true })
+		// ).filter((dir) => !dir.isDirectory());
+		// const waifus = await this.prisma.waifu.findMany({
+		// 	select: {
+		// 		id: true,
+		// 		name: true,
+		// 		image: {
+		// 			select: {
+		// 				image: {
+		// 					select: {
+		// 						format: true,
+		// 					},
+		// 				},
+		// 			},
+		// 		},
+		// 	},
+		// });
 
-		images.forEach((image) => {
-			const waifuImage = waifus.find((waifu) => {
-				if (waifu.image === null) return false;
-				const imageFilename = formatImageFileName(
-					waifu.name,
-					waifu.image.image.format
-				);
-				return imageFilename === image.name;
-			});
-			if (typeof waifuImage === 'undefined') {
-				console.log('waifu not found for:', image.name);
-			}
-		});
+		// images.forEach((image) => {
+		// 	const waifuImage = waifus.find((waifu) => {
+		// 		if (waifu.image === null) return false;
+		// 		const imageFilename = formatImageFileName(
+		// 			waifu.name,
+		// 			waifu.image.image.format
+		// 		);
+		// 		return imageFilename === image.name;
+		// 	});
+		// 	if (typeof waifuImage === 'undefined') {
+		// 		console.log('waifu not found for:', image.name);
+		// 	}
+		// });
+		return false;
 	}
 
 	// async mediaFirebase() {
@@ -818,9 +819,10 @@ export class UserService {
 		let image: GetUserResponse['image'];
 
 		if (rawUser.image) {
-			const imageFileName = formatImageFileName(
+			const imageFileName = this.storage.formatImagePath(
 				rawUser.id,
-				rawUser.image.image.format
+				rawUser.image.image.format,
+				'user'
 			);
 			image = {
 				src: this.storage.getFile(imageFileName),
@@ -856,9 +858,10 @@ export class UserService {
 		const users: GetAllUsersResponse = rawUsers.map((user) => {
 			let image: GetAllUsersResponse[0]['image'];
 			if (user.image) {
-				const imageFileName = formatImageFileName(
+				const imageFileName = this.storage.formatImagePath(
 					user.id,
-					user.image.image.format
+					user.image.image.format,
+					'user'
 				);
 				image = {
 					src: this.storage.getFile(imageFileName),
@@ -933,15 +936,17 @@ export class UserService {
 
 		if (imageFile && rawUser.image) {
 			if (oldUser.image) {
-				const deleteImageFileName = formatImageFileName(
+				const deleteImageFileName = this.storage.formatImagePath(
 					rawUser.id,
-					oldUser.image.image.format
+					oldUser.image.image.format,
+					'user'
 				);
 				await this.storage.deleteFile(deleteImageFileName);
 			}
-			const imageFileName = formatImageFileName(
+			const imageFileName = this.storage.formatImagePath(
 				rawUser.id,
-				rawUser.image.image.format
+				rawUser.image.image.format,
+				'user'
 			);
 			image = {
 				src: await this.storage.uploadFile(imageFile, imageFileName),

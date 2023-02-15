@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { ImageFormat } from '@prisma/client';
 import ImageKit from 'imagekit';
 import 'multer';
 
@@ -48,5 +49,14 @@ export class StorageService {
 			await this.imageKit.deleteFile(file.fileId);
 			console.log('delete file:', file.fileId, file.filePath);
 		}
+	}
+
+	formatImagePath(
+		name: string,
+		format: ImageFormat,
+		prefix?: 'media' | 'waifu' | 'user'
+	) {
+		if (prefix) return `${prefix}/${encodeURIComponent(name)}.${format}`;
+		return `${encodeURIComponent(name)}.${format}`;
 	}
 }

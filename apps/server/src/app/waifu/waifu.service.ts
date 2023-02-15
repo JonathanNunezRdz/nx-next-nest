@@ -16,12 +16,8 @@ import {
 	GetMediaWaifusService,
 } from '@nx-next-nest/types';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
+import { createWaifuImage, upsertWaifuImage } from '@server/src/utils';
 
-import {
-	createWaifuImage,
-	formatImageFileName,
-	upsertWaifuImage,
-} from '../../utils';
 import { PrismaService } from '../prisma/prisma.service';
 import { StorageService } from '../storage/storage.service';
 
@@ -100,9 +96,10 @@ export class WaifuService {
 			(waifu) => {
 				let image: GetAllWaifusResponse['waifus'][0]['image'];
 				if (waifu.image) {
-					const imageFileName = formatImageFileName(
+					const imageFileName = this.storage.formatImagePath(
 						waifu.id,
-						waifu.image.image.format
+						waifu.image.image.format,
+						'waifu'
 					);
 					image = { src: this.storage.getFile(imageFileName) };
 				}
@@ -178,9 +175,10 @@ export class WaifuService {
 			(waifu) => {
 				let image: GetMediaWaifusResponse['waifus'][0]['image'];
 				if (waifu.image) {
-					const imageFileName = formatImageFileName(
+					const imageFileName = this.storage.formatImagePath(
 						waifu.id,
-						waifu.image.image.format
+						waifu.image.image.format,
+						'waifu'
 					);
 					image = { src: this.storage.getFile(imageFileName) };
 				}
@@ -231,9 +229,10 @@ export class WaifuService {
 		let image: GetEditWaifuResponse['image'];
 
 		if (rawWaifu.image) {
-			const imagePath = formatImageFileName(
+			const imagePath = this.storage.formatImagePath(
 				rawWaifu.id,
-				rawWaifu.image.image.format
+				rawWaifu.image.image.format,
+				'waifu'
 			);
 			image = { src: this.storage.getFile(imagePath) };
 		}
@@ -323,9 +322,10 @@ export class WaifuService {
 			let image: CreateWaifuResponse['image'];
 
 			if (rawWaifu.image && dto.imageFile) {
-				const imageFileName = formatImageFileName(
+				const imageFileName = this.storage.formatImagePath(
 					rawWaifu.id,
-					rawWaifu.image.image.format
+					rawWaifu.image.image.format,
+					'waifu'
 				);
 				image = {
 					src: await this.storage.uploadFile(
@@ -424,17 +424,19 @@ export class WaifuService {
 			// oldWaifu did have an image before
 			if (oldWaifu.image) {
 				// delete old image
-				const deleteImageFileName = formatImageFileName(
+				const deleteImageFileName = this.storage.formatImagePath(
 					rawWaifu.id,
-					oldWaifu.image.image.format
+					oldWaifu.image.image.format,
+					'waifu'
 				);
 				await this.storage.deleteFile(deleteImageFileName);
 			}
 
 			// upload new image
-			const imageFileName = formatImageFileName(
+			const imageFileName = this.storage.formatImagePath(
 				rawWaifu.id,
-				rawWaifu.image.image.format
+				rawWaifu.image.image.format,
+				'waifu'
 			);
 			image = {
 				src: await this.storage.uploadFile(imageFile, imageFileName),
