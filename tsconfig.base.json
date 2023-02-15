@@ -15,8 +15,11 @@
 		"skipDefaultLibCheck": true,
 		"baseUrl": ".",
 		"paths": {
-			"@nx-next-nest/types": ["libs/types/src/index.ts"]
-		}
+			"@nx-next-nest/types": ["libs/types/src/index.ts"],
+			"@client/*": ["apps/client/*"],
+			"@server/*": ["apps/server/*"]
+		},
+		"strictNullChecks": true
 	},
 	"exclude": ["node_modules", "tmp"]
 }

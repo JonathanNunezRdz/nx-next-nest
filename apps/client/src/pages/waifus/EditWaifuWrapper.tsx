@@ -1,35 +1,42 @@
-import { useRouter } from 'next/router';
-import { useEffect } from 'react';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { useAppDispatch, useAppSelector } from '@client/src/store/hooks';
 import {
-	getMediaTitles,
-	getMediaToEditFromServer,
 	resetMediaTitles,
 	selectMediaTitlesStatus,
-} from '../../store/media';
-import { selectAuth, selectUser, selectUserStatus } from '../../store/user';
+} from '@client/src/store/media';
+import { getMediaTitlesAction } from '@client/src/store/media/actions';
+import {
+	selectAuth,
+	selectUser,
+	selectUserStatus,
+} from '@client/src/store/user';
 import {
 	getWaifuToEditFromLocal,
-	resetGetWaifuToEdit,
 	selectEditLocalWaifuStatus,
 	selectEditServerWaifuStatus,
-	selectEditWaifu,
-} from '../../store/waifu';
-import { parseWaifuId } from '../../utils';
+	resetGetWaifuToEdit,
+} from '@client/src/store/waifu';
+import { getWaifuToEditFromServerAction } from '@client/src/store/waifu/actions';
+import { parseWaifuId } from '@client/src/utils';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 import EditWaifu from './EditWaifu';
 
 const EditWaifuWrapper = () => {
+	// redux hooks
 	const dispatch = useAppDispatch();
-	const router = useRouter();
 	const { isLoggedIn } = useAppSelector(selectAuth);
 	const user = useAppSelector(selectUser);
 	const userStatus = useAppSelector(selectUserStatus);
-	const waifuId = parseWaifuId(router.query.waifuIdString);
-	const editWaifu = useAppSelector(selectEditWaifu);
+	// const editWaifu = useAppSelector(selectEditWaifu);
 	const localWaifuStatus = useAppSelector(selectEditLocalWaifuStatus);
 	const serverWaifuStatus = useAppSelector(selectEditServerWaifuStatus);
 	const mediaTitlesStatus = useAppSelector(selectMediaTitlesStatus);
 
+	// next hooks
+	const router = useRouter();
+	const waifuId = parseWaifuId(router.query.waifuIdString);
+
+	// react hooks
 	useEffect(() => {
 		if (userStatus.status === 'succeeded' && router.isReady) {
 			if (localWaifuStatus.status === 'idle') {
@@ -38,7 +45,7 @@ const EditWaifuWrapper = () => {
 				localWaifuStatus.status === 'failed' &&
 				serverWaifuStatus.status === 'idle'
 			) {
-				dispatch(getMediaToEditFromServer(waifuId));
+				dispatch(getWaifuToEditFromServerAction(waifuId));
 			}
 		}
 	}, [
@@ -60,7 +67,7 @@ const EditWaifuWrapper = () => {
 
 	useEffect(() => {
 		if (mediaTitlesStatus.status === 'idle' && isLoggedIn) {
-			dispatch(getMediaTitles());
+			dispatch(getMediaTitlesAction());
 		}
 	}, [dispatch, mediaTitlesStatus.status, isLoggedIn]);
 

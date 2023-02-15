@@ -1,4 +1,3 @@
-import { FormikErrors, useFormik } from 'formik';
 import { ChangeEvent, useEffect, useState } from 'react';
 import {
 	LinkBox,
@@ -9,62 +8,103 @@ import {
 	FormControl,
 	FormLabel,
 	Input,
-	Image,
+	FormErrorMessage,
+	Select,
 } from '@chakra-ui/react';
 import { CreateMediaDto } from '@nx-next-nest/types';
 import { useRouter } from 'next/router';
 import NextLink from 'next/link';
-
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { useAppDispatch, useAppSelector } from '@client/src/store/hooks';
 import {
-	addMedia,
 	resetAddMediaStatus,
 	selectAddMediaStatus,
-} from '../../store/media';
-import ProtectedPage from '../../components/auth/ProtectedPage';
-import { formatDate, loadImage, prepareDate } from '../../utils';
-import { mediaLabel } from '../../utils/constants';
-import PageTitle from '../../components/common/PageTitle';
-import Form from '../../components/common/Form';
-import FormErrorMessageWrapper from '../../components/common/FormErrorMessageWrapper';
-import TitleInput from '../../components/common/TitleInput';
-import TypeInput from '../../components/common/TypeInput';
-import KnownAtInput from '../../components/common/KnownAtInput';
+} from '@client/src/store/media';
+import {
+	formatDate,
+	formatImageFileName,
+	loadImage,
+	prepareDate,
+} from '@client/src/utils';
+import { addMediaAction } from '@client/src/store/media/actions';
+import ProtectedPage from '@client/src/components/auth/ProtectedPage';
+import PageTitle from '@client/src/components/common/PageTitle';
+import FormErrorMessageWrapper from '@client/src/components/common/FormErrorMessageWrapper';
+import MediaTypeOptions from '@client/src/components/common/MediaTypeOptions';
+import { mediaLabel } from '@client/src/utils/constants';
+import ImageCard from '@client/src/components/common/ImageCard';
 
 const AddMedia = () => {
+	// redux hooks
 	const dispatch = useAppDispatch();
 	const addMediaStatus = useAppSelector(selectAddMediaStatus);
+
+	// next hooks
 	const router = useRouter();
-	const formik = useFormik<CreateMediaDto>({
-		initialValues: {
+
+	// react hooks
+	const [currentImage, setCurrentImage] = useState<string>('');
+	const [imageFile, setImageFile] = useState<File>();
+
+	// react-hook-form
+	const {
+		register,
+		handleSubmit,
+		formState: { errors, isDirty },
+		watch,
+		setValue,
+	} = useForm<CreateMediaDto>({
+		defaultValues: {
 			title: '',
 			type: 'anime',
 			knownAt: formatDate(),
-			imageFormat: null,
-		},
-		onSubmit: async (values) => {
-			const newValues = {
-				...values,
-				knownAt: prepareDate(values.knownAt),
-			};
-			const res = await dispatch(addMedia(newValues));
-			// upload image to firebase
-			if (res.meta.requestStatus === 'fulfilled') router.push('/media');
-		},
-		validate: (values) => {
-			const errors: FormikErrors<CreateMediaDto> = {};
-			if (values.title === '') errors.title = 'title must not be empty';
-			return errors;
+			imageFormat: undefined,
 		},
 	});
-	const [currentImage, setCurrentImage] = useState<string>('');
-	const [imageFile, setImageFile] = useState<File>();
+
+	// functions
+	const onSubmit: SubmitHandler<CreateMediaDto> = async (data) => {
+		console.log('submitting');
+
+		const newValues = {
+			...data,
+			knownAt: prepareDate(data.knownAt),
+			title: data.title.trim(),
+		};
+
+		if (imageFile) {
+			const format = imageFile.type.split('/').pop();
+			const completeFileName = formatImageFileName(
+				newValues.title,
+				format
+			);
+			const sendImage = new File([imageFile], completeFileName, {
+				type: imageFile.type,
+			});
+			const res = await dispatch(
+				addMediaAction({
+					mediaDto: newValues,
+					imageFile: sendImage,
+				})
+			);
+			if (res.meta.requestStatus === 'fulfilled') router.push('/media');
+		} else {
+			// remove imageFormat if undefined
+			const { imageFormat, ...rest } = newValues;
+			const res = await dispatch(
+				addMediaAction({
+					mediaDto: rest,
+				})
+			);
+			if (res.meta.requestStatus === 'fulfilled') router.push('/media');
+		}
+	};
 
 	const handleImageChange = async (event: ChangeEvent<HTMLInputElement>) => {
 		const res = await loadImage(event.currentTarget.files);
 		setCurrentImage(res.result);
 		setImageFile(res.image);
-		formik.setFieldValue('imageFormat', res.format);
+		setValue('imageFormat', res.format);
 	};
 
 	useEffect(() => {
@@ -77,57 +117,86 @@ const AddMedia = () => {
 		<ProtectedPage originalUrl='/media/add'>
 			<VStack w='full' spacing='1rem'>
 				<PageTitle title='add media' />
-				<Form onSubmit={formik.handleSubmit}>
-					{/* TODO: add loading */}
-					<FormErrorMessageWrapper error={addMediaStatus.error} />
-					<TitleInput
-						title={formik.values.title}
-						onChange={formik.handleChange}
-						onBlur={formik.handleBlur}
-						isInvalid={
-							formik.touched.title && !!formik.errors.title
-						}
-						error={formik.errors.title}
-					/>
-					<TypeInput
-						type={formik.values.type}
-						onChange={formik.handleChange}
-					/>
-					<KnownAtInput
-						label={mediaLabel.present[formik.values.type]}
-						onChange={formik.handleChange}
-						knownAt={formik.values.knownAt}
-					/>
-					{currentImage && <Image src={currentImage} />}
-					<FormControl>
-						<FormLabel htmlFor='image'>image</FormLabel>
-						<Input
-							id='image'
-							name='image'
-							type='file'
-							variant='filled'
-							accept='image/*'
-							onChange={handleImageChange}
+				<form onSubmit={handleSubmit(onSubmit)}>
+					<VStack spacing='4'>
+						{/* TODO: add loading */}
+						<FormErrorMessageWrapper
+							error={addMediaStatus.error?.message}
 						/>
-					</FormControl>
-					<HStack>
-						<LinkBox display='inline-flex'>
-							<NextLink href='/media' passHref>
-								<LinkOverlay>
-									<Button colorScheme='red'>cancel</Button>
-								</LinkOverlay>
-							</NextLink>
-						</LinkBox>
-						<Button
-							type='submit'
-							isDisabled={!formik.dirty}
-							isLoading={addMediaStatus.status === 'loading'}
-							colorScheme={formik.dirty ? 'green' : 'gray'}
-						>
-							add media
-						</Button>
-					</HStack>
-				</Form>
+						<FormControl isInvalid={!!errors.title}>
+							<FormLabel htmlFor='title'>title</FormLabel>
+							<Input
+								id='title'
+								placeholder='title for your media'
+								{...register('title', {
+									required: 'title must not be empty',
+								})}
+							/>
+							<FormErrorMessage>
+								{errors.title?.message}
+							</FormErrorMessage>
+						</FormControl>
+
+						<FormControl>
+							<FormLabel htmlFor='type'>type</FormLabel>
+							<Select id='type' {...register('type')}>
+								<MediaTypeOptions />
+							</Select>
+						</FormControl>
+
+						<FormControl>
+							<FormLabel htmlFor='knownAt'>
+								when did you {mediaLabel.present[watch('type')]}{' '}
+								it?
+							</FormLabel>
+							<Input
+								id='knownAt'
+								type='date'
+								{...register('knownAt')}
+							/>
+						</FormControl>
+
+						{currentImage && (
+							<ImageCard
+								image={{ src: currentImage }}
+								imageName={watch('title')}
+								type={watch('type')}
+							/>
+						)}
+						<FormControl>
+							<FormLabel htmlFor='image'>image</FormLabel>
+							<Input
+								id='image'
+								name='image'
+								type='file'
+								variant='filled'
+								accept='image/*'
+								onChange={handleImageChange}
+								py='2'
+								height='auto'
+							/>
+						</FormControl>
+						<HStack>
+							<LinkBox display='inline-flex'>
+								<NextLink href='/media' passHref>
+									<LinkOverlay>
+										<Button colorScheme='red'>
+											cancel
+										</Button>
+									</LinkOverlay>
+								</NextLink>
+							</LinkBox>
+							<Button
+								type='submit'
+								isDisabled={!isDirty}
+								isLoading={addMediaStatus.status === 'loading'}
+								colorScheme={isDirty ? 'green' : 'gray'}
+							>
+								add media
+							</Button>
+						</HStack>
+					</VStack>
+				</form>
 			</VStack>
 		</ProtectedPage>
 	);

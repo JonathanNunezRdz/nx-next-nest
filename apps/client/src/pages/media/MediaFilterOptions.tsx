@@ -5,38 +5,48 @@ import {
 	CheckboxGroup,
 	FormControl,
 	FormLabel,
-	HStack,
 	Input,
 	SimpleGrid,
-	useBreakpointValue,
 } from '@chakra-ui/react';
+import FilterUsersInput from '@client/src/components/common/FilterUsersInput';
+import { useAppSelector } from '@client/src/store/hooks';
+import { selectAllUsers } from '@client/src/store/user';
+import { isValidMediaType } from '@client/src/utils';
+import { MediaFilterInputs, MediaTypes } from '@client/src/utils/constants';
 import { GetMediaDto } from '@nx-next-nest/types';
 import { MediaType } from '@prisma/client';
-import { Fragment } from 'react';
 import { SubmitHandler, useForm, Controller } from 'react-hook-form';
-import { MediaTypeLabels } from '../../utils/constants';
-
-type FilterInputs = Record<MediaType, boolean> & {
-	title: string;
-};
 
 interface MediaFilterOptionsProps {
 	getMedia: (options: GetMediaDto) => void;
 }
 
 const MediaFilterOptions = ({ getMedia }: MediaFilterOptionsProps) => {
-	const { register, handleSubmit, reset, control } = useForm<FilterInputs>({
-		defaultValues: {
-			anime: false,
-			manga: false,
-			videogame: false,
-			title: '',
-		},
-	});
-	const onSubmit: SubmitHandler<FilterInputs> = (data) => {
+	// redux
+	const members = useAppSelector(selectAllUsers);
+
+	// react-hook-form
+	const { register, handleSubmit, reset, control } =
+		useForm<MediaFilterInputs>({
+			defaultValues: {
+				anime: false,
+				manga: false,
+				videogame: false,
+				title: '',
+			},
+		});
+	const onSubmit: SubmitHandler<MediaFilterInputs> = (data) => {
+		const users: string[] = [];
 		const type: MediaType[] = [];
 		Object.entries(data).forEach(([key, value]) => {
-			if (value === true) type.push(key as MediaType);
+			if (isValidMediaType(key) && value === true) type.push(key);
+
+			if (
+				members.findIndex((member) => member.id === key) > -1 &&
+				value === true
+			) {
+				users.push(key);
+			}
 		});
 
 		getMedia({
@@ -44,6 +54,7 @@ const MediaFilterOptions = ({ getMedia }: MediaFilterOptionsProps) => {
 			limit: 9,
 			title: data.title,
 			type,
+			users,
 		});
 	};
 
@@ -56,9 +67,9 @@ const MediaFilterOptions = ({ getMedia }: MediaFilterOptionsProps) => {
 		<Box>
 			<form onSubmit={handleSubmit(onSubmit)}>
 				<SimpleGrid
-					columns={{ sm: 1, md: 2 }}
-					spacing='1rem'
-					alignItems='end'
+					columns={{ sm: 1, md: 3 }}
+					spacing='4'
+					alignItems='center'
 				>
 					<FormControl>
 						<FormLabel htmlFor='title'>title</FormLabel>
@@ -71,12 +82,12 @@ const MediaFilterOptions = ({ getMedia }: MediaFilterOptionsProps) => {
 					<FormControl>
 						<FormLabel htmlFor='type'>type</FormLabel>
 						<CheckboxGroup>
-							<SimpleGrid columns={{ sm: 3 }} spacing='1rem'>
-								{MediaTypeLabels.map((label) => (
+							<SimpleGrid columns={{ sm: 2 }} spacing='4'>
+								{MediaTypes.map((label) => (
 									<Controller
 										key={label}
 										control={control}
-										name={label}
+										name={label as MediaType}
 										defaultValue={false}
 										render={({
 											field: { onChange, value, ref },
@@ -94,6 +105,9 @@ const MediaFilterOptions = ({ getMedia }: MediaFilterOptionsProps) => {
 							</SimpleGrid>
 						</CheckboxGroup>
 					</FormControl>
+
+					<FilterUsersInput control={control} />
+
 					<Button onClick={resetFilters} width='full'>
 						reset
 					</Button>

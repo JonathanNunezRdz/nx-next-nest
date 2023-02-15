@@ -1,12 +1,12 @@
 import { DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import { Box, IconButton } from '@chakra-ui/react';
-
-import LinkButton from '../../components/common/LinkButton';
+import LinkButton from '@client/src/components/common/LinkButton';
+import { Waifu } from '@prisma/client';
 
 interface WaifuActionButtonsProps {
 	isLoggedIn: boolean;
 	waifuIsOwn: boolean;
-	waifuId: number;
+	waifuId: Waifu['id'];
 }
 
 const WaifuActionButtons = ({

@@ -1,8 +1,13 @@
 import { CheckIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import { Box, IconButton } from '@chakra-ui/react';
+import LinkButton from '@client/src/components/common/LinkButton';
+import { useAppDispatch, useAppSelector } from '@client/src/store/hooks';
+import { selectMediaAppliedFilters } from '@client/src/store/media';
+import {
+	deleteMediaAction,
+	getMediasAction,
+} from '@client/src/store/media/actions';
 import { MediaType } from '@prisma/client';
-
-import LinkButton from '../../components/common/LinkButton';
 
 interface KnowQuery {
 	knownByMe: false;
@@ -22,7 +27,17 @@ interface MediaActionButtonsProps {
 }
 
 const MediaActionButtons = ({ isLoggedIn, query }: MediaActionButtonsProps) => {
+	const dispatch = useAppDispatch();
+	const { appliedFilters } = useAppSelector(selectMediaAppliedFilters);
+	const handleDeleteMedia = async () => {
+		const res = await dispatch(
+			deleteMediaAction({ mediaId: query.mediaIdString })
+		);
+		if (res.meta.requestStatus === 'fulfilled')
+			dispatch(getMediasAction(appliedFilters));
+	};
 	if (!isLoggedIn) return null;
+
 	if (query.knownByMe)
 		return (
 			<Box>
@@ -44,6 +59,7 @@ const MediaActionButtons = ({ isLoggedIn, query }: MediaActionButtonsProps) => {
 					icon={<DeleteIcon />}
 					size='xs'
 					colorScheme='red'
+					onClick={handleDeleteMedia}
 				/>
 			</Box>
 		);

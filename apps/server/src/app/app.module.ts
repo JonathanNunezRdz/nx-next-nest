@@ -4,6 +4,7 @@ import { AppLoggerMiddleware } from '../middleware/app-logger.middleware';
 import { AuthModule } from './auth/auth.module';
 import { MediaModule } from './media/media.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { StorageModule } from './storage/storage.module';
 import { UserModule } from './user/user.module';
 import { WaifuModule } from './waifu/waifu.module';
 
@@ -15,6 +16,7 @@ import { WaifuModule } from './waifu/waifu.module';
 		MediaModule,
 		WaifuModule,
 		PrismaModule,
+		StorageModule,
 	],
 })
 export class AppModule implements NestModule {

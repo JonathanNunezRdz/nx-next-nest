@@ -1,7 +1,7 @@
 import type { Action, ThunkAction } from '@reduxjs/toolkit';
 import { configureStore } from '@reduxjs/toolkit';
-import mediaReducer from './media';
 
+import mediaReducer from './media';
 import userReducer from './user';
 import waifuReducer from './waifu';
 

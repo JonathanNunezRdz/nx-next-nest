@@ -1,8 +1,5 @@
 import {
 	Box,
-	Button,
-	ButtonGroup,
-	Center,
 	Heading,
 	HStack,
 	IconButton,
@@ -12,45 +9,37 @@ import {
 } from '@chakra-ui/react';
 import { AddIcon, RepeatIcon } from '@chakra-ui/icons';
 import { FC, useCallback, useEffect } from 'react';
-import {
-	Pagination,
-	PaginationContainer,
-	PaginationNext,
-	PaginationPage,
-	PaginationPageGroup,
-	PaginationPrevious,
-	PaginationSeparator,
-	usePagination,
-} from '@ajna/pagination';
+import { usePagination } from '@ajna/pagination';
+import { GetMediaDto } from '@nx-next-nest/types';
 
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import MediaCard from './MediaCard';
+import MediaFilterOptions from './MediaFilterOptions';
+import { useAppDispatch, useAppSelector } from '@client/src/store/hooks';
+import { selectAuth, selectUser } from '@client/src/store/user';
 import {
-	getMedias,
 	selectMedia,
 	selectMediaAppliedFilters,
 	selectMediaStatus,
-} from '../../store/media';
-import MediaCard from './MediaCard';
-import { selectAuth, selectUser } from '../../store/user';
-import Body from '../../components/layout/Body';
-import LinkButton from '../../components/common/LinkButton';
-import MediaFilterOptions from './MediaFilterOptions';
-import { GetMediaDto } from '@nx-next-nest/types';
-import CustomPagination from '../../components/common/CustomPagination';
+} from '@client/src/store/media';
+import { getMediasAction } from '@client/src/store/media/actions';
+import Body from '@client/src/components/layout/Body';
+import LinkButton from '@client/src/components/common/LinkButton';
+import CustomPagination from '@client/src/components/common/CustomPagination';
 
 // TODO: design media filter options
 
 const Media: FC = () => {
+	// redux
 	const dispatch = useAppDispatch();
 	const { isLoggedIn } = useAppSelector(selectAuth);
 	const user = useAppSelector(selectUser);
-
 	const media = useAppSelector(selectMedia);
-	const { totalMedias, ...appliedFilters } = useAppSelector(
+	const { totalMedias, appliedFilters } = useAppSelector(
 		selectMediaAppliedFilters
 	);
 	const getMediaStatus = useAppSelector(selectMediaStatus);
 
+	// use-pagination
 	const { pages, pagesCount, currentPage, isDisabled, setCurrentPage } =
 		usePagination({
 			total: totalMedias,
@@ -65,14 +54,14 @@ const Media: FC = () => {
 			},
 		});
 
+	// custom functions
 	const handleGetMedia = useCallback(
 		(options: GetMediaDto) => {
 			setCurrentPage(options.page);
-			dispatch(getMedias(options));
+			dispatch(getMediasAction(options));
 		},
-		[dispatch]
+		[dispatch, setCurrentPage]
 	);
-
 	const handleChangePage = (nextPage: number) => {
 		if (nextPage === appliedFilters.page) return;
 		if (nextPage < 1) return;
@@ -82,23 +71,25 @@ const Media: FC = () => {
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 	};
 
+	// effects
 	useEffect(() => {
 		handleGetMedia(appliedFilters);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [handleGetMedia]);
 
 	return (
 		<Body h>
-			<VStack w='full' spacing='1rem'>
+			<VStack w='full' spacing='4'>
 				<Box w='full'>
-					<HStack spacing='1rem'>
+					<HStack spacing='4'>
 						<Heading>media</Heading>
 						{isLoggedIn && (
 							<LinkButton
 								pathname='/media/add'
 								iconButtonProps={{
-									size: 'sm',
 									'aria-label': 'add media',
 									icon: <AddIcon />,
+									size: 'sm',
 									mt: 1,
 								}}
 							/>
@@ -117,8 +108,16 @@ const Media: FC = () => {
 					<MediaFilterOptions getMedia={handleGetMedia} />
 				</Box>
 
+				<CustomPagination
+					pages={pages}
+					pagesCount={pagesCount}
+					currentPage={currentPage}
+					isDisabled={isDisabled}
+					onPageChange={handleChangePage}
+				/>
+
 				<Box w='full'>
-					<SimpleGrid columns={{ sm: 2, md: 3 }} spacing='1rem'>
+					<SimpleGrid columns={{ sm: 2, md: 3 }} spacing='4'>
 						{media.length > 0 ? (
 							media.map((element) => (
 								<MediaCard

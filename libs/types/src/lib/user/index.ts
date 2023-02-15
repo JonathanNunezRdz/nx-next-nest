@@ -1,13 +1,14 @@
-import { Image, User } from '@prisma/client';
 import { RequestStatus } from '../common';
+import { GetAllUsersResponse, GetUserResponse } from './user.response';
 
 export * from './edit-user.dto';
 export * from './signin.dto';
 export * from './signup.dto';
+export * from './user.response';
 
 export interface UserState {
 	user: {
-		data: User;
+		data: GetUserResponse;
 	} & RequestStatus;
 	auth: {
 		isLoggedIn: boolean;
@@ -19,15 +20,3 @@ export interface UserState {
 		data: GetAllUsersResponse;
 	} & RequestStatus;
 }
-
-export type SignInResponse = {
-	accessToken: string;
-};
-
-export type GetAllUsersResponse = {
-	id: number;
-	image: {
-		image: Image;
-	};
-	alias: string;
-}[];

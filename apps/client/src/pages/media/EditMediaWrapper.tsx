@@ -1,27 +1,31 @@
-import { useRouter } from 'next/router';
-import { useEffect } from 'react';
-
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { useAppDispatch, useAppSelector } from '@client/src/store/hooks';
 import {
 	getMediaToEditFromLocal,
-	getMediaToEditFromServer,
 	resetGetMediaToEdit,
 	selectEditLocalMediaStatus,
 	selectEditServerMediaStatus,
-} from '../../store/media';
-import { selectUser, selectUserStatus } from '../../store/user';
-import { parseMediaId } from '../../utils';
+} from '@client/src/store/media';
+import { getMediaToEditFromServerAction } from '@client/src/store/media/actions';
+import { selectUser, selectUserStatus } from '@client/src/store/user';
+import { parseMediaId } from '@client/src/utils';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
+
 import EditMedia from './EditMedia';
 
 const EditMediaWrapper = () => {
+	// redux hooks
 	const dispatch = useAppDispatch();
-	const router = useRouter();
 	const user = useAppSelector(selectUser);
 	const userStatus = useAppSelector(selectUserStatus);
-	const mediaId = parseMediaId(router.query.mediaIdString);
 	const localMediaStatus = useAppSelector(selectEditLocalMediaStatus);
 	const serverMediaStatus = useAppSelector(selectEditServerMediaStatus);
 
+	// next hooks
+	const router = useRouter();
+	const mediaId = parseMediaId(router.query.mediaIdString);
+
+	// react hooks
 	useEffect(() => {
 		if (userStatus.status === 'succeeded' && router.isReady) {
 			if (localMediaStatus.status === 'idle') {
@@ -30,7 +34,7 @@ const EditMediaWrapper = () => {
 				localMediaStatus.status === 'failed' &&
 				serverMediaStatus.status === 'idle'
 			) {
-				dispatch(getMediaToEditFromServer(mediaId));
+				dispatch(getMediaToEditFromServerAction(mediaId));
 			}
 		}
 	}, [

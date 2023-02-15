@@ -1,7 +1,8 @@
 import {
-	CreateMediaDto,
 	CreateMediaResponse,
-	EditMediaDto,
+	CreateMediaThunk,
+	EditMediaResponse,
+	EditMediaThunk,
 	GetEditMediaResponse,
 	GetMediaDto,
 	GetMediaResponse,
@@ -11,27 +12,17 @@ import {
 	KnowMediaDto,
 	KnowMediaResponse,
 } from '@nx-next-nest/types';
+import { Media } from '@prisma/client';
 import { stringify } from 'qs';
 
 import api from '../api';
 
-// TODO: fix all routes which have an array in params
+// TODO: change body from routes that send an image to FormData
 
-const getMediaWaifus = (title: string, dto: GetMediaWaifusDto) =>
-	api.get<GetMediaWaifusResponse>(`/waifu/${title}`, { params: dto });
+// get servies
 
-const getMediaTitles = () => api.get<GetMediaTitlesResponse>('/media/titles');
-
-const editMedia = (dto: EditMediaDto) => api.patch('/media', dto);
-
-const getEditMedia = (mediaId: number) =>
-	api.get<GetEditMediaResponse>(`/media/edit/${mediaId}`);
-
-const knownMedia = (dto: KnowMediaDto) =>
-	api.patch<KnowMediaResponse>('/media/know', dto);
-
-const getMedias = (dto: GetMediaDto) =>
-	api.get<GetMediaResponse>('/media', {
+function getMedias(dto: GetMediaDto) {
+	return api.get<GetMediaResponse>('/media', {
 		params: dto,
 		paramsSerializer(params) {
 			return stringify(params, {
@@ -40,9 +31,67 @@ const getMedias = (dto: GetMediaDto) =>
 			});
 		},
 	});
+}
 
-const addMedia = (dto: CreateMediaDto) =>
-	api.post<CreateMediaResponse>('/media/create', dto);
+function getMediaTitles() {
+	return api.get<GetMediaTitlesResponse>('/media/titles');
+}
+
+function getEditMedia(mediaId: Media['id']) {
+	return api.get<GetEditMediaResponse>(`/media/edit/${mediaId}`);
+}
+
+// post services
+
+function addMedia(dto: CreateMediaThunk) {
+	const { mediaDto, imageFile } = dto;
+
+	const formData = new FormData();
+	for (const [key, value] of Object.entries(mediaDto)) {
+		formData.append(key, value);
+	}
+
+	if (imageFile) formData.append('file', imageFile);
+
+	return api.post<CreateMediaResponse>('/media', formData);
+}
+
+// patch services
+
+function knownMedia(dto: KnowMediaDto) {
+	return api.patch<KnowMediaResponse>('/media/know', dto);
+}
+
+function editMedia(dto: EditMediaThunk) {
+	const { editDto, imageFile } = dto;
+
+	const formData = new FormData();
+	for (const [key, value] of Object.keys(editDto)) {
+		formData.append(key, value);
+	}
+
+	if (imageFile) formData.append('file', imageFile);
+
+	return api.patch<EditMediaResponse>('/media', formData);
+}
+
+// delete services
+
+function deleteMedia(mediaId: number | string) {
+	return api.delete<void>(`/media/${mediaId}`);
+}
+
+function getMediaWaifus(title: string, dto: GetMediaWaifusDto) {
+	return api.get<GetMediaWaifusResponse>(`/waifu/${title}`, {
+		params: dto,
+		paramsSerializer(params) {
+			return stringify(params, {
+				encode: false,
+				arrayFormat: 'comma',
+			});
+		},
+	});
+}
 
 const mediaService = {
 	getMediaWaifus,
@@ -52,6 +101,7 @@ const mediaService = {
 	getEditMedia,
 	editMedia,
 	getMediaTitles,
+	deleteMedia,
 };
 
 export default mediaService;

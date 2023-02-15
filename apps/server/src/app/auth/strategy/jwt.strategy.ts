@@ -1,7 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import {
+	BadRequestException,
+	Injectable,
+	PreconditionFailedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
+import { User } from '@prisma/client';
+import { PrismaClientValidationError } from '@prisma/client/runtime';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+
 import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
@@ -13,13 +20,27 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 		});
 	}
 
-	async validate(payload: { sub: number; email: string }) {
-		const user = await this.prisma.user.findUnique({
-			where: {
-				id: payload.sub,
-			},
-		});
-		delete user.hash;
-		return user;
+	async validate(payload: {
+		sub: User['id'];
+		email: User['email'];
+	}): Promise<Omit<User, 'hash'>> {
+		try {
+			const rawUser = await this.prisma.user.findUnique({
+				where: {
+					id: payload.sub,
+				},
+			});
+			if (!rawUser) throw new PreconditionFailedException();
+
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+			const { hash, ...user } = rawUser;
+
+			return user;
+		} catch (error) {
+			if (error instanceof PrismaClientValidationError) {
+				throw new BadRequestException('JWT token invalid');
+			}
+			throw error;
+		}
 	}
 }

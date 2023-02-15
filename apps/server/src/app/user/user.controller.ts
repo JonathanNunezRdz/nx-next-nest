@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common';
+import {
+	Body,
+	Controller,
+	Get,
+	Patch,
+	UploadedFile,
+	UseGuards,
+	UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { EditUserDto, GetAllUsersResponse } from '@nx-next-nest/types';
 import { User } from '@prisma/client';
 import { GetUser } from '../auth/decorator';
@@ -9,16 +18,18 @@ import { UserService } from './user.service';
 export class UserController {
 	constructor(private userService: UserService) {}
 
-	@UseGuards(JwtGuard)
-	@Patch()
-	editUser(@GetUser('id') userId: number, @Body() dto: EditUserDto) {
-		return this.userService.editUser(userId, dto);
+	// get routes
+
+	@Get('test-rename')
+	copyFiles() {
+		// return this.userService.renameImagesToIds();
+		return false;
 	}
 
 	@UseGuards(JwtGuard)
 	@Get('me')
-	getMe(@GetUser() user: User) {
-		return user;
+	getMe(@GetUser('id') userId: User['id']) {
+		return this.userService.getMe(userId);
 	}
 
 	@Get('all')
@@ -26,11 +37,28 @@ export class UserController {
 		return this.userService.getAllUsers();
 	}
 
+	// post routes
+
+	// patch routes
+
+	@UseGuards(JwtGuard)
+	@Patch()
+	@UseInterceptors(FileInterceptor('file'))
+	editUser(
+		@GetUser('id') userId: User['id'],
+		@Body() userDto: EditUserDto,
+		@UploadedFile() imageFile: Express.Multer.File
+	) {
+		return this.userService.editUser({ userDto, userId, imageFile });
+	}
+
 	@Patch('migrate')
 	migrate() {
 		// return this.userService.migrate();
 		return false;
 	}
+
+	// delete routes
 
 	// @Get('checkup')
 	// checkup() {

@@ -20,12 +20,12 @@ export class AuthController {
 
 	@Post('signup')
 	signup(@Body() dto: SignUpDto) {
-		return this.authService.signup(dto);
+		return this.authService.signUp(dto);
 	}
 
 	@HttpCode(HttpStatus.OK)
 	@Post('signin')
 	signin(@Body() dto: SignInDto): Promise<SignInResponse> {
-		return this.authService.signin(dto);
+		return this.authService.signIn(dto);
 	}
 }

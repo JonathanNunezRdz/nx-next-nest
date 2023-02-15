@@ -8,22 +8,19 @@ import {
 	Input,
 	SimpleGrid,
 } from '@chakra-ui/react';
+import FilterUsersInput from '@client/src/components/common/FilterUsersInput';
+import { useAppDispatch, useAppSelector } from '@client/src/store/hooks';
+import { selectAllUsers, selectAllUsersStatus } from '@client/src/store/user';
+import { getAllUsersAction } from '@client/src/store/user/actions';
+import { isValidWaifuLevel } from '@client/src/utils';
+import {
+	WaifuFilterInputs,
+	WaifuLevelLabels,
+} from '@client/src/utils/constants';
 import { GetAllWaifusDto } from '@nx-next-nest/types';
 import { WaifuLevel } from '@prisma/client';
 import { useEffect } from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
-
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import {
-	getAllUsers,
-	selectAllUsers,
-	selectAllUsersStatus,
-} from '../../store/user';
-import {
-	UserId,
-	WaifuFilterInputs,
-	WaifuLevelLabels,
-} from '../../utils/constants';
 
 interface WaifuFilterOptionsProps {
 	getWaifus: (options: GetAllWaifusDto) => void;
@@ -33,10 +30,10 @@ const WaifuFilterOptions = ({ getWaifus }: WaifuFilterOptionsProps) => {
 	// reducers
 	const dispatch = useAppDispatch();
 	const members = useAppSelector(selectAllUsers);
-	const { status, error } = useAppSelector(selectAllUsersStatus);
+	const { status } = useAppSelector(selectAllUsersStatus);
 
-	// formik
-	const { register, handleSubmit, reset, control, getValues } =
+	// react-hook-form
+	const { register, handleSubmit, reset, control } =
 		useForm<WaifuFilterInputs>({
 			defaultValues: {
 				nationalTreasure: false,
@@ -46,24 +43,19 @@ const WaifuFilterOptions = ({ getWaifus }: WaifuFilterOptionsProps) => {
 				jonin: false,
 				topWaifu: false,
 				name: '',
-				'1': false,
-				'2': false,
-				'3': false,
-				'4': false,
 			},
 		});
 	const onSubmit: SubmitHandler<WaifuFilterInputs> = (data) => {
-		const users: UserId[] = [];
+		const users: string[] = [];
 		const level: WaifuLevel[] = [];
 		Object.entries(data).forEach(([key, value]) => {
-			if (Object.keys(WaifuLevelLabels).includes(key) && value === true)
-				level.push(key as WaifuLevel);
+			if (isValidWaifuLevel(key) && value === true) level.push(key);
 
 			if (
-				members.findIndex((member) => member.id === Number(key)) &&
+				members.findIndex((member) => member.id === key) &&
 				value === true
 			)
-				users.push(key as UserId);
+				users.push(key);
 		});
 
 		getWaifus({
@@ -71,7 +63,7 @@ const WaifuFilterOptions = ({ getWaifus }: WaifuFilterOptionsProps) => {
 			limit: 9,
 			name: data.name,
 			level,
-			users: users.map(Number),
+			users,
 		});
 	};
 	const resetFilters = () => {
@@ -80,8 +72,8 @@ const WaifuFilterOptions = ({ getWaifus }: WaifuFilterOptionsProps) => {
 	};
 
 	useEffect(() => {
-		if (status === 'idle') dispatch(getAllUsers());
-	}, []);
+		if (status === 'idle') dispatch(getAllUsersAction());
+	}, [status, dispatch]);
 
 	return (
 		<Box>
@@ -129,35 +121,7 @@ const WaifuFilterOptions = ({ getWaifus }: WaifuFilterOptionsProps) => {
 						</CheckboxGroup>
 					</FormControl>
 
-					<FormControl>
-						<FormLabel htmlFor='users'>users</FormLabel>
-						<CheckboxGroup>
-							<SimpleGrid columns={{ sm: 2 }} spacing='4'>
-								{status === 'succeeded' &&
-									members.map((member) => (
-										<Controller
-											key={member.id}
-											control={control}
-											name={
-												member.id.toString() as UserId
-											}
-											defaultValue={false}
-											render={({
-												field: { onChange, value, ref },
-											}) => (
-												<Checkbox
-													onChange={onChange}
-													ref={ref}
-													isChecked={value}
-												>
-													{member.alias}
-												</Checkbox>
-											)}
-										/>
-									))}
-							</SimpleGrid>
-						</CheckboxGroup>
-					</FormControl>
+					<FilterUsersInput control={control} />
 
 					<Button onClick={resetFilters} width='full'>
 						reset

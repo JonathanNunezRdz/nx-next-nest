@@ -1,4 +1,5 @@
 import { CreateMediaDto, EditMediaDto } from '@nx-next-nest/types';
+import { Prisma, User } from '@prisma/client';
 
 export const createMediaImage = (dto: CreateMediaDto) => {
 	if (typeof dto.imageFormat === 'string') {
@@ -15,7 +16,9 @@ export const createMediaImage = (dto: CreateMediaDto) => {
 	return undefined;
 };
 
-export const editMediaImage = (dto: EditMediaDto) => {
+export const editMediaImage = (
+	dto: EditMediaDto
+): Prisma.MediaUpdateInput['image'] | undefined => {
 	const { imageFormat } = dto;
 	if (typeof imageFormat === 'string') {
 		return {
@@ -40,7 +43,7 @@ export const editMediaImage = (dto: EditMediaDto) => {
 	return undefined;
 };
 
-export const editMediaKnownAt = (dto: EditMediaDto, userId: number) => {
+export const editMediaKnownAt = (dto: EditMediaDto, userId: User['id']) => {
 	const { knownAt, mediaId } = dto;
 	if (typeof knownAt === 'string') {
 		return {

@@ -3,6 +3,13 @@
 	"sourceRoot": "apps/server/src",
 	"projectType": "application",
 	"targets": {
+		"prisma-studio": {
+			"executor": "nx:run-commands",
+			"options": {
+				"command": "npx prisma studio --schema=../../prisma/schema.prisma",
+				"cwd": "apps/server"
+			}
+		},
 		"remove-db": {
 			"executor": "nx:run-commands",
 			"options": {
@@ -34,6 +41,14 @@
 					"commands": [
 						"npx prisma migrate deploy --schema=../../prisma/schema.prisma"
 					]
+				},
+				"hard": {
+					"commands": [
+						"docker compose up dev-db -d",
+						"sleep 1",
+						"npx prisma migrate deploy --schema=../../prisma/schema.prisma",
+						"npx prisma db seed"
+					]
 				}
 			},
 			"dependsOn": ["remove-db"]
@@ -44,7 +59,7 @@
 			"options": {
 				"outputPath": "dist/apps/server",
 				"main": "apps/server/src/main.ts",
-				"tsConfig": "apps/server/tsconfig.app.json",
+				"tsConfig": "apps/server/tsconfig.json",
 				"assets": ["apps/server/src/assets"]
 			},
 			"configurations": {
@@ -85,5 +100,5 @@
 			}
 		}
 	},
-	"tags": []
+	"tags": ["scope:server"]
 }

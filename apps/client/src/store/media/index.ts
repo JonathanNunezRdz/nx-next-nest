@@ -1,144 +1,19 @@
-import {
-	CreateMediaDto,
-	CreateMediaResponse,
-	EditMediaDto,
-	EditMediaResponse,
-	GetEditMediaResponse,
-	GetMediaDto,
-	GetMediaResponse,
-	GetMediaTitlesResponse,
-	GetMediaWaifusDto,
-	GetMediaWaifusResponse,
-	HttpError,
-	KnowMediaDto,
-	KnowMediaResponse,
-	MediaState,
-} from '@nx-next-nest/types';
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { AxiosError } from 'axios';
+import { GetEditMediaResponse, MediaState } from '@nx-next-nest/types';
+import { Media, User } from '@prisma/client';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+
 import { RootState } from '..';
-import mediaService from './service';
-
-export const getMediaWaifus = createAsyncThunk<
-	GetMediaWaifusResponse,
-	{ title: string; dto: GetMediaWaifusDto },
-	{ rejectValue: HttpError }
->('media/getMediaWaifus', async ({ title, dto }, { rejectWithValue }) => {
-	try {
-		const { data } = await mediaService.getMediaWaifus(title, dto);
-		return data;
-	} catch (error) {
-		if (error instanceof AxiosError) {
-			const { response } = error as AxiosError<HttpError>;
-			return rejectWithValue(response.data);
-		}
-		throw error;
-	}
-});
-
-export const getMediaTitles = createAsyncThunk<
-	GetMediaTitlesResponse,
-	void,
-	{ rejectValue: HttpError }
->('media/getMediatitles', async (_, { rejectWithValue }) => {
-	try {
-		const { data } = await mediaService.getMediaTitles();
-		return data;
-	} catch (error) {
-		if (error instanceof AxiosError) {
-			const { response } = error as AxiosError<HttpError>;
-			return rejectWithValue(response.data);
-		}
-		throw error;
-	}
-});
-
-export const editMedia = createAsyncThunk<
-	EditMediaResponse,
-	EditMediaDto,
-	{ rejectValue: HttpError }
->('media/editMedia', async (dto, { rejectWithValue }) => {
-	try {
-		const { data } = await mediaService.editMedia(dto);
-		return data;
-	} catch (error) {
-		if (error instanceof AxiosError) {
-			const { response } = error as AxiosError<HttpError>;
-			return rejectWithValue(response.data);
-		}
-		throw error;
-	}
-});
-
-export const getMediaToEditFromServer = createAsyncThunk<
-	GetEditMediaResponse,
-	number,
-	{ rejectValue: HttpError }
->('media/getEditMedia', async (mediaId, { rejectWithValue }) => {
-	try {
-		const { data } = await mediaService.getEditMedia(mediaId);
-		return data;
-	} catch (error) {
-		if (error instanceof AxiosError) {
-			const { response } = error as AxiosError<HttpError>;
-			return rejectWithValue(response.data);
-		}
-		throw error;
-	}
-});
-
-export const knowMedia = createAsyncThunk<
-	KnowMediaResponse,
-	KnowMediaDto,
-	{ rejectValue: HttpError }
->('media/knowMedia', async (dto, { rejectWithValue }) => {
-	try {
-		const { data } = await mediaService.knownMedia(dto);
-		return data;
-	} catch (error) {
-		if (error instanceof AxiosError) {
-			const { response } = error as AxiosError<HttpError>;
-			return rejectWithValue(response.data);
-		}
-		throw error;
-	}
-});
-
-export const addMedia = createAsyncThunk<
-	CreateMediaResponse,
-	CreateMediaDto,
-	{ rejectValue: HttpError }
->('media/addMedia', async (dto, { rejectWithValue }) => {
-	try {
-		const { data } = await mediaService.addMedia(dto);
-		return data;
-	} catch (error) {
-		if (error instanceof AxiosError) {
-			const { response } = error as AxiosError<HttpError>;
-			return rejectWithValue(response.data);
-		}
-		throw error;
-	}
-});
-
-// export const createImage = createAsyncThunk<>();/
-
-export const getMedias = createAsyncThunk<
-	GetMediaResponse,
-	GetMediaDto,
-	{ rejectValue: HttpError }
->('media/getMedias', async (dto, { rejectWithValue }) => {
-	try {
-		const { data } = await mediaService.getMedias(dto);
-		return data;
-	} catch (error) {
-		if (error instanceof AxiosError) {
-			const { response } = error as AxiosError<HttpError>;
-			return rejectWithValue(response.data);
-		}
-		throw error;
-	}
-});
+import { mediaLabel } from '../../utils/constants';
+import {
+	addMediaAction,
+	deleteMediaAction,
+	editMediaAction,
+	getMediasAction,
+	getMediaTitlesAction,
+	getMediaToEditFromServerAction,
+	getMediaWaifusAction,
+	knowMediaAction,
+} from './actions';
 
 const initialState: MediaState = {
 	get: {
@@ -163,7 +38,7 @@ const initialState: MediaState = {
 		error: undefined,
 	},
 	edit: {
-		data: {} as EditMediaDto,
+		data: {} as GetEditMediaResponse,
 		status: 'idle',
 		error: undefined,
 		local: {
@@ -175,6 +50,10 @@ const initialState: MediaState = {
 			error: undefined,
 		},
 	},
+	delete: {
+		error: undefined,
+		status: 'idle',
+	},
 	titles: {
 		data: [],
 		status: 'idle',
@@ -185,6 +64,7 @@ const initialState: MediaState = {
 		data: [],
 		status: 'idle',
 		error: undefined,
+		type: undefined,
 	},
 };
 
@@ -193,7 +73,7 @@ export const mediaSlice = createSlice({
 	initialState,
 	reducers: {
 		resetGetMediaToEdit: (state) => {
-			state.edit.data = {} as EditMediaDto;
+			state.edit.data = {} as GetEditMediaResponse;
 			state.edit.local.status = 'idle';
 			state.edit.local.error = undefined;
 			state.edit.server.status = 'idle';
@@ -205,27 +85,49 @@ export const mediaSlice = createSlice({
 		},
 		getMediaToEditFromLocal: (
 			state,
-			action: PayloadAction<{ mediaId: number; userId: number }>
+			action: PayloadAction<{ mediaId: Media['id']; userId: User['id'] }>
 		) => {
 			const { mediaId, userId } = action.payload;
 			const index = state.get.data.findIndex(
 				(elem) => elem.id === mediaId
 			);
 
-			if (mediaId === -1 || state.get.data.length === 0 || index === -1) {
+			if (
+				mediaId === '-1' ||
+				state.get.data.length === 0 ||
+				index === -1
+			) {
 				state.edit.local.status = 'failed';
-				state.edit.local.error = 'mediaId not found in local data';
+				state.edit.local.error = {
+					message: 'mediaId not found in local data',
+					error: '',
+					statusCode: 418,
+				};
 			} else {
-				const media = state.get.data.find(
-					(elem) => elem.id === mediaId
+				const media = state.get.data[index];
+				const userIndex = media.knownBy.findIndex(
+					(user) => user.userId === userId
 				);
-				state.edit.data.mediaId = media.id;
-				state.edit.data.title = media.title;
-				state.edit.data.type = media.type;
-				state.edit.data.knownAt = new Date(
-					media.knownBy.find((user) => user.userId === userId).knownAt
-				).toISOString();
-				state.edit.local.status = 'succeeded';
+
+				if (userIndex === -1) {
+					state.edit.local.status = 'failed';
+					state.edit.local.error = {
+						message: `you haven't ${
+							mediaLabel.past[media.type]
+						} this media`,
+						error: '',
+						statusCode: 403,
+					};
+				} else {
+					state.edit.data.id = media.id;
+					state.edit.data.title = media.title;
+					state.edit.data.type = media.type;
+					state.edit.data.knownAt = new Date(
+						media.knownBy[userIndex].knownAt
+					);
+					state.edit.local.status = 'succeeded';
+					state.edit.local.error = undefined;
+				}
 			}
 		},
 		resetMediaTitles: (state) => {
@@ -242,38 +144,38 @@ export const mediaSlice = createSlice({
 	},
 	extraReducers(builder) {
 		builder
-			.addCase(getMedias.pending, (state) => {
+			.addCase(getMediasAction.pending, (state) => {
 				state.get.error = undefined;
 				state.get.status = 'loading';
 			})
-			.addCase(getMedias.fulfilled, (state, action) => {
+			.addCase(getMediasAction.fulfilled, (state, action) => {
 				state.get.data = action.payload.medias;
 				state.get.totalMedias = action.payload.totalMedias;
 				state.get.appliedFilters = action.meta.arg;
 				state.get.error = undefined;
 				state.get.status = 'succeeded';
 			})
-			.addCase(getMedias.rejected, (state, action) => {
-				state.get.error = action.payload.message;
+			.addCase(getMediasAction.rejected, (state, action) => {
+				state.get.error = action.payload;
 				state.get.status = 'failed';
 			})
-			.addCase(addMedia.pending, (state) => {
+			.addCase(addMediaAction.pending, (state) => {
 				state.add.status = 'loading';
 			})
-			.addCase(addMedia.fulfilled, (state, action) => {
+			.addCase(addMediaAction.fulfilled, (state, action) => {
 				state.get.data = [action.payload, ...state.get.data];
 				state.add.error = undefined;
 				state.add.status = 'succeeded';
 			})
-			.addCase(addMedia.rejected, (state, action) => {
-				state.add.error = action.payload.message;
+			.addCase(addMediaAction.rejected, (state, action) => {
+				state.add.error = action.payload;
 				state.add.status = 'failed';
 			})
-			.addCase(knowMedia.pending, (state) => {
+			.addCase(knowMediaAction.pending, (state) => {
 				state.know.error = undefined;
 				state.know.status = 'loading';
 			})
-			.addCase(knowMedia.fulfilled, (state, action) => {
+			.addCase(knowMediaAction.fulfilled, (state, action) => {
 				const index = state.get.data.findIndex(
 					(media) => media.id === action.payload.id
 				);
@@ -283,28 +185,34 @@ export const mediaSlice = createSlice({
 				state.know.error = undefined;
 				state.know.status = 'succeeded';
 			})
-			.addCase(knowMedia.rejected, (state, action) => {
-				state.know.error = action.payload.message;
+			.addCase(knowMediaAction.rejected, (state, action) => {
+				state.know.error = action.payload;
 				state.know.status = 'failed';
 			})
-			.addCase(getMediaToEditFromServer.pending, (state) => {
+			.addCase(getMediaToEditFromServerAction.pending, (state) => {
 				state.edit.server.error = undefined;
 				state.edit.server.status = 'loading';
 			})
-			.addCase(getMediaToEditFromServer.fulfilled, (state, action) => {
-				state.edit.data = action.payload;
-				state.edit.server.error = undefined;
-				state.edit.server.status = 'succeeded';
-			})
-			.addCase(getMediaToEditFromServer.rejected, (state, action) => {
-				state.edit.server.error = action.payload.message;
-				state.edit.server.status = 'failed';
-			})
-			.addCase(editMedia.pending, (state) => {
+			.addCase(
+				getMediaToEditFromServerAction.fulfilled,
+				(state, action) => {
+					state.edit.data = action.payload;
+					state.edit.server.error = undefined;
+					state.edit.server.status = 'succeeded';
+				}
+			)
+			.addCase(
+				getMediaToEditFromServerAction.rejected,
+				(state, action) => {
+					state.edit.server.error = action.payload;
+					state.edit.server.status = 'failed';
+				}
+			)
+			.addCase(editMediaAction.pending, (state) => {
 				state.edit.error = undefined;
 				state.edit.status = 'loading';
 			})
-			.addCase(editMedia.fulfilled, (state, action) => {
+			.addCase(editMediaAction.fulfilled, (state, action) => {
 				const index = state.get.data.findIndex(
 					(media) => media.id === action.payload.id
 				);
@@ -315,36 +223,48 @@ export const mediaSlice = createSlice({
 				state.edit.error = undefined;
 				state.edit.status = 'succeeded';
 			})
-			.addCase(editMedia.rejected, (state, action) => {
-				state.edit.error = action.payload.message;
+			.addCase(editMediaAction.rejected, (state, action) => {
+				state.edit.error = action.payload;
 				state.edit.status = 'failed';
 			})
-			.addCase(getMediaTitles.pending, (state) => {
+			.addCase(getMediaTitlesAction.pending, (state) => {
 				state.titles.error = undefined;
 				state.titles.status = 'loading';
 			})
-			.addCase(getMediaTitles.fulfilled, (state, action) => {
+			.addCase(getMediaTitlesAction.fulfilled, (state, action) => {
 				state.titles.data = action.payload;
 				state.titles.status = 'succeeded';
 				state.titles.error = undefined;
 			})
-			.addCase(getMediaTitles.rejected, (state, action) => {
-				state.titles.error = action.payload.message;
+			.addCase(getMediaTitlesAction.rejected, (state, action) => {
+				state.titles.error = action.payload;
 				state.titles.status = 'failed';
 			})
-			.addCase(getMediaWaifus.pending, (state, action) => {
+			.addCase(getMediaWaifusAction.pending, (state, action) => {
 				state.mediaWaifus.status = 'loading';
 				state.mediaWaifus.title = action.meta.arg.title;
 				state.mediaWaifus.error = undefined;
 			})
-			.addCase(getMediaWaifus.fulfilled, (state, action) => {
-				state.mediaWaifus.data = action.payload;
+			.addCase(getMediaWaifusAction.fulfilled, (state, action) => {
+				state.mediaWaifus.data = action.payload.waifus;
+				state.mediaWaifus.type = action.payload.type;
 				state.mediaWaifus.error = undefined;
 				state.mediaWaifus.status = 'succeeded';
 			})
-			.addCase(getMediaWaifus.rejected, (state, action) => {
-				state.mediaWaifus.error = action.payload.message;
+			.addCase(getMediaWaifusAction.rejected, (state, action) => {
+				state.mediaWaifus.error = action.payload;
 				state.mediaWaifus.status = 'failed';
+			})
+			.addCase(deleteMediaAction.pending, (state) => {
+				state.delete.status = 'loading';
+			})
+			.addCase(deleteMediaAction.fulfilled, (state) => {
+				state.delete.error = undefined;
+				state.delete.status = 'succeeded';
+			})
+			.addCase(deleteMediaAction.rejected, (state, action) => {
+				state.delete.error = action.payload;
+				state.delete.status = 'failed';
 			});
 	},
 });
@@ -373,6 +293,11 @@ export const selectEditMediaStatus = (state: RootState) => ({
 	error: state.media.edit.error,
 });
 
+export const selectDeleteMediaStatus = (state: RootState) => ({
+	status: state.media.delete.status,
+	error: state.media.delete.error,
+});
+
 export const selectMedia = (state: RootState) => state.media.get.data;
 export const selectMediaStatus = (state: RootState) => ({
 	status: state.media.get.status,
@@ -380,7 +305,7 @@ export const selectMediaStatus = (state: RootState) => ({
 });
 export const selectMediaAppliedFilters = (state: RootState) => ({
 	totalMedias: state.media.get.totalMedias,
-	...state.media.get.appliedFilters,
+	appliedFilters: state.media.get.appliedFilters,
 });
 
 export const selectMediaTitlesStatus = (state: RootState) => ({
@@ -389,8 +314,10 @@ export const selectMediaTitlesStatus = (state: RootState) => ({
 });
 export const selectMediaTitles = (state: RootState) => state.media.titles.data;
 
-export const selectMediaWaifus = (state: RootState) =>
-	state.media.mediaWaifus.data;
+export const selectMediaWaifus = (state: RootState) => ({
+	waifus: state.media.mediaWaifus.data,
+	mediaType: state.media.mediaWaifus.type,
+});
 export const selectMediaWaifusStatus = (state: RootState) => ({
 	status: state.media.mediaWaifus.status,
 	error: state.media.mediaWaifus.error,

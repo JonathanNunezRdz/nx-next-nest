@@ -9,16 +9,15 @@ import {
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 
-import Body from 'apps/client/src/components/layout/Body';
-import { useAppDispatch, useAppSelector } from 'apps/client/src/store/hooks';
+import { getMediaWaifusAction } from '@client/src/store/media/actions';
+import { useAppDispatch, useAppSelector } from '@client/src/store/hooks';
+import { selectAuth, selectUser } from '@client/src/store/user';
 import {
-	getMediaWaifus,
 	resetMediaWaifus,
 	selectMediaWaifus,
 	selectMediaWaifusStatus,
-} from 'apps/client/src/store/media';
-import { selectAuth, selectUser } from 'apps/client/src/store/user';
-
+} from '@client/src/store/media';
+import Body from '@client/src/components/layout/Body';
 import WaifuCard from '../../waifus/WaifuCard';
 
 const MediaWaifus = () => {
@@ -27,21 +26,21 @@ const MediaWaifus = () => {
 	const mediaTitle = router.query.mediaTitle;
 	const { isLoggedIn } = useAppSelector(selectAuth);
 	const { id: ownId } = useAppSelector(selectUser);
-	const { status, error } = useAppSelector(selectMediaWaifusStatus);
-	const mediaWaifus = useAppSelector(selectMediaWaifus);
+	const { status } = useAppSelector(selectMediaWaifusStatus);
+	const { waifus, mediaType } = useAppSelector(selectMediaWaifus);
 
 	useEffect(() => {
 		if (router.isReady) {
 			if (status === 'idle') {
 				dispatch(
-					getMediaWaifus({
+					getMediaWaifusAction({
 						title: mediaTitle as string,
 						dto: {},
 					})
 				);
 			}
 		}
-	}, [dispatch, mediaTitle, router.isReady]);
+	}, [dispatch, mediaTitle, router.isReady, status]);
 
 	useEffect(() => {
 		return () => {
@@ -51,26 +50,21 @@ const MediaWaifus = () => {
 
 	return (
 		<Body h>
-			<VStack w='full' spacing='1rem'>
+			<VStack w='full' spacing='4'>
 				<Box w='full'>
-					<HStack spacing='1rem'>
+					<HStack spacing='4'>
 						<Box>
 							<Heading>{mediaTitle}</Heading>
 							<Text>
-								{status === 'succeeded'
-									? mediaWaifus[0].media.type
-									: 'Loading'}
+								{status === 'succeeded' ? mediaType : 'Loading'}
 							</Text>
 						</Box>
 					</HStack>
 				</Box>
 				<Box w='full'>
-					<SimpleGrid
-						columns={{ sm: 1, md: 2, lg: 3 }}
-						spacing='1rem'
-					>
-						{mediaWaifus.length > 0 ? (
-							mediaWaifus.map((waifu) => (
+					<SimpleGrid columns={{ sm: 1, md: 2, lg: 3 }} spacing='4'>
+						{waifus.length > 0 ? (
+							waifus.map((waifu) => (
 								<WaifuCard
 									key={waifu.id}
 									waifu={waifu}

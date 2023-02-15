@@ -1,9 +1,10 @@
-import { Box, StatHelpText, Text } from '@chakra-ui/react';
+import { Box, Text } from '@chakra-ui/react';
 import { MediaKnownUser } from '@nx-next-nest/types';
+import { User } from '@prisma/client';
 
 interface KnownByProps {
 	users: MediaKnownUser[];
-	ownId: number;
+	ownId: User['id'];
 }
 
 const KnownBy = ({ users, ownId }: KnownByProps) => {

@@ -1,13 +1,13 @@
 import { Box } from '@chakra-ui/react';
+import { useAppDispatch, useAppSelector } from '@client/src/store/hooks';
+import {
+	getLoggedStatus,
+	selectSignInStatus,
+	selectUserStatus,
+} from '@client/src/store/user';
+import { getUserAction } from '@client/src/store/user/actions';
 import { type FC, useEffect } from 'react';
 
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import {
-	selectUserStatus,
-	getUser,
-	selectSignInStatus,
-	getLoggedStatus,
-} from '../../store/user';
 import Footer from './Footer';
 import Header from './header';
 
@@ -22,7 +22,7 @@ const Layout: FC<LayoutProps> = ({ children }) => {
 
 	useEffect(() => {
 		if (signInStatus.status === 'succeeded' && userStatus.status === 'idle')
-			dispatch(getUser());
+			dispatch(getUserAction());
 	}, [signInStatus.status, userStatus.status, dispatch]);
 
 	useEffect(() => {

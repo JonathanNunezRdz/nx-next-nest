@@ -2,7 +2,6 @@ import { usePagination } from '@ajna/pagination';
 import { AddIcon, RepeatIcon } from '@chakra-ui/icons';
 import {
 	Box,
-	Center,
 	Heading,
 	HStack,
 	IconButton,
@@ -10,20 +9,20 @@ import {
 	Text,
 	VStack,
 } from '@chakra-ui/react';
-import { GetAllWaifusDto } from '@nx-next-nest/types';
-import { useCallback, useEffect } from 'react';
-import CustomPagination from '../../components/common/CustomPagination';
-
-import LinkButton from '../../components/common/LinkButton';
-import Body from '../../components/layout/Body';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { selectAuth, selectUser } from '../../store/user';
+import CustomPagination from '@client/src/components/common/CustomPagination';
+import LinkButton from '@client/src/components/common/LinkButton';
+import Body from '@client/src/components/layout/Body';
+import { useAppDispatch, useAppSelector } from '@client/src/store/hooks';
+import { selectAuth, selectUser } from '@client/src/store/user';
 import {
-	getAllWaifus,
 	selectWaifuAppliedFilters,
 	selectWaifus,
 	selectWaifuStatus,
-} from '../../store/waifu';
+} from '@client/src/store/waifu';
+import { getAllWaifusAction } from '@client/src/store/waifu/actions';
+import { GetAllWaifusDto } from '@nx-next-nest/types';
+import { useCallback, useEffect } from 'react';
+
 import WaifuCard from './WaifuCard';
 import WaifuFilterOptions from './WaifuFilterOptions';
 
@@ -55,9 +54,9 @@ const Waifus = () => {
 	const handleGetWaifus = useCallback(
 		(options: GetAllWaifusDto) => {
 			setCurrentPage(options.page);
-			dispatch(getAllWaifus(options));
+			dispatch(getAllWaifusAction(options));
 		},
-		[dispatch]
+		[dispatch, setCurrentPage]
 	);
 
 	const handleChangePage = (nextPage: number) => {
@@ -71,6 +70,7 @@ const Waifus = () => {
 
 	useEffect(() => {
 		handleGetWaifus(appliedFilters);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [handleGetWaifus]);
 
 	return (

@@ -1,4 +1,4 @@
-import { MediaType, User } from '@prisma/client';
+import { Media, MediaType, User } from '@prisma/client';
 import { Transform } from 'class-transformer';
 import {
 	ArrayNotEmpty,
@@ -22,7 +22,7 @@ export class GetMediaDto {
 	@Min(1)
 	limit: number;
 
-	@Transform(({ value }) => value.split(',').map(Number))
+	@Transform(({ value }) => value.split(','))
 	@IsArray()
 	@ArrayNotEmpty()
 	@IsOptional()
@@ -30,7 +30,7 @@ export class GetMediaDto {
 
 	@IsString()
 	@IsOptional()
-	title?: string;
+	title?: Media['title'];
 
 	@Transform(({ value }) => value.split(','))
 	@IsArray()

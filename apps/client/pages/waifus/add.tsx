@@ -1,3 +1,3 @@
-import AddWaifu from '../../src/pages/waifus/AddWaifu';
+import AddWaifuWrapper from '@client/src/pages/waifus/AddWaifuWrapper';
 
-export default AddWaifu;
+export default AddWaifuWrapper;

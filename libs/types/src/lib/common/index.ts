@@ -4,7 +4,7 @@ export type CommonError = string | string[] | undefined;
 
 export interface RequestStatus {
 	status: Status;
-	error: CommonError;
+	error: HttpError | undefined;
 }
 
 export interface HttpError {
@@ -30,3 +30,7 @@ export interface InvalidJWT {
 }
 
 export type JWTStatus = ValidJWT | InvalidJWT;
+
+export type MyImage = {
+	src: string;
+};

@@ -1,61 +1,24 @@
-import {
-	Image,
-	ImageFormat,
-	KnownMedia,
-	Media,
-	MediaImage,
-	MediaType,
-	User,
-	UserImage,
-} from '@prisma/client';
-import { RequestStatus } from '../common';
+import { KnownMedia, MediaType, User } from '@prisma/client';
+
+import { MyImage, RequestStatus } from '../common';
 import { WaifuResponse } from '../waifu';
-import { EditMediaDto } from './edit-media.dto';
 import { GetMediaDto } from './get-media.dto';
+import {
+	GetEditMediaResponse,
+	GetMediaTitlesResponse,
+	MediaResponse,
+} from './media.response';
 
 export * from './create-media.dto';
+export * from './delete-media.dto';
 export * from './edit-media.dto';
 export * from './get-media.dto';
 export * from './know-media.dto';
-
-export type GetMediaTitlesResponse = {
-	id: number;
-	title: string;
-}[];
-
-export type EditMediaResponse = MediaResponse;
-
-export type GetEditMediaResponse = EditMediaDto;
-
-export type KnowMediaResponse = MediaResponse;
-
-export type CreateMediaResponse = MediaResponse;
-
-export type GetMediaResponse = {
-	medias: MediaResponse[];
-	totalMedias: number;
-};
-
-export type MediaResponse = Media & {
-	image:
-		| (MediaImage & {
-				image: {
-					format: ImageFormat;
-				};
-		  })
-		| null;
-	knownBy: MediaKnownUser[];
-	waifus: {
-		id: number;
-		name: string;
-	}[];
-};
+export * from './media.response';
 
 export type MediaKnownUser = KnownMedia & {
 	user: Pick<User, 'id' | 'alias'> & {
-		image: UserImage & {
-			image: Pick<Image, 'id' | 'format'>;
-		};
+		image?: MyImage;
 	};
 };
 
@@ -68,16 +31,18 @@ export interface MediaState {
 	add: RequestStatus;
 	know: RequestStatus;
 	edit: {
-		data: EditMediaDto;
+		data: GetEditMediaResponse;
 		local: RequestStatus;
 		server: RequestStatus;
 	} & RequestStatus;
+	delete: RequestStatus;
 	titles: {
 		data: GetMediaTitlesResponse;
 	} & RequestStatus;
 	mediaWaifus: {
 		title: string;
 		data: WaifuResponse[];
+		type: MediaType | undefined;
 	} & RequestStatus;
 }
 

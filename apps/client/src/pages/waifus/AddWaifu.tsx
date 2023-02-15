@@ -1,116 +1,174 @@
-import { Button, HStack, LinkBox, LinkOverlay, VStack } from '@chakra-ui/react';
+import {
+	Button,
+	FormControl,
+	FormLabel,
+	HStack,
+	Image,
+	Input,
+	LinkBox,
+	LinkOverlay,
+	Select,
+	VStack,
+} from '@chakra-ui/react';
 import { CreateWaifuDto } from '@nx-next-nest/types';
-import { FormikErrors, useFormik } from 'formik';
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
+import { ChangeEvent, useState } from 'react';
 import NextLink from 'next/link';
+import { useAppDispatch, useAppSelector } from '@client/src/store/hooks';
+import { selectAddWaifuStatus } from '@client/src/store/waifu';
+import { addWaifuAction } from '@client/src/store/waifu/actions';
+import ProtectedPage from '@client/src/components/auth/ProtectedPage';
+import PageTitle from '@client/src/components/common/PageTitle';
+import FormErrorMessageWrapper from '@client/src/components/common/FormErrorMessageWrapper';
+import WaifuLevelOptions from '@client/src/components/common/WaifuLevelOptions';
+import WaifuMediaTitleOptions from '@client/src/components/common/WaifuMediaTitleOptions';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { formatImageFileName, loadImage } from '@client/src/utils';
 
-import ProtectedPage from '../../components/auth/ProtectedPage';
-import Form from '../../components/common/Form';
-import FormErrorMessageWrapper from '../../components/common/FormErrorMessageWrapper';
-import MediaTitleInput from '../../components/common/MediaTitlesInput';
-import NameInput from '../../components/common/NameInput';
-import PageTitle from '../../components/common/PageTitle';
-import WaifuLevelInput from '../../components/common/WaifuLevelInput';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import {
-	getMediaTitles,
-	resetMediaTitles,
-	selectMediaTitles,
-	selectMediaTitlesStatus,
-} from '../../store/media';
-import { selectAuth } from '../../store/user';
-import {
-	addWaifu,
-	resetAddWaifuStatus,
-	selectAddWaifuStatus,
-} from '../../store/waifu';
-
-const AddWaifu = () => {
+function AddWaifu() {
+	// redux hooks
 	const dispatch = useAppDispatch();
-	const { isLoggedIn } = useAppSelector(selectAuth);
 	const addWaifuStatus = useAppSelector(selectAddWaifuStatus);
-	const mediaTitlesStatus = useAppSelector(selectMediaTitlesStatus);
-	const mediaTitles = useAppSelector(selectMediaTitles);
+
+	// next hooks
 	const router = useRouter();
-	const formik = useFormik<CreateWaifuDto>({
-		initialValues: {
+
+	// react hooks
+	const [currentImage, setCurrentImage] = useState<string>('');
+	const [imageFile, setImageFile] = useState<File>();
+
+	//react hook form
+	const {
+		register,
+		handleSubmit,
+		setValue,
+		formState: { errors, isDirty },
+	} = useForm<CreateWaifuDto>({
+		defaultValues: {
+			mediaId: '',
 			name: '',
 			level: 'genin',
-			mediaId: -1,
-		},
-		onSubmit: async (values) => {
-			const newValues = {
-				...values,
-				mediaId: Number(values.mediaId),
-			};
-			const res = await dispatch(addWaifu(newValues));
-			if (res.meta.requestStatus === 'fulfilled') router.push('/waifus');
-		},
-		validate: (values) => {
-			const errors: FormikErrors<CreateWaifuDto> = {};
-			if (values.name === '') errors.name = 'name must not be empty';
-			if (values.mediaId === -1) errors.mediaId = 'please choose a media';
-			return errors;
 		},
 	});
 
-	useEffect(() => {
-		if (mediaTitlesStatus.status === 'idle' && isLoggedIn) {
-			dispatch(getMediaTitles());
-		}
-	}, [dispatch, mediaTitlesStatus.status, isLoggedIn]);
-
-	useEffect(() => {
-		return () => {
-			dispatch(resetAddWaifuStatus());
-			dispatch(resetMediaTitles());
+	// functions
+	const onSubmit: SubmitHandler<CreateWaifuDto> = async (data) => {
+		console.log('submitting create waifu');
+		const newValues: CreateWaifuDto = {
+			...data,
+			name: data.name.trim(),
 		};
-	}, [dispatch]);
 
+		if (imageFile) {
+			const format = imageFile.type.split('/').pop();
+			const completeFileName = formatImageFileName(
+				newValues.name,
+				format
+			);
+			const sendImage = new File([imageFile], completeFileName, {
+				type: imageFile.type,
+			});
+			const res = await dispatch(
+				addWaifuAction({
+					waifuDto: newValues,
+					imageFile: sendImage,
+				})
+			);
+			if (res.meta.requestStatus === 'fulfilled') router.push('/media');
+		} else {
+			const { imageFormat, ...rest } = newValues;
+			const res = await dispatch(
+				addWaifuAction({
+					waifuDto: rest,
+				})
+			);
+			if (res.meta.requestStatus === 'fulfilled') router.push('/media');
+		}
+	};
+
+	const handleImageChange = async (event: ChangeEvent<HTMLInputElement>) => {
+		const res = await loadImage(event.currentTarget.files);
+		setCurrentImage(res.result);
+		setImageFile(res.image);
+		setValue('imageFormat', res.format);
+	};
+
+	// render
 	return (
 		<ProtectedPage originalUrl='/waifus/add'>
 			<VStack w='full' spacing='1rem'>
 				<PageTitle title='add waifu' />
-				<Form onSubmit={formik.handleSubmit}>
-					<FormErrorMessageWrapper error={addWaifuStatus.error} />
-					<NameInput
-						name={formik.values.name}
-						onChange={formik.handleChange}
-						onBlur={formik.handleBlur}
-						isInvalid={formik.touched.name && !!formik.errors.name}
-						error={formik.errors.name}
-					/>
-					<WaifuLevelInput
-						level={formik.values.level}
-						onChange={formik.handleChange}
-					/>
-					<MediaTitleInput
-						mediaId={formik.values.mediaId}
-						onChange={formik.handleChange}
-						mediaTitles={mediaTitles}
-					/>
-					<HStack>
-						<LinkBox display='inline-flex'>
-							<NextLink href='/waifus' passHref>
-								<LinkOverlay>
-									<Button colorScheme='red'>cancel</Button>
-								</LinkOverlay>
-							</NextLink>
-						</LinkBox>
-						<Button
-							type='submit'
-							isDisabled={!formik.dirty}
-							isLoading={addWaifuStatus.status === 'loading'}
-							colorScheme={formik.dirty ? 'green' : 'gray'}
-						>
-							add waifu
-						</Button>
-					</HStack>
-				</Form>
+				<form onSubmit={handleSubmit(onSubmit)}>
+					<VStack spacing='4'>
+						<FormErrorMessageWrapper
+							error={addWaifuStatus.error?.message}
+						/>
+						<FormControl isInvalid={Boolean(errors.name)}>
+							<FormLabel htmlFor='name'>name</FormLabel>
+							<Input
+								id='name'
+								placeholder='name for your waifu'
+								{...register('name', {
+									required: 'name must not be empty',
+								})}
+							/>
+						</FormControl>
+
+						<FormControl>
+							<FormLabel htmlFor='level'>level</FormLabel>
+							<Select id='level' {...register('level')}>
+								<WaifuLevelOptions />
+							</Select>
+						</FormControl>
+
+						<FormControl>
+							<FormLabel htmlFor='mediaId'>media</FormLabel>
+							<Select id='mediaId' {...register('mediaId')}>
+								<WaifuMediaTitleOptions />
+							</Select>
+						</FormControl>
+
+						{currentImage && (
+							// can use custom component <ImageCard />
+							<Image src={currentImage} alt='upload image' />
+						)}
+
+						<FormControl>
+							<FormLabel htmlFor='image'>image</FormLabel>
+							<Input
+								id='image'
+								name='image'
+								type='file'
+								variant='filled'
+								accept='image/*'
+								onChange={handleImageChange}
+							/>
+						</FormControl>
+
+						<HStack>
+							<LinkBox display='inline-flex'>
+								<NextLink href='/waifus' passHref>
+									<LinkOverlay>
+										<Button colorScheme='red'>
+											cancel
+										</Button>
+									</LinkOverlay>
+								</NextLink>
+							</LinkBox>
+							<Button
+								type='submit'
+								disabled={!isDirty}
+								isLoading={addWaifuStatus.status === 'loading'}
+								colorScheme={isDirty ? 'green' : 'gray'}
+							>
+								confirm
+							</Button>
+						</HStack>
+					</VStack>
+				</form>
 			</VStack>
 		</ProtectedPage>
 	);
-};
+}
 
 export default AddWaifu;
