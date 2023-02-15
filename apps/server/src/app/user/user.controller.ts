@@ -22,7 +22,8 @@ export class UserController {
 
 	@Get('test-rename')
 	copyFiles() {
-		return this.userService.renameImagesToIds();
+		// return this.userService.renameImagesToIds();
+		return false;
 	}
 
 	@UseGuards(JwtGuard)
