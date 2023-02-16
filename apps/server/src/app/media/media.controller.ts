@@ -23,6 +23,8 @@ import {
 	GetMediaDto,
 	GetMediaResponse,
 	GetMediaTitlesResponse,
+	GetMediaWaifusDto,
+	GetMediaWaifusResponse,
 	KnowMediaDto,
 	KnowMediaResponse,
 } from '@nx-next-nest/types';
@@ -58,6 +60,14 @@ export class MediaController {
 		@Param('id') mediaId: Media['id']
 	): Promise<GetEditMediaResponse> {
 		return this.mediaService.getEditMedia({ mediaId, userId });
+	}
+
+	@Get('waifu/:id')
+	getMediaWaifus(
+		@Param('id') id: Media['id'],
+		@Query() waifuDto: GetMediaWaifusDto
+	): Promise<GetMediaWaifusResponse> {
+		return this.mediaService.getMediaWaifus({ id, waifuDto });
 	}
 
 	// post routes

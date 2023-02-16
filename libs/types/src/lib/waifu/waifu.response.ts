@@ -1,4 +1,4 @@
-import { Media, MediaType, User, Waifu } from '@prisma/client';
+import { Media, User, Waifu } from '@prisma/client';
 import { MyImage } from '../common';
 
 export type EditWaifuResponse = WaifuResponse;
@@ -26,8 +26,3 @@ export type WaifuResponse = Waifu & {
 };
 
 export type RawWaifu = Omit<Waifu, 'createdAt' | 'updatedAt' | 'since'>;
-
-export type GetMediaWaifusResponse = {
-	waifus: WaifuResponse[];
-	type: MediaType;
-};

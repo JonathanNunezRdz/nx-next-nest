@@ -821,11 +821,10 @@ export class UserService {
 		if (rawUser.image) {
 			const imageFileName = this.storage.formatImagePath(
 				rawUser.id,
-				rawUser.image.image.format,
-				'user'
+				rawUser.image.image.format
 			);
 			image = {
-				src: this.storage.getFile(imageFileName),
+				src: this.storage.getFile(imageFileName, 'user'),
 			};
 		}
 
@@ -860,11 +859,10 @@ export class UserService {
 			if (user.image) {
 				const imageFileName = this.storage.formatImagePath(
 					user.id,
-					user.image.image.format,
-					'user'
+					user.image.image.format
 				);
 				image = {
-					src: this.storage.getFile(imageFileName),
+					src: this.storage.getFile(imageFileName, 'user'),
 				};
 			}
 			return {
@@ -938,18 +936,20 @@ export class UserService {
 			if (oldUser.image) {
 				const deleteImageFileName = this.storage.formatImagePath(
 					rawUser.id,
-					oldUser.image.image.format,
-					'user'
+					oldUser.image.image.format
 				);
 				await this.storage.deleteFile(deleteImageFileName);
 			}
 			const imageFileName = this.storage.formatImagePath(
 				rawUser.id,
-				rawUser.image.image.format,
-				'user'
+				rawUser.image.image.format
 			);
 			image = {
-				src: await this.storage.uploadFile(imageFile, imageFileName),
+				src: await this.storage.uploadFile(
+					imageFile,
+					imageFileName,
+					'user'
+				),
 			};
 		}
 

@@ -1,11 +1,11 @@
-import { KnownMedia, MediaType, User } from '@prisma/client';
+import { KnownMedia, Media, MediaType, User } from '@prisma/client';
 
 import { MyImage, RequestStatus } from '../common';
-import { WaifuResponse } from '../waifu';
 import { GetMediaDto } from './get-media.dto';
 import {
 	GetEditMediaResponse,
 	GetMediaTitlesResponse,
+	GetMediaWaifusResponse,
 	MediaResponse,
 } from './media.response';
 
@@ -35,14 +35,15 @@ export interface MediaState {
 		local: RequestStatus;
 		server: RequestStatus;
 	} & RequestStatus;
-	delete: RequestStatus;
+	delete: {
+		mediaId: Media['id'];
+	} & RequestStatus;
 	titles: {
 		data: GetMediaTitlesResponse;
 	} & RequestStatus;
 	mediaWaifus: {
-		title: string;
-		data: WaifuResponse[];
-		type: MediaType | undefined;
+		id: Media['id'];
+		data: GetMediaWaifusResponse;
 	} & RequestStatus;
 }
 

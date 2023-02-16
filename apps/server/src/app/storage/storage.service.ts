@@ -9,6 +9,8 @@ import 'multer';
 @Injectable()
 export class StorageService {
 	private readonly imageKit: ImageKit;
+	private readonly imaegKitBaseFolder =
+		process.env.NODE_ENV === 'production' ? 'v1' : 'dev';
 
 	constructor(config: ConfigService) {
 		this.imageKit = new ImageKit({
@@ -18,10 +20,10 @@ export class StorageService {
 		});
 	}
 
-	getFile(imageFileName: string): string {
+	getFile(imageFileName: string, folder: 'media' | 'waifu' | 'user'): string {
 		// TODO: fix different folders
 		return this.imageKit.url({
-			path: `/v1/${imageFileName}`,
+			path: `/${this.imaegKitBaseFolder}/${folder}/${imageFileName}`,
 			signed: true,
 			expireSeconds: 60,
 			transformation: [{ quality: 50 }, { width: 0.5 }],
@@ -30,20 +32,21 @@ export class StorageService {
 
 	async uploadFile(
 		file: Express.Multer.File,
-		imageFileName: string
+		imageFileName: string,
+		folder: 'media' | 'waifu' | 'user'
 	): Promise<string> {
 		const res = await this.imageKit.upload({
 			file: file.buffer,
 			fileName: imageFileName,
-			folder: 'v1',
+			folder: `${this.imaegKitBaseFolder}/${folder}`,
 			useUniqueFileName: false,
 		});
-		return this.getFile(res.name);
+		return this.getFile(res.name, folder);
 	}
 
 	async deleteFile(imageFileName: string): Promise<void> {
 		const [file] = await this.imageKit.listFiles({
-			searchQuery: `name=${imageFileName}`,
+			name: imageFileName,
 		});
 		if (file) {
 			await this.imageKit.deleteFile(file.fileId);
@@ -51,12 +54,7 @@ export class StorageService {
 		}
 	}
 
-	formatImagePath(
-		name: string,
-		format: ImageFormat,
-		prefix?: 'media' | 'waifu' | 'user'
-	) {
-		if (prefix) return `${prefix}/${encodeURIComponent(name)}.${format}`;
+	formatImagePath(name: string, format: ImageFormat) {
 		return `${encodeURIComponent(name)}.${format}`;
 	}
 }

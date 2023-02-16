@@ -11,14 +11,14 @@ import { MediaType } from '@prisma/client';
 
 interface KnowQuery {
 	knownByMe: false;
-	mediaIdString: string | number;
+	mediaIdString: string;
 	mediaTitle: string;
 	mediaTypeString: MediaType;
 }
 
 interface EditQuery {
 	knownByMe: true;
-	mediaIdString: string | number;
+	mediaIdString: string;
 }
 
 interface MediaActionButtonsProps {

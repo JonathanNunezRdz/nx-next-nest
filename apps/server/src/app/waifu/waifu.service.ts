@@ -12,8 +12,6 @@ import {
 	GetAllWaifusResponse,
 	GetEditWaifuResponse,
 	GetEditWaifuService,
-	GetMediaWaifusResponse,
-	GetMediaWaifusService,
 } from '@nx-next-nest/types';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { createWaifuImage, upsertWaifuImage } from '@server/src/utils';
@@ -98,10 +96,11 @@ export class WaifuService {
 				if (waifu.image) {
 					const imageFileName = this.storage.formatImagePath(
 						waifu.id,
-						waifu.image.image.format,
-						'waifu'
+						waifu.image.image.format
 					);
-					image = { src: this.storage.getFile(imageFileName) };
+					image = {
+						src: this.storage.getFile(imageFileName, 'waifu'),
+					};
 				}
 
 				return {
@@ -112,87 +111,6 @@ export class WaifuService {
 		);
 
 		return { waifus, totalWaifus };
-	}
-
-	async getMediaWaifus(
-		dto: GetMediaWaifusService
-	): Promise<GetMediaWaifusResponse> {
-		const { title, waifuDto } = dto;
-		const { name, level, users } = waifuDto;
-
-		const rawWaifus = await this.prisma.waifu.findMany({
-			where: {
-				media: {
-					title,
-				},
-				name,
-				level: {
-					in: level,
-				},
-				userId: {
-					in: users,
-				},
-			},
-			include: {
-				image: {
-					include: {
-						image: {
-							select: {
-								format: true,
-							},
-						},
-					},
-				},
-				media: {
-					select: {
-						title: true,
-						type: true,
-					},
-				},
-				user: {
-					select: {
-						alias: true,
-					},
-				},
-			},
-			orderBy: {
-				createdAt: 'desc',
-			},
-		});
-
-		const rawMedia = await this.prisma.media.findUnique({
-			where: {
-				title,
-			},
-			select: {
-				type: true,
-			},
-		});
-
-		if (!rawMedia) throw new NotFoundException('media not found');
-
-		const waifus: GetMediaWaifusResponse['waifus'] = rawWaifus.map(
-			(waifu) => {
-				let image: GetMediaWaifusResponse['waifus'][0]['image'];
-				if (waifu.image) {
-					const imageFileName = this.storage.formatImagePath(
-						waifu.id,
-						waifu.image.image.format,
-						'waifu'
-					);
-					image = { src: this.storage.getFile(imageFileName) };
-				}
-				return {
-					...waifu,
-					image,
-				};
-			}
-		);
-
-		return {
-			waifus,
-			type: rawMedia.type,
-		};
 	}
 
 	async getEditWaifu(
@@ -231,10 +149,9 @@ export class WaifuService {
 		if (rawWaifu.image) {
 			const imagePath = this.storage.formatImagePath(
 				rawWaifu.id,
-				rawWaifu.image.image.format,
-				'waifu'
+				rawWaifu.image.image.format
 			);
-			image = { src: this.storage.getFile(imagePath) };
+			image = { src: this.storage.getFile(imagePath, 'waifu') };
 		}
 
 		return {
@@ -324,13 +241,13 @@ export class WaifuService {
 			if (rawWaifu.image && dto.imageFile) {
 				const imageFileName = this.storage.formatImagePath(
 					rawWaifu.id,
-					rawWaifu.image.image.format,
-					'waifu'
+					rawWaifu.image.image.format
 				);
 				image = {
 					src: await this.storage.uploadFile(
 						dto.imageFile,
-						imageFileName
+						imageFileName,
+						'waifu'
 					),
 				};
 			}
@@ -426,8 +343,7 @@ export class WaifuService {
 				// delete old image
 				const deleteImageFileName = this.storage.formatImagePath(
 					rawWaifu.id,
-					oldWaifu.image.image.format,
-					'waifu'
+					oldWaifu.image.image.format
 				);
 				await this.storage.deleteFile(deleteImageFileName);
 			}
@@ -435,11 +351,14 @@ export class WaifuService {
 			// upload new image
 			const imageFileName = this.storage.formatImagePath(
 				rawWaifu.id,
-				rawWaifu.image.image.format,
-				'waifu'
+				rawWaifu.image.image.format
 			);
 			image = {
-				src: await this.storage.uploadFile(imageFile, imageFileName),
+				src: await this.storage.uploadFile(
+					imageFile,
+					imageFileName,
+					'waifu'
+				),
 			};
 		}
 

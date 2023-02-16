@@ -1,4 +1,8 @@
-import { GetEditMediaResponse, MediaState } from '@nx-next-nest/types';
+import {
+	GetEditMediaResponse,
+	GetMediaWaifusResponse,
+	MediaState,
+} from '@nx-next-nest/types';
 import { Media, User } from '@prisma/client';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
@@ -53,6 +57,7 @@ const initialState: MediaState = {
 	delete: {
 		error: undefined,
 		status: 'idle',
+		mediaId: '',
 	},
 	titles: {
 		data: [],
@@ -60,11 +65,10 @@ const initialState: MediaState = {
 		error: undefined,
 	},
 	mediaWaifus: {
-		title: '',
-		data: [],
+		id: '',
+		data: {} as GetMediaWaifusResponse,
 		status: 'idle',
 		error: undefined,
-		type: undefined,
 	},
 };
 
@@ -136,8 +140,8 @@ export const mediaSlice = createSlice({
 			state.titles.error = undefined;
 		},
 		resetMediaWaifus: (state) => {
-			state.mediaWaifus.title = '';
-			state.mediaWaifus.data = [];
+			state.mediaWaifus.id = '';
+			state.mediaWaifus.data = {} as GetMediaWaifusResponse;
 			state.mediaWaifus.error = undefined;
 			state.mediaWaifus.status = 'idle';
 		},
@@ -242,12 +246,11 @@ export const mediaSlice = createSlice({
 			})
 			.addCase(getMediaWaifusAction.pending, (state, action) => {
 				state.mediaWaifus.status = 'loading';
-				state.mediaWaifus.title = action.meta.arg.title;
+				state.mediaWaifus.id = action.meta.arg.id;
 				state.mediaWaifus.error = undefined;
 			})
 			.addCase(getMediaWaifusAction.fulfilled, (state, action) => {
-				state.mediaWaifus.data = action.payload.waifus;
-				state.mediaWaifus.type = action.payload.type;
+				state.mediaWaifus.data = action.payload;
 				state.mediaWaifus.error = undefined;
 				state.mediaWaifus.status = 'succeeded';
 			})
@@ -255,8 +258,9 @@ export const mediaSlice = createSlice({
 				state.mediaWaifus.error = action.payload;
 				state.mediaWaifus.status = 'failed';
 			})
-			.addCase(deleteMediaAction.pending, (state) => {
+			.addCase(deleteMediaAction.pending, (state, action) => {
 				state.delete.status = 'loading';
+				state.delete.mediaId = action.meta.arg.mediaId;
 			})
 			.addCase(deleteMediaAction.fulfilled, (state) => {
 				state.delete.error = undefined;
@@ -294,8 +298,7 @@ export const selectEditMediaStatus = (state: RootState) => ({
 });
 
 export const selectDeleteMediaStatus = (state: RootState) => ({
-	status: state.media.delete.status,
-	error: state.media.delete.error,
+	...state.media.delete,
 });
 
 export const selectMedia = (state: RootState) => state.media.get.data;
@@ -315,8 +318,7 @@ export const selectMediaTitlesStatus = (state: RootState) => ({
 export const selectMediaTitles = (state: RootState) => state.media.titles.data;
 
 export const selectMediaWaifus = (state: RootState) => ({
-	waifus: state.media.mediaWaifus.data,
-	mediaType: state.media.mediaWaifus.type,
+	...state.media.mediaWaifus.data,
 });
 export const selectMediaWaifusStatus = (state: RootState) => ({
 	status: state.media.mediaWaifus.status,

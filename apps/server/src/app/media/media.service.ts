@@ -14,6 +14,8 @@ import {
 	GetMediaDto,
 	GetMediaResponse,
 	GetMediaTitlesResponse,
+	GetMediaWaifusResponse,
+	GetMediaWaifusService,
 	KnowMediaResponse,
 	KnowMediaService,
 } from '@nx-next-nest/types';
@@ -132,10 +134,9 @@ export class MediaService {
 			if (media.image) {
 				const imagePath = this.storage.formatImagePath(
 					media.id,
-					media.image.image.format,
-					'media'
+					media.image.image.format
 				);
-				image = { src: this.storage.getFile(imagePath) };
+				image = { src: this.storage.getFile(imagePath, 'media') };
 			}
 
 			return {
@@ -221,10 +222,9 @@ export class MediaService {
 		if (media.image) {
 			const imagePath = this.storage.formatImagePath(
 				media.id,
-				media.image.image.format,
-				'media'
+				media.image.image.format
 			);
-			image = { src: this.storage.getFile(imagePath) };
+			image = { src: this.storage.getFile(imagePath, 'media') };
 		}
 
 		return {
@@ -233,6 +233,130 @@ export class MediaService {
 			type: media.type,
 			knownAt: knownAt.knownAt,
 			image,
+		};
+	}
+
+	async getMediaWaifus(
+		dto: GetMediaWaifusService
+	): Promise<GetMediaWaifusResponse> {
+		const { id, waifuDto } = dto;
+		const { name, level, users } = waifuDto;
+
+		const rawMedia = await this.prisma.media.findUnique({
+			where: {
+				id,
+			},
+			include: {
+				waifus: {
+					where: {
+						name,
+						level: {
+							in: level,
+						},
+						userId: {
+							in: users,
+						},
+					},
+					include: {
+						image: {
+							include: {
+								image: {
+									select: {
+										format: true,
+									},
+								},
+							},
+						},
+						user: {
+							select: {
+								alias: true,
+							},
+						},
+					},
+					orderBy: {
+						createdAt: 'desc',
+					},
+				},
+				image: {
+					include: {
+						image: {
+							select: {
+								format: true,
+							},
+						},
+					},
+				},
+				knownBy: {
+					include: {
+						user: {
+							select: {
+								id: true,
+								alias: true,
+								image: {
+									include: {
+										image: {
+											select: {
+												id: true,
+												format: true,
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+					orderBy: {
+						knownAt: 'asc',
+					},
+				},
+			},
+		});
+
+		if (!rawMedia) throw new NotFoundException('media not found');
+
+		let image: GetMediaWaifusResponse['media']['image'];
+
+		if (rawMedia.image) {
+			const imagePath = this.storage.formatImagePath(
+				rawMedia.id,
+				rawMedia.image.image.format
+			);
+			image = { src: this.storage.getFile(imagePath, 'media') };
+		}
+
+		const waifus: GetMediaWaifusResponse['media']['waifus'] =
+			rawMedia.waifus.map((waifu) => {
+				let image: GetMediaWaifusResponse['media']['waifus'][0]['image'];
+				if (waifu.image) {
+					const imageFileName = this.storage.formatImagePath(
+						waifu.id,
+						waifu.image.image.format
+					);
+					image = {
+						src: this.storage.getFile(imageFileName, 'waifu'),
+					};
+				}
+				return {
+					...waifu,
+					image,
+				};
+			});
+
+		return {
+			media: {
+				...rawMedia,
+				knownBy: rawMedia.knownBy.map((user) => {
+					return {
+						...user,
+						user: {
+							id: user.user.id,
+							alias: user.user.alias,
+						},
+					};
+				}),
+				waifus,
+				image,
+			},
 		};
 	}
 
@@ -306,13 +430,13 @@ export class MediaService {
 			if (rawMedia.image && dto.imageFile) {
 				const imageFileName = this.storage.formatImagePath(
 					rawMedia.id,
-					rawMedia.image.image.format,
-					'media'
+					rawMedia.image.image.format
 				);
 				image = {
 					src: await this.storage.uploadFile(
 						dto.imageFile,
-						imageFileName
+						imageFileName,
+						'media'
 					),
 				};
 			}
@@ -416,11 +540,10 @@ export class MediaService {
 		if (rawMedia.image) {
 			const imageFileName = this.storage.formatImagePath(
 				rawMedia.id,
-				rawMedia.image.image.format,
-				'media'
+				rawMedia.image.image.format
 			);
 			image = {
-				src: this.storage.getFile(imageFileName),
+				src: this.storage.getFile(imageFileName, 'media'),
 			};
 		}
 
@@ -534,19 +657,21 @@ export class MediaService {
 				// delete old image
 				const deleteImageFileName = this.storage.formatImagePath(
 					rawMedia.id,
-					oldMedia.image.image.format,
-					'media'
+					oldMedia.image.image.format
 				);
 				await this.storage.deleteFile(deleteImageFileName);
 			}
 			// upload new image
 			const imageFileName = this.storage.formatImagePath(
 				rawMedia.id,
-				rawMedia.image.image.format,
-				'media'
+				rawMedia.image.image.format
 			);
 			image = {
-				src: await this.storage.uploadFile(imageFile, imageFileName),
+				src: await this.storage.uploadFile(
+					imageFile,
+					imageFileName,
+					'media'
+				),
 			};
 		}
 
@@ -597,6 +722,7 @@ export class MediaService {
 					select: {
 						image: {
 							select: {
+								id: true,
 								format: true,
 							},
 						},
@@ -605,19 +731,19 @@ export class MediaService {
 			},
 		});
 
-		await this.prisma.image.delete({
-			where: {
-				id: deletedMedia.id,
-			},
-		});
-
 		console.log('deleted media');
 
 		if (deletedMedia.image) {
+			await this.prisma.image.delete({
+				where: {
+					id: deletedMedia.image.image.id,
+				},
+			});
+			console.log('deleted prisma image');
+
 			const deleteImageFileName = this.storage.formatImagePath(
 				deletedMedia.id,
-				deletedMedia.image.image.format,
-				'media'
+				deletedMedia.image.image.format
 			);
 			await this.storage.deleteFile(deleteImageFileName);
 			console.log('deleted media image');

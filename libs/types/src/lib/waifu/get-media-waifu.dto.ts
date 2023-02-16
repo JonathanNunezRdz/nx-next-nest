@@ -21,6 +21,6 @@ export class GetMediaWaifusDto {
 }
 
 export interface GetMediaWaifusService {
-	title: Media['title'];
+	id: Media['id'];
 	waifuDto: GetMediaWaifusDto;
 }

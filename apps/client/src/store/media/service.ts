@@ -81,8 +81,8 @@ function deleteMedia(mediaId: number | string) {
 	return api.delete<void>(`/media/${mediaId}`);
 }
 
-function getMediaWaifus(title: string, dto: GetMediaWaifusDto) {
-	return api.get<GetMediaWaifusResponse>(`/waifu/${title}`, {
+function getMediaWaifus(id: Media['id'], dto: GetMediaWaifusDto) {
+	return api.get<GetMediaWaifusResponse>(`/media/waifu/${id}`, {
 		params: dto,
 		paramsSerializer(params) {
 			return stringify(params, {

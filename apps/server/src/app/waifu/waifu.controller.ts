@@ -19,8 +19,6 @@ import {
 	GetAllWaifusDto,
 	GetAllWaifusResponse,
 	GetEditWaifuResponse,
-	GetMediaWaifusDto,
-	GetMediaWaifusResponse,
 } from '@nx-next-nest/types';
 import { User, Waifu } from '@prisma/client';
 
@@ -37,14 +35,6 @@ export class WaifuController {
 	@Get('')
 	getAllWaifus(@Query() dto: GetAllWaifusDto): Promise<GetAllWaifusResponse> {
 		return this.waifuService.getAllWaifus(dto);
-	}
-
-	@Get(':title')
-	getMediaWaifus(
-		@Param('title') title: string,
-		@Query() waifuDto: GetMediaWaifusDto
-	): Promise<GetMediaWaifusResponse> {
-		return this.waifuService.getMediaWaifus({ title, waifuDto });
 	}
 
 	@UseGuards(JwtGuard)

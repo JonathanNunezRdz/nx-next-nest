@@ -2,6 +2,7 @@ import { Media, Waifu } from '@prisma/client';
 
 import { MediaKnownUser } from '.';
 import { MyImage } from '../common';
+import { WaifuResponse } from '../waifu';
 
 export type EditMediaResponse = MediaResponse;
 
@@ -31,3 +32,9 @@ export type GetMediaTitlesResponse = {
 }[];
 
 export type KnowMediaResponse = MediaResponse;
+
+export type GetMediaWaifusResponse = {
+	media: Omit<MediaResponse, 'waifus'> & {
+		waifus: Omit<WaifuResponse, 'media'>[];
+	};
+};
