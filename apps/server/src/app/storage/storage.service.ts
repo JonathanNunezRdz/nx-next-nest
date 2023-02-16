@@ -10,7 +10,7 @@ import 'multer';
 export class StorageService {
 	private readonly imageKit: ImageKit;
 	private readonly imaegKitBaseFolder =
-		process.env.NODE_ENV === 'production' ? 'v1' : 'dev';
+		process.env.RAILWAY_ENVIRONMENT === 'production' ? 'v1' : 'dev';
 
 	constructor(config: ConfigService) {
 		this.imageKit = new ImageKit({
