@@ -3,10 +3,12 @@ import {
 	Button,
 	Checkbox,
 	CheckboxGroup,
+	Collapse,
 	FormControl,
 	FormLabel,
 	Input,
 	SimpleGrid,
+	useDisclosure,
 } from '@chakra-ui/react';
 import FilterUsersInput from '@client/src/components/common/FilterUsersInput';
 import { useAppDispatch, useAppSelector } from '@client/src/store/hooks';
@@ -27,10 +29,13 @@ interface WaifuFilterOptionsProps {
 }
 
 const WaifuFilterOptions = ({ getWaifus }: WaifuFilterOptionsProps) => {
-	// reducers
+	// redux hooks
 	const dispatch = useAppDispatch();
 	const members = useAppSelector(selectAllUsers);
 	const { status } = useAppSelector(selectAllUsersStatus);
+
+	// chakra hooks
+	const { isOpen, onToggle } = useDisclosure();
 
 	// react-hook-form
 	const { register, handleSubmit, reset, control } =
@@ -77,60 +82,69 @@ const WaifuFilterOptions = ({ getWaifus }: WaifuFilterOptionsProps) => {
 
 	return (
 		<Box>
-			<form onSubmit={handleSubmit(onSubmit)}>
-				<SimpleGrid
-					columns={{ sm: 1, md: 3 }}
-					spacing='4'
-					alignItems='center'
-				>
-					<FormControl>
-						<FormLabel htmlFor='name'>name</FormLabel>
-						<Input
-							id='name'
-							placeholder='filter by name'
-							{...register('name')}
-						/>
-					</FormControl>
+			<Button onClick={onToggle} size='sm' my='2' isActive={isOpen}>
+				{isOpen ? 'hide' : 'show'} filters
+			</Button>
+			<Collapse in={isOpen} animateOpacity>
+				<form onSubmit={handleSubmit(onSubmit)}>
+					<SimpleGrid
+						columns={{ sm: 1, md: 3 }}
+						spacing='4'
+						alignItems='center'
+					>
+						<FormControl>
+							<FormLabel htmlFor='name'>name</FormLabel>
+							<Input
+								id='name'
+								placeholder='filter by name'
+								{...register('name')}
+							/>
+						</FormControl>
 
-					<FormControl>
-						<FormLabel htmlFor='level'>level</FormLabel>
-						<CheckboxGroup>
-							<SimpleGrid columns={{ sm: 3 }} spacing='4'>
-								{Object.entries(WaifuLevelLabels).map(
-									([level, label]) => (
-										<Controller
-											key={level}
-											control={control}
-											name={level as WaifuLevel}
-											defaultValue={false}
-											render={({
-												field: { onChange, value, ref },
-											}) => (
-												<Checkbox
-													onChange={onChange}
-													ref={ref}
-													isChecked={value}
-												>
-													{label}
-												</Checkbox>
-											)}
-										/>
-									)
-								)}
-							</SimpleGrid>
-						</CheckboxGroup>
-					</FormControl>
+						<FormControl>
+							<FormLabel htmlFor='level'>level</FormLabel>
+							<CheckboxGroup>
+								<SimpleGrid columns={{ sm: 3 }} spacing='4'>
+									{Object.entries(WaifuLevelLabels).map(
+										([level, label]) => (
+											<Controller
+												key={level}
+												control={control}
+												name={level as WaifuLevel}
+												defaultValue={false}
+												render={({
+													field: {
+														onChange,
+														value,
+														ref,
+													},
+												}) => (
+													<Checkbox
+														onChange={onChange}
+														ref={ref}
+														isChecked={value}
+													>
+														{label}
+													</Checkbox>
+												)}
+											/>
+										)
+									)}
+								</SimpleGrid>
+							</CheckboxGroup>
+						</FormControl>
 
-					<FilterUsersInput control={control} />
+						<FilterUsersInput control={control} />
 
-					<Button onClick={resetFilters} width='full'>
-						reset
-					</Button>
-					<Button type='submit' width='full'>
-						search
-					</Button>
-				</SimpleGrid>
-			</form>
+						<Button onClick={resetFilters} width='full'>
+							reset
+						</Button>
+						<Button type='submit' width='full'>
+							search
+						</Button>
+					</SimpleGrid>
+				</form>
+			</Collapse>
 		</Box>
 	);
 };

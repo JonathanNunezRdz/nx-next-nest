@@ -3,10 +3,12 @@ import {
 	Button,
 	Checkbox,
 	CheckboxGroup,
+	Collapse,
 	FormControl,
 	FormLabel,
 	Input,
 	SimpleGrid,
+	useDisclosure,
 } from '@chakra-ui/react';
 import FilterUsersInput from '@client/src/components/common/FilterUsersInput';
 import { useAppSelector } from '@client/src/store/hooks';
@@ -24,6 +26,9 @@ interface MediaFilterOptionsProps {
 const MediaFilterOptions = ({ getMedia }: MediaFilterOptionsProps) => {
 	// redux
 	const members = useAppSelector(selectAllUsers);
+
+	// chakra hooks
+	const { isOpen, onToggle } = useDisclosure();
 
 	// react-hook-form
 	const { register, handleSubmit, reset, control } =
@@ -65,57 +70,62 @@ const MediaFilterOptions = ({ getMedia }: MediaFilterOptionsProps) => {
 
 	return (
 		<Box>
-			<form onSubmit={handleSubmit(onSubmit)}>
-				<SimpleGrid
-					columns={{ sm: 1, md: 3 }}
-					spacing='4'
-					alignItems='center'
-				>
-					<FormControl>
-						<FormLabel htmlFor='title'>title</FormLabel>
-						<Input
-							id='title'
-							placeholder='filter by title'
-							{...register('title')}
-						/>
-					</FormControl>
-					<FormControl>
-						<FormLabel htmlFor='type'>type</FormLabel>
-						<CheckboxGroup>
-							<SimpleGrid columns={{ sm: 2 }} spacing='4'>
-								{MediaTypes.map((label) => (
-									<Controller
-										key={label}
-										control={control}
-										name={label as MediaType}
-										defaultValue={false}
-										render={({
-											field: { onChange, value, ref },
-										}) => (
-											<Checkbox
-												onChange={onChange}
-												ref={ref}
-												isChecked={value}
-											>
-												{label}
-											</Checkbox>
-										)}
-									/>
-								))}
-							</SimpleGrid>
-						</CheckboxGroup>
-					</FormControl>
+			<Button onClick={onToggle} size='sm' my='2' isActive={isOpen}>
+				{isOpen ? 'hide' : 'show'} filters
+			</Button>
+			<Collapse in={isOpen} animateOpacity>
+				<form onSubmit={handleSubmit(onSubmit)}>
+					<SimpleGrid
+						columns={{ sm: 1, md: 3 }}
+						spacing='4'
+						alignItems='start'
+					>
+						<FormControl>
+							<FormLabel htmlFor='title'>title</FormLabel>
+							<Input
+								id='title'
+								placeholder='filter by title'
+								{...register('title')}
+							/>
+						</FormControl>
+						<FormControl>
+							<FormLabel htmlFor='type'>type</FormLabel>
+							<CheckboxGroup>
+								<SimpleGrid columns={{ sm: 2 }} spacing='4'>
+									{MediaTypes.map((label) => (
+										<Controller
+											key={label}
+											control={control}
+											name={label as MediaType}
+											defaultValue={false}
+											render={({
+												field: { onChange, value, ref },
+											}) => (
+												<Checkbox
+													onChange={onChange}
+													ref={ref}
+													isChecked={value}
+												>
+													{label}
+												</Checkbox>
+											)}
+										/>
+									))}
+								</SimpleGrid>
+							</CheckboxGroup>
+						</FormControl>
 
-					<FilterUsersInput control={control} />
+						<FilterUsersInput control={control} />
 
-					<Button onClick={resetFilters} width='full'>
-						reset
-					</Button>
-					<Button type='submit' width='full'>
-						search
-					</Button>
-				</SimpleGrid>
-			</form>
+						<Button onClick={resetFilters} width='full'>
+							reset
+						</Button>
+						<Button type='submit' width='full'>
+							search
+						</Button>
+					</SimpleGrid>
+				</form>
+			</Collapse>
 		</Box>
 	);
 };
