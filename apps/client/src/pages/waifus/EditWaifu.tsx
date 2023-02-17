@@ -9,7 +9,6 @@ import {
 	Input,
 	FormErrorMessage,
 	Select,
-	Image,
 } from '@chakra-ui/react';
 import { EditWaifuDto } from '@nx-next-nest/types';
 import { useRouter } from 'next/router';
@@ -28,6 +27,7 @@ import PageTitle from '@client/src/components/common/PageTitle';
 import FormErrorMessageWrapper from '@client/src/components/common/FormErrorMessageWrapper';
 import WaifuLevelOptions from '@client/src/components/common/WaifuLevelOptions';
 import WaifuMediaTitleOptions from '@client/src/components/common/WaifuMediaTitleOptions';
+import ImageCard from '@client/src/components/common/ImageCard';
 
 function EditWaifu() {
 	// redux hooks
@@ -47,6 +47,7 @@ function EditWaifu() {
 		register,
 		handleSubmit,
 		setValue,
+		watch,
 		formState: { isDirty, errors },
 	} = useForm<EditWaifuDto>({
 		defaultValues: {
@@ -94,80 +95,109 @@ function EditWaifu() {
 		const res = await loadImage(event.currentTarget.files);
 		setCurrentImage(res.result);
 		setImageFile(res.image);
-		setValue('imageFormat', res.format);
+		setValue('imageFormat', res.format, { shouldDirty: true });
 	};
 
 	// render
 	return (
 		<ProtectedPage originalUrl='/waifus/edit'>
-			<VStack w='full' spacing='1rem'>
-				<PageTitle title='add waifu' />
+			<VStack w='full' spacing='4'>
+				<PageTitle title='edit waifu' />
 				<form onSubmit={handleSubmit(onSubmit)}>
-					<FormErrorMessageWrapper
-						error={editWaifuStatus.error?.message}
-					/>
-					<FormControl isInvalid={Boolean(errors.name)}>
-						<FormLabel htmlFor='name'>name</FormLabel>
-						<Input
-							id='name'
-							placeholder='name for your waifu'
-							{...register('name', {
-								required: 'name must not be empty',
-							})}
+					<VStack spacing='4'>
+						<FormErrorMessageWrapper
+							error={editWaifuStatus.error?.message}
 						/>
-						<FormErrorMessage>
-							{errors.name?.message}
-						</FormErrorMessage>
-					</FormControl>
+						<FormControl isInvalid={Boolean(errors.name)}>
+							<FormLabel htmlFor='name'>name</FormLabel>
+							<Input
+								id='name'
+								placeholder='name for your waifu'
+								{...register('name', {
+									required: 'name must not be empty',
+								})}
+							/>
+							<FormErrorMessage>
+								{errors.name?.message}
+							</FormErrorMessage>
+						</FormControl>
 
-					<FormControl>
-						<FormLabel htmlFor='level'>level</FormLabel>
-						<Select id='level' {...register('level')}>
-							<WaifuLevelOptions />
-						</Select>
-					</FormControl>
+						<FormControl>
+							<FormLabel htmlFor='level'>level</FormLabel>
+							<Select id='level' {...register('level')}>
+								<WaifuLevelOptions />
+							</Select>
+						</FormControl>
 
-					<FormControl>
-						<FormLabel htmlFor='mediaId'>media</FormLabel>
-						<Select id='mediaId' {...register('mediaId')}>
-							<WaifuMediaTitleOptions />
-						</Select>
-					</FormControl>
+						<FormControl isInvalid={Boolean(errors.mediaId)}>
+							<FormLabel htmlFor='mediaId'>media</FormLabel>
+							<Select
+								id='mediaId'
+								{...register('mediaId', {
+									validate: (value) => {
+										if (value === '')
+											return 'choose a valid media';
+										return true;
+									},
+								})}
+							>
+								<WaifuMediaTitleOptions />
+							</Select>
+							<FormErrorMessage>
+								{errors.mediaId?.message}
+							</FormErrorMessage>
+						</FormControl>
 
-					{currentImage && (
-						// can use custom component <ImageCard />
-						<Image src={currentImage} alt='upload image' />
-					)}
+						{currentImage && (
+							<ImageCard
+								image={{ src: currentImage }}
+								imageName={watch('name') || waifuToEdit.name}
+								type='waifu'
+							/>
+						)}
 
-					<FormControl>
-						<FormLabel htmlFor='image'>image</FormLabel>
-						<Input
-							id='image'
-							name='image'
-							type='file'
-							variant='filled'
-							accept='image/*'
-							onChange={handleImageChange}
-						/>
-					</FormControl>
+						{currentImage === '' && waifuToEdit.image?.src && (
+							<ImageCard
+								image={{ src: waifuToEdit.image.src }}
+								imageName={waifuToEdit.name}
+								type='waifu'
+							/>
+						)}
 
-					<HStack>
-						<LinkBox display='inline-flex'>
-							<NextLink href='/media' passHref>
-								<LinkOverlay>
-									<Button colorScheme='red'>cancel</Button>
-								</LinkOverlay>
-							</NextLink>
-						</LinkBox>
-						<Button
-							type='submit'
-							disabled={!isDirty}
-							isLoading={editWaifuStatus.status === 'loading'}
-							colorScheme={isDirty ? 'green' : 'gray'}
-						>
-							confirm
-						</Button>
-					</HStack>
+						<FormControl>
+							<FormLabel htmlFor='image'>image</FormLabel>
+							<Input
+								id='image'
+								name='image'
+								type='file'
+								variant='filled'
+								accept='image/*'
+								onChange={handleImageChange}
+								py='2'
+								height='auto'
+							/>
+						</FormControl>
+
+						<HStack>
+							<LinkBox display='inline-flex'>
+								<NextLink href='/media' passHref>
+									<LinkOverlay>
+										<Button colorScheme='red'>
+											cancel
+										</Button>
+									</LinkOverlay>
+								</NextLink>
+							</LinkBox>
+							<Button
+								type='submit'
+								disabled={!isDirty}
+								isLoading={editWaifuStatus.status === 'loading'}
+								colorScheme={isDirty ? 'green' : 'gray'}
+							>
+								confirm
+							</Button>
+						</HStack>
+					</VStack>
 				</form>
 			</VStack>
 		</ProtectedPage>

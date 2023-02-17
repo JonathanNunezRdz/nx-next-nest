@@ -46,7 +46,14 @@ function addWaifu(dto: CreateWaifuThunk) {
 // patch services
 
 function editWaifu(dto: EditWaifuThunk) {
-	return api.patch<EditWaifuResponse>('/waifu', dto);
+	const { editDto, imageFile } = dto;
+
+	const formData = new FormData();
+	for (const [key, value] of Object.entries(editDto)) {
+		formData.append(key, value);
+	}
+	if (imageFile) formData.append('file', imageFile);
+	return api.patch<EditWaifuResponse>('/waifu', formData);
 }
 
 // delete services
