@@ -111,8 +111,11 @@ export const userSlice = createSlice({
 				if (
 					action.payload?.statusCode === 412 ||
 					action.payload?.statusCode === 400
-				)
+				) {
 					invalidateJWT();
+					state.auth.checkedJWT = true;
+					state.auth.isLoggedIn = false;
+				}
 			})
 			.addCase(getAllUsersAction.pending, (state) => {
 				state.members.status = 'loading';

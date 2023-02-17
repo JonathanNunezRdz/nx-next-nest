@@ -34,6 +34,7 @@ const MediaCard = ({ media, ownId, isLoggedIn }: MediaCardProps) => {
 	const hasWaifus = media.waifus.length > 0;
 	const isDeleting =
 		deleteStatus.status === 'loading' && deleteStatus.mediaId === media.id;
+	const hasImage = Boolean(media.image);
 
 	return (
 		<Box bg={bg} borderRadius='md' p='4' opacity={isDeleting ? '0.5' : '1'}>
@@ -42,7 +43,13 @@ const MediaCard = ({ media, ownId, isLoggedIn }: MediaCardProps) => {
 				type={media.type}
 				imageName={media.title}
 			/>
-			<Box bg='teal.600' borderRadius='md' p='2' my='4'>
+			<Box
+				bg='teal.600'
+				borderRadius='md'
+				p='2'
+				mb='4'
+				mt={hasImage ? '4' : undefined}
+			>
 				<HStack justifyContent='space-between'>
 					<Text fontSize='sm' fontWeight='medium'>
 						{media.type}
@@ -74,7 +81,7 @@ const MediaCard = ({ media, ownId, isLoggedIn }: MediaCardProps) => {
 									</ListItem>
 								))
 							) : (
-								<ListItem>No waifus</ListItem>
+								<ListItem>no waifus</ListItem>
 							)}
 						</List>
 					</Box>
@@ -91,7 +98,7 @@ const MediaCard = ({ media, ownId, isLoggedIn }: MediaCardProps) => {
 						>
 							<LinkOverlay>
 								<Button size='sm' width='full'>
-									view/add waifus
+									view{knownByMe ? '/add' : ''} waifus
 								</Button>
 							</LinkOverlay>
 						</NextLink>

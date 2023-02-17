@@ -89,10 +89,7 @@ export const waifuSlice = createSlice({
 						statusCode: 403,
 					};
 				}
-				state.edit.data.id = waifu.id;
-				state.edit.data.name = waifu.name;
-				state.edit.data.level = waifu.level;
-				state.edit.data.mediaId = waifu.mediaId;
+				state.edit.data = waifu;
 				state.edit.local.error = undefined;
 				state.edit.local.status = 'succeeded';
 			}

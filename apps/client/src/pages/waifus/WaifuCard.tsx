@@ -15,6 +15,7 @@ interface WaifuCardProps {
 const WaifuCard = ({ waifu, ownId, isLoggedIn }: WaifuCardProps) => {
 	const bg = useCardColor();
 	const waifuIsOwn = waifu.userId === ownId;
+	const hasImage = Boolean(waifu.image);
 	return (
 		<Box bg={bg} borderRadius='md' p='4'>
 			<ImageCard
@@ -22,7 +23,12 @@ const WaifuCard = ({ waifu, ownId, isLoggedIn }: WaifuCardProps) => {
 				type='waifu'
 				imageName={waifu.name}
 			/>
-			<Box bg='teal.600' borderRadius='md' p='2' my='4'>
+			<Box
+				bg='teal.600'
+				borderRadius='md'
+				p='2'
+				mt={hasImage ? '4' : undefined}
+			>
 				<HStack justifyContent='space-between'>
 					<Text fontSize='sm' fontWeight='medium'>
 						{WaifuLevelLabels[waifu.level]}
@@ -33,6 +39,7 @@ const WaifuCard = ({ waifu, ownId, isLoggedIn }: WaifuCardProps) => {
 						waifuId={waifu.id}
 					/>
 				</HStack>
+
 				<Text fontWeight='semibold' fontSize='2xl'>
 					{waifu.name}
 				</Text>

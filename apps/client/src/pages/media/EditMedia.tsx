@@ -59,7 +59,7 @@ const EditMedia = () => {
 		defaultValues: {
 			mediaId: mediaToEdit.id,
 			title: mediaToEdit.title,
-			knownAt: formatDate(mediaToEdit.knownAt.toISOString()),
+			knownAt: formatDate(new Date(mediaToEdit.knownAt).toISOString()),
 			type: mediaToEdit.type,
 		},
 	});

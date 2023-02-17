@@ -28,14 +28,7 @@ const LinkButton = ({ pathname, query, iconButtonProps }: LinkButtonProps) => {
 				passHref
 			>
 				<LinkOverlay>
-					<IconButton
-						icon={iconButtonProps['icon']}
-						aria-label={iconButtonProps['aria-label']}
-						size={iconButtonProps['size']}
-						me={iconButtonProps['me']}
-						mt={iconButtonProps['mt']}
-						colorScheme={iconButtonProps['colorScheme']}
-					/>
+					<IconButton {...iconButtonProps} />
 				</LinkOverlay>
 			</NextLink>
 		</LinkBox>

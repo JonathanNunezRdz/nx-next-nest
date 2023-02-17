@@ -26,8 +26,6 @@ import Body from '@client/src/components/layout/Body';
 import LinkButton from '@client/src/components/common/LinkButton';
 import CustomPagination from '@client/src/components/common/CustomPagination';
 
-// TODO: design media filter options
-
 const Media: FC = () => {
 	// redux
 	const dispatch = useAppDispatch();
@@ -108,13 +106,15 @@ const Media: FC = () => {
 					<MediaFilterOptions getMedia={handleGetMedia} />
 				</Box>
 
-				<CustomPagination
-					pages={pages}
-					pagesCount={pagesCount}
-					currentPage={currentPage}
-					isDisabled={isDisabled}
-					onPageChange={handleChangePage}
-				/>
+				<Box alignSelf='start'>
+					<CustomPagination
+						pages={pages}
+						pagesCount={pagesCount}
+						currentPage={currentPage}
+						isDisabled={isDisabled}
+						onPageChange={handleChangePage}
+					/>
+				</Box>
 
 				<Box w='full'>
 					<SimpleGrid columns={{ sm: 2, md: 3 }} spacing='4'>
@@ -135,13 +135,15 @@ const Media: FC = () => {
 					</SimpleGrid>
 				</Box>
 
-				<CustomPagination
-					pages={pages}
-					pagesCount={pagesCount}
-					currentPage={currentPage}
-					isDisabled={isDisabled}
-					onPageChange={handleChangePage}
-				/>
+				<Box alignSelf='start'>
+					<CustomPagination
+						pages={pages}
+						pagesCount={pagesCount}
+						currentPage={currentPage}
+						isDisabled={isDisabled}
+						onPageChange={handleChangePage}
+					/>
+				</Box>
 			</VStack>
 		</Body>
 	);
