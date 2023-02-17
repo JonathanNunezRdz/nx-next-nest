@@ -1,9 +1,9 @@
 import {
 	Button,
 	FormControl,
+	FormErrorMessage,
 	FormLabel,
 	HStack,
-	Image,
 	Input,
 	LinkBox,
 	LinkOverlay,
@@ -24,6 +24,7 @@ import WaifuLevelOptions from '@client/src/components/common/WaifuLevelOptions';
 import WaifuMediaTitleOptions from '@client/src/components/common/WaifuMediaTitleOptions';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { formatImageFileName, loadImage } from '@client/src/utils';
+import ImageCard from '@client/src/components/common/ImageCard';
 
 function AddWaifu() {
 	// redux hooks
@@ -32,20 +33,23 @@ function AddWaifu() {
 
 	// next hooks
 	const router = useRouter();
+	const mediaId = router.query.mediaId;
+	console.log('mediaId', mediaId);
 
 	// react hooks
 	const [currentImage, setCurrentImage] = useState<string>('');
 	const [imageFile, setImageFile] = useState<File>();
 
-	//react hook form
+	// react hook form
 	const {
 		register,
 		handleSubmit,
 		setValue,
+		watch,
 		formState: { errors, isDirty },
 	} = useForm<CreateWaifuDto>({
 		defaultValues: {
-			mediaId: '',
+			mediaId: typeof mediaId === 'string' ? mediaId : '',
 			name: '',
 			level: 'genin',
 		},
@@ -74,7 +78,7 @@ function AddWaifu() {
 					imageFile: sendImage,
 				})
 			);
-			if (res.meta.requestStatus === 'fulfilled') router.push('/media');
+			if (res.meta.requestStatus === 'fulfilled') router.push('/waifus');
 		} else {
 			const { imageFormat, ...rest } = newValues;
 			const res = await dispatch(
@@ -82,7 +86,7 @@ function AddWaifu() {
 					waifuDto: rest,
 				})
 			);
-			if (res.meta.requestStatus === 'fulfilled') router.push('/media');
+			if (res.meta.requestStatus === 'fulfilled') router.push('/waifus');
 		}
 	};
 
@@ -90,13 +94,13 @@ function AddWaifu() {
 		const res = await loadImage(event.currentTarget.files);
 		setCurrentImage(res.result);
 		setImageFile(res.image);
-		setValue('imageFormat', res.format);
+		setValue('imageFormat', res.format, { shouldDirty: true });
 	};
 
 	// render
 	return (
 		<ProtectedPage originalUrl='/waifus/add'>
-			<VStack w='full' spacing='1rem'>
+			<VStack w='full' spacing='4'>
 				<PageTitle title='add waifu' />
 				<form onSubmit={handleSubmit(onSubmit)}>
 					<VStack spacing='4'>
@@ -112,6 +116,9 @@ function AddWaifu() {
 									required: 'name must not be empty',
 								})}
 							/>
+							<FormErrorMessage>
+								{errors.name?.message}
+							</FormErrorMessage>
 						</FormControl>
 
 						<FormControl>
@@ -121,16 +128,31 @@ function AddWaifu() {
 							</Select>
 						</FormControl>
 
-						<FormControl>
+						<FormControl isInvalid={Boolean(errors.mediaId)}>
 							<FormLabel htmlFor='mediaId'>media</FormLabel>
-							<Select id='mediaId' {...register('mediaId')}>
+							<Select
+								id='mediaId'
+								{...register('mediaId', {
+									validate: (value) => {
+										if (value === '')
+											return 'choose a valid media';
+										return true;
+									},
+								})}
+							>
 								<WaifuMediaTitleOptions />
 							</Select>
+							<FormErrorMessage>
+								{errors.mediaId?.message}
+							</FormErrorMessage>
 						</FormControl>
 
 						{currentImage && (
-							// can use custom component <ImageCard />
-							<Image src={currentImage} alt='upload image' />
+							<ImageCard
+								image={{ src: currentImage }}
+								imageName={watch('name')}
+								type='waifu'
+							/>
 						)}
 
 						<FormControl>
@@ -142,6 +164,8 @@ function AddWaifu() {
 								variant='filled'
 								accept='image/*'
 								onChange={handleImageChange}
+								py='2'
+								height='auto'
 							/>
 						</FormControl>
 

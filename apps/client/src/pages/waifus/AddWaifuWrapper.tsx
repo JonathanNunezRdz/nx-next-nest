@@ -6,6 +6,7 @@ import {
 import { getMediaTitlesAction } from '@client/src/store/media/actions';
 import { selectAuth } from '@client/src/store/user';
 import { resetAddWaifuStatus } from '@client/src/store/waifu';
+import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import AddWaifu from './AddWaifu';
 
@@ -14,6 +15,9 @@ export default function AddWaifuWrapper() {
 	const dispatch = useAppDispatch();
 	const { isLoggedIn } = useAppSelector(selectAuth);
 	const mediaTitlesStatus = useAppSelector(selectMediaTitlesStatus);
+
+	// next hooks
+	const router = useRouter();
 
 	// react hooks
 	useEffect(() => {
@@ -29,5 +33,7 @@ export default function AddWaifuWrapper() {
 		}
 	}, [dispatch, mediaTitlesStatus.status, isLoggedIn]);
 
-	return <AddWaifu />;
+	if (mediaTitlesStatus.status === 'succeeded' && router.isReady)
+		return <AddWaifu />;
+	return null;
 }

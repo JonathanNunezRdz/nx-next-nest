@@ -1,13 +1,11 @@
-import { CheckIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
+import { AddIcon, CheckIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import { Box, IconButton } from '@chakra-ui/react';
 import LinkButton from '@client/src/components/common/LinkButton';
-import { useAppDispatch, useAppSelector } from '@client/src/store/hooks';
-import { selectMediaAppliedFilters } from '@client/src/store/media';
-import {
-	deleteMediaAction,
-	getMediasAction,
-} from '@client/src/store/media/actions';
+import { useAppDispatch } from '@client/src/store/hooks';
+
+import { deleteMediaAction } from '@client/src/store/media/actions';
 import { MediaType } from '@prisma/client';
+import { useRouter } from 'next/router';
 
 interface KnowQuery {
 	knownByMe: false;
@@ -27,20 +25,42 @@ interface MediaActionButtonsProps {
 }
 
 const MediaActionButtons = ({ isLoggedIn, query }: MediaActionButtonsProps) => {
+	// redux hooks
 	const dispatch = useAppDispatch();
-	const { appliedFilters } = useAppSelector(selectMediaAppliedFilters);
+
+	// next hooks
+	const router = useRouter();
+
+	// react hooks
+
+	// functions
 	const handleDeleteMedia = async () => {
 		const res = await dispatch(
 			deleteMediaAction({ mediaId: query.mediaIdString })
 		);
-		if (res.meta.requestStatus === 'fulfilled')
-			dispatch(getMediasAction(appliedFilters));
+		if (res.meta.requestStatus === 'fulfilled') {
+			router.replace('/media');
+		}
 	};
-	if (!isLoggedIn) return null;
 
+	// render
+	if (!isLoggedIn) return null;
 	if (query.knownByMe)
 		return (
 			<Box>
+				<LinkButton
+					pathname='/waifus/add'
+					query={{
+						mediaId: query.mediaIdString,
+					}}
+					iconButtonProps={{
+						'aria-label': 'add waifu to media',
+						icon: <AddIcon />,
+						size: 'xs',
+						me: '1',
+						colorScheme: 'green',
+					}}
+				/>
 				<LinkButton
 					pathname='/media/edit'
 					query={{
