@@ -41,11 +41,7 @@ const KnowMedia = () => {
 	// react hooks
 
 	// react-hook-form
-	const {
-		register,
-		handleSubmit,
-		formState: { isDirty },
-	} = useForm<KnowMediaDto>({
+	const { register, handleSubmit } = useForm<KnowMediaDto>({
 		defaultValues: {
 			mediaId,
 			knownAt: formatDate(),
@@ -102,11 +98,10 @@ const KnowMedia = () => {
 							</LinkBox>
 							<Button
 								type='submit'
-								isDisabled={!isDirty}
 								isLoading={knowMediaStatus.status === 'loading'}
-								colorScheme={isDirty ? 'green' : 'gray'}
+								colorScheme='green'
 							>
-								add media
+								know media
 							</Button>
 						</HStack>
 					</VStack>

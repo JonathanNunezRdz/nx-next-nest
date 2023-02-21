@@ -49,7 +49,7 @@ export class MediaService {
 					in: dto.type,
 				},
 				knownBy: {
-					every: {
+					some: {
 						user: {
 							id: {
 								in: dto.users,
@@ -69,7 +69,7 @@ export class MediaService {
 					in: dto.type,
 				},
 				knownBy: {
-					every: {
+					some: {
 						user: {
 							id: {
 								in: dto.users,

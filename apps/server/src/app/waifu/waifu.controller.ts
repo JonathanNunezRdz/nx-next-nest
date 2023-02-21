@@ -1,7 +1,10 @@
 import {
 	Body,
 	Controller,
+	Delete,
 	Get,
+	HttpCode,
+	HttpStatus,
 	Param,
 	Patch,
 	Post,
@@ -73,4 +76,14 @@ export class WaifuController {
 	}
 
 	// delete routes
+
+	@UseGuards(JwtGuard)
+	@HttpCode(HttpStatus.NO_CONTENT)
+	@Delete(':id')
+	deleteWaifu(
+		@GetUser('id') userId: User['id'],
+		@Param('id') waifuId: Waifu['id']
+	) {
+		return this.waifuService.deleteWaifu({ userId, waifuId });
+	}
 }

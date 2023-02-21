@@ -34,7 +34,6 @@ function AddWaifu() {
 	// next hooks
 	const router = useRouter();
 	const mediaId = router.query.mediaId;
-	console.log('mediaId', mediaId);
 
 	// react hooks
 	const [currentImage, setCurrentImage] = useState<string>('');
@@ -78,7 +77,16 @@ function AddWaifu() {
 					imageFile: sendImage,
 				})
 			);
-			if (res.meta.requestStatus === 'fulfilled') router.push('/waifus');
+			if (res.meta.requestStatus === 'fulfilled') {
+				if (typeof mediaId === 'string') {
+					router.push({
+						pathname: '/media/waifus',
+						query: {
+							mediaId,
+						},
+					});
+				} else router.push('/waifus');
+			}
 		} else {
 			const { imageFormat, ...rest } = newValues;
 			const res = await dispatch(
@@ -86,7 +94,16 @@ function AddWaifu() {
 					waifuDto: rest,
 				})
 			);
-			if (res.meta.requestStatus === 'fulfilled') router.push('/waifus');
+			if (res.meta.requestStatus === 'fulfilled') {
+				if (typeof mediaId === 'string') {
+					router.push({
+						pathname: '/media/waifus',
+						query: {
+							mediaId,
+						},
+					});
+				} else router.push('/waifus');
+			}
 		}
 	};
 

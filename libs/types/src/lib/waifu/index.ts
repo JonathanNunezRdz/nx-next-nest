@@ -3,6 +3,7 @@ import { GetAllWaifusDto } from './get-all-waifus.dto';
 import { GetEditWaifuResponse, WaifuResponse } from './waifu.response';
 
 export * from './create-waifu.dto';
+export * from './delete-waifu.dto';
 export * from './edit-waifu.dto';
 export * from './get-all-waifus.dto';
 export * from './get-media-waifu.dto';

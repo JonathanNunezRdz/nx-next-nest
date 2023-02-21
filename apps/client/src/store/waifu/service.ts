@@ -58,6 +58,8 @@ function editWaifu(dto: EditWaifuThunk) {
 
 // delete services
 
+// TODO: URGENT delete waifu
+
 const waifuService = {
 	editWaifu,
 	getAllWaifus,

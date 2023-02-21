@@ -1,7 +1,9 @@
 import { DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import { Box, IconButton } from '@chakra-ui/react';
 import LinkButton from '@client/src/components/common/LinkButton';
+import { useAppDispatch } from '@client/src/store/hooks';
 import { Waifu } from '@prisma/client';
+import { useRouter } from 'next/router';
 
 interface WaifuActionButtonsProps {
 	isLoggedIn: boolean;
@@ -14,6 +16,17 @@ const WaifuActionButtons = ({
 	waifuId,
 	waifuIsOwn,
 }: WaifuActionButtonsProps) => {
+	// rtk hooks
+	const dispatch = useAppDispatch();
+
+	// next hooks
+	const router = useRouter();
+	const mediaId = router.query.mediaId;
+
+	// functions
+	const handleDelete = () => {
+		// TODO: still working in this
+	};
 	if (isLoggedIn && waifuIsOwn)
 		return (
 			<Box>

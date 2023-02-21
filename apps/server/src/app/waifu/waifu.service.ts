@@ -6,6 +6,7 @@ import {
 import {
 	CreateWaifuResponse,
 	CreateWaifuService,
+	DeleteWaifuDto,
 	EditWaifuResponse,
 	EditWaifuService,
 	GetAllWaifusDto,
@@ -371,4 +372,60 @@ export class WaifuService {
 	}
 
 	// delete services
+
+	async deleteWaifu(dto: DeleteWaifuDto): Promise<void> {
+		const { waifuId, userId } = dto;
+
+		const waifu = await this.prisma.waifu.findUnique({
+			where: {
+				id: waifuId,
+			},
+			select: {
+				userId: true,
+			},
+		});
+
+		if (!waifu) throw new NotFoundException('waifu not found');
+
+		if (waifu.userId !== userId)
+			throw new ForbiddenException('access to resources denied');
+
+		const deletedWaifu = await this.prisma.waifu.delete({
+			where: {
+				id: waifuId,
+			},
+			select: {
+				id: true,
+				image: {
+					select: {
+						image: {
+							select: {
+								id: true,
+								format: true,
+							},
+						},
+					},
+				},
+			},
+		});
+
+		console.log('deleted waifu');
+
+		if (deletedWaifu.image) {
+			await this.prisma.image.delete({
+				where: {
+					id: deletedWaifu.image.image.id,
+				},
+			});
+
+			console.log('deleted prisma image');
+
+			const deleteImageFileName = this.storage.formatImagePath(
+				deletedWaifu.id,
+				deletedWaifu.image.image.format
+			);
+			await this.storage.deleteFile(deleteImageFileName);
+			console.log('deleted waifu image');
+		}
+	}
 }
