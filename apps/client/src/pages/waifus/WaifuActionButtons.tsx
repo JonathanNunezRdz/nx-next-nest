@@ -25,14 +25,13 @@ const WaifuActionButtons = ({
 
 	// functions
 	const handleDeleteWaifu = async () => {
-		const res = await dispatch(deleteWaifuAction({ waifuId }));
-		if (res.meta.requestStatus === 'fulfilled') {
-			// TODO: check whether to go to media or waifus
-			router.replace('/');
-		}
+		const from = (): Parameters<typeof deleteWaifuAction>[0]['from'] => {
+			if (router.pathname === '/waifus') return '/waifus';
+			if (router.pathname === '/media/waifus') return '/media/waifus';
+			throw new Error('delete waifu from illegal place');
+		};
+		dispatch(deleteWaifuAction({ waifuId, from: from() }));
 	};
-
-	if (waifuId === '') console.log('router:', router);
 
 	// render
 	if (isLoggedIn && waifuIsOwn)

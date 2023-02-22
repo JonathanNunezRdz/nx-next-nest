@@ -296,7 +296,6 @@ export const selectEditMediaStatus = (state: RootState) => ({
 	status: state.media.edit.status,
 	error: state.media.edit.error,
 });
-
 export const selectDeleteMediaStatus = (state: RootState) => ({
 	...state.media.delete,
 });

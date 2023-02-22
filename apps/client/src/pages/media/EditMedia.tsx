@@ -111,7 +111,6 @@ const EditMedia = () => {
 			<VStack w='full' spacing='1rem'>
 				<PageTitle title='edit media' />
 				<form onSubmit={handleSubmit(onSubmit)}>
-					{/* TODO: add loading */}
 					<FormErrorMessageWrapper
 						error={editMediaStatus.error?.message}
 					/>

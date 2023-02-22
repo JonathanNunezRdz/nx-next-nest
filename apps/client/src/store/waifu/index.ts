@@ -201,6 +201,9 @@ export const selectEditWaifuStatus = (state: RootState) => ({
 	status: state.waifu.edit.status,
 	error: state.waifu.edit.error,
 });
+export const selectDeleteWaifuStatus = (state: RootState) => ({
+	...state.waifu.delete,
+});
 
 export const selectWaifus = (state: RootState) => state.waifu.get.data;
 export const selectWaifuStatus = (state: RootState) => ({

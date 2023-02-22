@@ -17,8 +17,6 @@ import { Control, Controller } from 'react-hook-form';
 
 import Loading from './Loading';
 
-// TODO: important -> change UserId (from constants) to work with uuids
-
 interface FilterUsersInputProps {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	control: Control<any, any>;

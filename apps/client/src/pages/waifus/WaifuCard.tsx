@@ -1,5 +1,8 @@
-import { Box, HStack, Text } from '@chakra-ui/react';
+import { Box, Center, HStack, Text } from '@chakra-ui/react';
 import ImageCard from '@client/src/components/common/ImageCard';
+import Loading from '@client/src/components/common/Loading';
+import { useAppSelector } from '@client/src/store/hooks';
+import { selectDeleteWaifuStatus } from '@client/src/store/waifu';
 import { useCardColor, WaifuLevelLabels } from '@client/src/utils/constants';
 import { WaifuResponse } from '@nx-next-nest/types';
 import { User } from '@prisma/client';
@@ -13,11 +16,37 @@ interface WaifuCardProps {
 }
 
 const WaifuCard = ({ waifu, ownId, isLoggedIn }: WaifuCardProps) => {
+	// rtk hooks
+	const deleteStatus = useAppSelector(selectDeleteWaifuStatus);
+
+	// chakra hooks
 	const bg = useCardColor();
-	const waifuIsOwn = waifu.userId === ownId;
+
+	// conditions
+	const isOwnedWaifu = waifu.userId === ownId;
 	const hasImage = Boolean(waifu.image);
+	const isDeleting =
+		deleteStatus.status === 'loading' && deleteStatus.waifuId === waifu.id;
+
+	// render
 	return (
-		<Box bg={bg} borderRadius='md' p='4'>
+		<Box bg={bg} borderRadius='md' p='4' position='relative'>
+			{isDeleting && (
+				<Box
+					borderRadius='md'
+					bg='rgba(0,0,0,0.5)'
+					height='100%'
+					width='100%'
+					position='absolute'
+					top='0'
+					left='0'
+					zIndex={2}
+				>
+					<Center height='100%'>
+						<Loading />
+					</Center>
+				</Box>
+			)}
 			<ImageCard
 				image={waifu.image}
 				type='waifu'
@@ -35,7 +64,7 @@ const WaifuCard = ({ waifu, ownId, isLoggedIn }: WaifuCardProps) => {
 					</Text>
 					<WaifuActionButtons
 						isLoggedIn={isLoggedIn}
-						waifuIsOwn={waifuIsOwn}
+						waifuIsOwn={isOwnedWaifu}
 						waifuId={waifu.id}
 					/>
 				</HStack>

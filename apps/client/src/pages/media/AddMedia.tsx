@@ -119,7 +119,6 @@ const AddMedia = () => {
 				<PageTitle title='add media' />
 				<form onSubmit={handleSubmit(onSubmit)}>
 					<VStack spacing='4'>
-						{/* TODO: add loading */}
 						<FormErrorMessageWrapper
 							error={addMediaStatus.error?.message}
 						/>

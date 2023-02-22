@@ -59,7 +59,7 @@ function editWaifu(dto: EditWaifuThunk) {
 // delete services
 
 function deleteWaifu(waifuId: Waifu['id']) {
-	return api.delete<void>(`/media/${waifuId}`);
+	return api.delete<void>(`/waifu/${waifuId}`);
 }
 
 const waifuService = {
