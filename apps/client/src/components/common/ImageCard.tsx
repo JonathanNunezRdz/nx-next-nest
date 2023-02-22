@@ -4,8 +4,6 @@ import { MediaType } from '@prisma/client';
 
 import Loading from './Loading';
 
-// TODO: get image from imageKit
-
 interface ImageCardProps {
 	image: MediaResponse['image'] | WaifuResponse['image'];
 	type: MediaType | 'waifu';

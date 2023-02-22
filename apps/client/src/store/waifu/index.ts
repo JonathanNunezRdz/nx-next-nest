@@ -5,6 +5,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '..';
 import {
 	addWaifuAction,
+	deleteWaifuAction,
 	editWaifuAction,
 	getAllWaifusAction,
 	getWaifuToEditFromServerAction,
@@ -40,6 +41,11 @@ const initialState: WaifuState = {
 		},
 		status: 'idle',
 		error: undefined,
+	},
+	delete: {
+		status: 'idle',
+		error: undefined,
+		waifuId: '',
 	},
 };
 
@@ -160,6 +166,18 @@ export const waifuSlice = createSlice({
 			.addCase(editWaifuAction.rejected, (state, action) => {
 				state.edit.error = action.payload;
 				state.edit.status = 'failed';
+			})
+			.addCase(deleteWaifuAction.pending, (state, action) => {
+				state.delete.status = 'loading';
+				state.delete.waifuId = action.meta.arg.waifuId;
+			})
+			.addCase(deleteWaifuAction.fulfilled, (state) => {
+				state.delete.error = undefined;
+				state.delete.status = 'succeeded';
+			})
+			.addCase(deleteWaifuAction.rejected, (state, action) => {
+				state.delete.error = action.payload;
+				state.delete.status = 'failed';
 			});
 	},
 });

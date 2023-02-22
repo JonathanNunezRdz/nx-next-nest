@@ -1,3 +1,4 @@
+import { getAxiosError } from '@client/src/utils';
 import { HttpError } from '@nx-next-nest/types';
 import { Waifu } from '@prisma/client';
 import { createAsyncThunk } from '@reduxjs/toolkit';
@@ -9,6 +10,9 @@ export const deleteWaifuAction = createAsyncThunk<
 	{ rejectValue: HttpError }
 >('waifu/delete', async ({ waifuId }, { rejectWithValue }) => {
 	try {
-		await waifuService.deleteWaifu();
-	} catch (error) {}
+		await waifuService.deleteWaifu(waifuId);
+	} catch (error) {
+		const errorData = getAxiosError(error);
+		return rejectWithValue(errorData);
+	}
 });

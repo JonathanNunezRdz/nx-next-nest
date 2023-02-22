@@ -2,6 +2,7 @@ import { DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import { Box, IconButton } from '@chakra-ui/react';
 import LinkButton from '@client/src/components/common/LinkButton';
 import { useAppDispatch } from '@client/src/store/hooks';
+import { deleteWaifuAction } from '@client/src/store/waifu/actions';
 import { Waifu } from '@prisma/client';
 import { useRouter } from 'next/router';
 
@@ -21,12 +22,19 @@ const WaifuActionButtons = ({
 
 	// next hooks
 	const router = useRouter();
-	const mediaId = router.query.mediaId;
 
 	// functions
-	const handleDelete = () => {
-		// TODO: still working in this
+	const handleDeleteWaifu = async () => {
+		const res = await dispatch(deleteWaifuAction({ waifuId }));
+		if (res.meta.requestStatus === 'fulfilled') {
+			// TODO: check whether to go to media or waifus
+			router.replace('/');
+		}
 	};
+
+	if (waifuId === '') console.log('router:', router);
+
+	// render
 	if (isLoggedIn && waifuIsOwn)
 		return (
 			<Box>
@@ -48,6 +56,7 @@ const WaifuActionButtons = ({
 					icon={<DeleteIcon />}
 					size='xs'
 					colorScheme='red'
+					onClick={handleDeleteWaifu}
 				/>
 			</Box>
 		);

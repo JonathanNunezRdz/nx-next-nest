@@ -1,3 +1,4 @@
+import { Waifu } from '@prisma/client';
 import { RequestStatus } from '../common';
 import { GetAllWaifusDto } from './get-all-waifus.dto';
 import { GetEditWaifuResponse, WaifuResponse } from './waifu.response';
@@ -20,5 +21,8 @@ export interface WaifuState {
 		data: GetEditWaifuResponse;
 		local: RequestStatus;
 		server: RequestStatus;
+	} & RequestStatus;
+	delete: {
+		waifuId: Waifu['id'];
 	} & RequestStatus;
 }

@@ -58,13 +58,16 @@ function editWaifu(dto: EditWaifuThunk) {
 
 // delete services
 
-// TODO: URGENT delete waifu
+function deleteWaifu(waifuId: Waifu['id']) {
+	return api.delete<void>(`/media/${waifuId}`);
+}
 
 const waifuService = {
 	editWaifu,
 	getAllWaifus,
 	addWaifu,
 	getEditWaifu,
+	deleteWaifu,
 };
 
 export default waifuService;

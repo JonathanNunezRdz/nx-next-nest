@@ -4,8 +4,6 @@ import { ImageFormat } from '@prisma/client';
 import ImageKit from 'imagekit';
 import 'multer';
 
-// TODO: move/copy images from firebase to imageKit
-
 @Injectable()
 export class StorageService {
 	private readonly imageKit: ImageKit;
@@ -21,7 +19,6 @@ export class StorageService {
 	}
 
 	getFile(imageFileName: string, folder: 'media' | 'waifu' | 'user'): string {
-		// TODO: fix different folders
 		return this.imageKit.url({
 			path: `/${this.imaegKitBaseFolder}/${folder}/${imageFileName}`,
 			signed: true,

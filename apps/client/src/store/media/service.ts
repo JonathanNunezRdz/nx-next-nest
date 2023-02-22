@@ -17,8 +17,6 @@ import { stringify } from 'qs';
 
 import api from '../api';
 
-// TODO: change body from routes that send an image to FormData
-
 // get servies
 
 function getMedias(dto: GetMediaDto) {
@@ -39,6 +37,18 @@ function getMediaTitles() {
 
 function getEditMedia(mediaId: Media['id']) {
 	return api.get<GetEditMediaResponse>(`/media/edit/${mediaId}`);
+}
+
+function getMediaWaifus(id: Media['id'], dto: GetMediaWaifusDto) {
+	return api.get<GetMediaWaifusResponse>(`/media/waifu/${id}`, {
+		params: dto,
+		paramsSerializer(params) {
+			return stringify(params, {
+				encode: false,
+				arrayFormat: 'comma',
+			});
+		},
+	});
 }
 
 // post services
@@ -79,18 +89,6 @@ function editMedia(dto: EditMediaThunk) {
 
 function deleteMedia(mediaId: number | string) {
 	return api.delete<void>(`/media/${mediaId}`);
-}
-
-function getMediaWaifus(id: Media['id'], dto: GetMediaWaifusDto) {
-	return api.get<GetMediaWaifusResponse>(`/media/waifu/${id}`, {
-		params: dto,
-		paramsSerializer(params) {
-			return stringify(params, {
-				encode: false,
-				arrayFormat: 'comma',
-			});
-		},
-	});
 }
 
 const mediaService = {
