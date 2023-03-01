@@ -13,6 +13,9 @@ import {
 	GetAllWaifusResponse,
 	GetEditWaifuResponse,
 	GetEditWaifuService,
+	prismaSelectWaifu,
+	prismaWaifuFindManyInput,
+	WaifuResponse,
 } from '@nx-next-nest/types';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { createWaifuImage, upsertWaifuImage } from '@server/src/utils';
@@ -30,85 +33,14 @@ export class WaifuService {
 	// get services
 
 	async getAllWaifus(dto: GetAllWaifusDto): Promise<GetAllWaifusResponse> {
-		const { name, page, limit, level, users } = dto;
+		const input = prismaWaifuFindManyInput(dto);
 		const totalWaifus = await this.prisma.waifu.count({
-			where: {
-				name: {
-					contains: name,
-					mode: 'insensitive',
-				},
-				level: {
-					in: level,
-				},
-				user: {
-					id: {
-						in: users,
-					},
-				},
-			},
+			where: input.where,
 		});
-		const rawWaifus = await this.prisma.waifu.findMany({
-			where: {
-				name: {
-					contains: name,
-					mode: 'insensitive',
-				},
-				level: {
-					in: level,
-				},
-				user: {
-					id: {
-						in: users,
-					},
-				},
-			},
-			take: limit,
-			skip: (page - 1) * limit,
-			orderBy: {
-				createdAt: 'desc',
-			},
-			include: {
-				media: {
-					select: {
-						title: true,
-						type: true,
-					},
-				},
-				user: {
-					select: {
-						alias: true,
-					},
-				},
-				image: {
-					include: {
-						image: {
-							select: {
-								format: true,
-							},
-						},
-					},
-				},
-			},
-		});
+		const rawWaifus = await this.prisma.waifu.findMany(input);
 
-		const waifus: GetAllWaifusResponse['waifus'] = rawWaifus.map(
-			(waifu) => {
-				let image: GetAllWaifusResponse['waifus'][0]['image'];
-				if (waifu.image) {
-					const imageFileName = this.storage.formatImagePath(
-						waifu.id,
-						waifu.image.image.format
-					);
-					image = {
-						src: this.storage.getFile(imageFileName, 'waifu'),
-					};
-				}
-
-				return {
-					...waifu,
-					image,
-				};
-			}
+		const waifus = rawWaifus.map<WaifuResponse>(
+			this.prisma.transformPrismaWaifuToWaifuResponse
 		);
 
 		return { waifus, totalWaifus };
@@ -130,6 +62,7 @@ export class WaifuService {
 				level: true,
 				mediaId: true,
 				userId: true,
+				since: true,
 				image: {
 					include: {
 						image: {
@@ -161,6 +94,7 @@ export class WaifuService {
 			level: rawWaifu.level,
 			mediaId: rawWaifu.mediaId,
 			userId: rawWaifu.userId,
+			since: rawWaifu.since,
 			image,
 		};
 	}
@@ -213,50 +147,11 @@ export class WaifuService {
 						},
 					},
 				},
-				include: {
-					image: {
-						include: {
-							image: {
-								select: {
-									format: true,
-								},
-							},
-						},
-					},
-					media: {
-						select: {
-							title: true,
-							type: true,
-						},
-					},
-					user: {
-						select: {
-							alias: true,
-						},
-					},
-				},
+				select: prismaSelectWaifu.select,
 			});
 
-			let image: CreateWaifuResponse['image'];
-
-			if (rawWaifu.image && dto.imageFile) {
-				const imageFileName = this.storage.formatImagePath(
-					rawWaifu.id,
-					rawWaifu.image.image.format
-				);
-				image = {
-					src: await this.storage.uploadFile(
-						dto.imageFile,
-						imageFileName,
-						'waifu'
-					),
-				};
-			}
-
-			const waifu: CreateWaifuResponse = {
-				...rawWaifu,
-				image,
-			};
+			const waifu =
+				this.prisma.transformPrismaWaifuToWaifuResponse(rawWaifu);
 
 			return waifu;
 		} catch (error) {
@@ -312,28 +207,7 @@ export class WaifuService {
 				level,
 				image: upsertWaifuImageOptions,
 			},
-			include: {
-				image: {
-					include: {
-						image: {
-							select: {
-								format: true,
-							},
-						},
-					},
-				},
-				media: {
-					select: {
-						title: true,
-						type: true,
-					},
-				},
-				user: {
-					select: {
-						alias: true,
-					},
-				},
-			},
+			select: prismaSelectWaifu.select,
 		});
 
 		let image: EditWaifuResponse['image'];
@@ -363,12 +237,7 @@ export class WaifuService {
 			};
 		}
 
-		const waifu: EditWaifuResponse = {
-			...rawWaifu,
-			image,
-		};
-
-		return waifu;
+		return { ...rawWaifu, image };
 	}
 
 	// delete services

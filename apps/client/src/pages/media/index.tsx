@@ -8,7 +8,7 @@ import {
 	VStack,
 } from '@chakra-ui/react';
 import { AddIcon, RepeatIcon } from '@chakra-ui/icons';
-import { FC, useCallback, useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { usePagination } from '@ajna/pagination';
 import { GetMediaDto } from '@nx-next-nest/types';
 
@@ -25,17 +25,18 @@ import { getMediasAction } from '@client/src/store/media/actions';
 import Body from '@client/src/components/layout/Body';
 import LinkButton from '@client/src/components/common/LinkButton';
 import CustomPagination from '@client/src/components/common/CustomPagination';
+import { NextSeo } from 'next-seo';
 
-const Media: FC = () => {
-	// redux
+function Media() {
+	// rtk hooks
 	const dispatch = useAppDispatch();
-	const { isLoggedIn } = useAppSelector(selectAuth);
 	const user = useAppSelector(selectUser);
 	const media = useAppSelector(selectMedia);
+	const getMediaStatus = useAppSelector(selectMediaStatus);
+	const { isLoggedIn } = useAppSelector(selectAuth);
 	const { totalMedias, appliedFilters } = useAppSelector(
 		selectMediaAppliedFilters
 	);
-	const getMediaStatus = useAppSelector(selectMediaStatus);
 
 	// use-pagination
 	const { pages, pagesCount, currentPage, isDisabled, setCurrentPage } =
@@ -75,8 +76,10 @@ const Media: FC = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [handleGetMedia]);
 
+	// render
 	return (
 		<Body h>
+			<NextSeo title='media' />
 			<VStack w='full' spacing='4'>
 				<Box w='full'>
 					<HStack spacing='4'>
@@ -147,6 +150,6 @@ const Media: FC = () => {
 			</VStack>
 		</Body>
 	);
-};
+}
 
 export default Media;

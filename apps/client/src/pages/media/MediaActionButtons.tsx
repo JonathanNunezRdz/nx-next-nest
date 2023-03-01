@@ -24,8 +24,8 @@ interface MediaActionButtonsProps {
 	query: KnowQuery | EditQuery;
 }
 
-const MediaActionButtons = ({ isLoggedIn, query }: MediaActionButtonsProps) => {
-	// redux hooks
+function MediaActionButtons({ isLoggedIn, query }: MediaActionButtonsProps) {
+	// rtk hooks
 	const dispatch = useAppDispatch();
 
 	// next hooks
@@ -103,6 +103,6 @@ const MediaActionButtons = ({ isLoggedIn, query }: MediaActionButtonsProps) => {
 			/>
 		);
 	return null;
-};
+}
 
 export default MediaActionButtons;

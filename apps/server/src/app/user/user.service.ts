@@ -1,10 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import type {
+import {
 	EditUserResponse,
 	EditUserService,
 	GetAllUsersResponse,
 	GetUserResponse,
+	prismaSelectUser,
+	UserResponse,
 } from '@nx-next-nest/types';
 // import type { ImageFormat, Prisma, PrismaPromise } from '@prisma/client';
 import { User } from '@prisma/client';
@@ -13,9 +15,9 @@ import { User } from '@prisma/client';
 // import { getStorage } from 'firebase-admin/storage';
 // import mongoose, { Schema } from 'mongoose';
 
-import { upsertUserImage } from '../../utils';
 import { PrismaService } from '../prisma/prisma.service';
 import { StorageService } from '../storage/storage.service';
+import { upsertUserImage } from './user.util';
 
 // import animes from '../../../tmp/dumps/animes.json';
 // import mangas from '../../../tmp/dumps/mangas.json';
@@ -797,81 +799,16 @@ export class UserService {
 	// get services
 
 	async getMe(userId: User['id']): Promise<GetUserResponse> {
-		const rawUser = await this.prisma.user.findUnique({
-			where: {
-				id: userId,
-			},
-			include: {
-				image: {
-					select: {
-						image: {
-							select: {
-								format: true,
-							},
-						},
-					},
-				},
-			},
-		});
-
-		if (!rawUser) throw new NotFoundException('user not found');
-
-		let image: GetUserResponse['image'];
-
-		if (rawUser.image) {
-			const imageFileName = this.storage.formatImagePath(
-				rawUser.id,
-				rawUser.image.image.format
-			);
-			image = {
-				src: this.storage.getFile(imageFileName, 'user'),
-			};
-		}
-
-		// remove hash from rawUser
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const { hash, ...rest } = rawUser;
-
-		const user = {
-			...rest,
-			image,
-		};
-
-		return user;
+		return this.prisma.findUniqueUserWithImage(userId);
 	}
 
 	async getAllUsers(): Promise<GetAllUsersResponse> {
 		const rawUsers = await this.prisma.user.findMany({
-			include: {
-				image: {
-					select: {
-						image: {
-							select: {
-								format: true,
-							},
-						},
-					},
-				},
-			},
+			...prismaSelectUser,
 		});
-		const users: GetAllUsersResponse = rawUsers.map((user) => {
-			let image: GetAllUsersResponse[0]['image'];
-			if (user.image) {
-				const imageFileName = this.storage.formatImagePath(
-					user.id,
-					user.image.image.format
-				);
-				image = {
-					src: this.storage.getFile(imageFileName, 'user'),
-				};
-			}
-			return {
-				...user,
-				hash: undefined,
-				image,
-			};
-		});
-
+		const users: GetAllUsersResponse = rawUsers.map<UserResponse>(
+			this.prisma.transformPrismaUserToUserResponse
+		);
 		return users;
 	}
 
@@ -885,8 +822,6 @@ export class UserService {
 		if (alias) alias = alias.trim();
 		if (firstName) firstName = firstName.trim();
 		if (lastName) lastName = lastName.trim();
-
-		const upsertUserImageOptions = upsertUserImage(userDto);
 
 		const oldUser = await this.prisma.user.findUnique({
 			where: {
@@ -907,7 +842,9 @@ export class UserService {
 
 		if (!oldUser) throw new NotFoundException('user not found');
 
-		const rawUser = await this.prisma.user.update({
+		const upsertUserImageOptions = upsertUserImage(userDto);
+
+		const updatedUser = await this.prisma.user.update({
 			where: {
 				id: userId,
 			},
@@ -917,32 +854,22 @@ export class UserService {
 				lastName,
 				image: upsertUserImageOptions,
 			},
-			include: {
-				image: {
-					select: {
-						image: {
-							select: {
-								format: true,
-							},
-						},
-					},
-				},
-			},
+			...prismaSelectUser,
 		});
 
 		let image: EditUserResponse['image'];
 
-		if (imageFile && rawUser.image) {
+		if (imageFile && updatedUser.image) {
 			if (oldUser.image) {
 				const deleteImageFileName = this.storage.formatImagePath(
-					rawUser.id,
+					updatedUser.id,
 					oldUser.image.image.format
 				);
 				await this.storage.deleteFile(deleteImageFileName);
 			}
 			const imageFileName = this.storage.formatImagePath(
-				rawUser.id,
-				rawUser.image.image.format
+				updatedUser.id,
+				updatedUser.image.image.format
 			);
 			image = {
 				src: await this.storage.uploadFile(
@@ -953,11 +880,6 @@ export class UserService {
 			};
 		}
 
-		const user: EditUserResponse = {
-			...rawUser,
-			image,
-		};
-
-		return user;
+		return { ...updatedUser, image };
 	}
 }

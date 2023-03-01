@@ -1,4 +1,9 @@
 import { ImageFormat } from '@prisma/client';
-
-export const formatImageFileName = (name: string, format: ImageFormat) =>
-	`${encodeURIComponent(name)}.${format}`;
+/**
+ *
+ * @param {string} id id of user | waifu | media
+ * @param {ImageFormat} format format of image saved
+ * @returns
+ */
+export const formatImageFileName = (id: string, format: ImageFormat) =>
+	`${encodeURIComponent(id)}.${format}`;

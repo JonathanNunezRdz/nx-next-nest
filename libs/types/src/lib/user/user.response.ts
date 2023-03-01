@@ -1,4 +1,5 @@
 import { User } from '@prisma/client';
+import { MyImage } from '../common';
 
 export type EditUserResponse = UserResponse;
 
@@ -10,8 +11,6 @@ export type GetUserResponse = UserResponse;
 
 export type GetAllUsersResponse = UserResponse[];
 
-export type UserResponse = Omit<User, 'image' | 'hash'> & {
-	image?: {
-		src: string;
-	};
+export type UserResponse = Omit<User, 'hash'> & {
+	image?: MyImage;
 };

@@ -51,7 +51,13 @@ export class StorageService {
 		}
 	}
 
-	formatImagePath(name: string, format: ImageFormat) {
-		return `${encodeURIComponent(name)}.${format}`;
+	/**
+	 *
+	 * @param {string} id id of user | waifu | media
+	 * @param {ImageFormat} format format of image saved
+	 * @returns name for file correctly formated
+	 */
+	formatImagePath(id: string, format: ImageFormat) {
+		return `${encodeURIComponent(id)}.${format}`;
 	}
 }

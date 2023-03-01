@@ -1,12 +1,11 @@
-import type { FC } from 'react';
 import { Box, Flex, Heading, Link } from '@chakra-ui/react';
 import NextLink from 'next/link';
 import HeaderLinks from './HeaderLinks';
 import ThemeToggle from './ThemeToggle';
 
-const links = ['media', 'waifus'];
+const links = ['media', 'waifus', 'trades'];
 
-const Header: FC = () => {
+function Header() {
 	return (
 		<Flex as='header' width='full' align='center'>
 			<Heading as='h1' size='md'>
@@ -20,6 +19,6 @@ const Header: FC = () => {
 			</Box>
 		</Flex>
 	);
-};
+}
 
 export default Header;

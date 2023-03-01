@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { MediaModule } from './media/media.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { StorageModule } from './storage/storage.module';
+import { TradeModule } from './trade/trade.module';
 import { UserModule } from './user/user.module';
 import { WaifuModule } from './waifu/waifu.module';
 
@@ -15,6 +16,7 @@ import { WaifuModule } from './waifu/waifu.module';
 		UserModule,
 		MediaModule,
 		WaifuModule,
+		TradeModule,
 		PrismaModule,
 		StorageModule,
 	],

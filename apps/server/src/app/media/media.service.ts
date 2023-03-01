@@ -18,6 +18,7 @@ import {
 	GetMediaWaifusService,
 	KnowMediaResponse,
 	KnowMediaService,
+	prismaMediaFindManyInput,
 } from '@nx-next-nest/types';
 import { User } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
@@ -39,95 +40,11 @@ export class MediaService {
 	// get services
 
 	async getMedias(dto: GetMediaDto): Promise<GetMediaResponse> {
+		const input = prismaMediaFindManyInput(dto);
 		const totalMedias = await this.prisma.media.count({
-			where: {
-				title: {
-					contains: dto.title,
-					mode: 'insensitive',
-				},
-				type: {
-					in: dto.type,
-				},
-				knownBy: {
-					some: {
-						user: {
-							id: {
-								in: dto.users,
-							},
-						},
-					},
-				},
-			},
+			where: input.where,
 		});
-		const rawMedias = await this.prisma.media.findMany({
-			where: {
-				title: {
-					contains: dto.title,
-					mode: 'insensitive',
-				},
-				type: {
-					in: dto.type,
-				},
-				knownBy: {
-					some: {
-						user: {
-							id: {
-								in: dto.users,
-							},
-						},
-					},
-				},
-			},
-			take: dto.limit,
-			orderBy: {
-				createdAt: 'desc',
-			},
-			skip: (dto.page - 1) * dto.limit,
-			include: {
-				waifus: {
-					select: {
-						id: true,
-						name: true,
-					},
-					take: 3,
-					orderBy: {
-						createdAt: 'desc',
-					},
-				},
-				image: {
-					include: {
-						image: {
-							select: {
-								format: true,
-							},
-						},
-					},
-				},
-				knownBy: {
-					include: {
-						user: {
-							select: {
-								id: true,
-								alias: true,
-								image: {
-									include: {
-										image: {
-											select: {
-												id: true,
-												format: true,
-											},
-										},
-									},
-								},
-							},
-						},
-					},
-					orderBy: {
-						knownAt: 'asc',
-					},
-				},
-			},
-		});
+		const rawMedias = await this.prisma.media.findMany(input);
 
 		const medias: GetMediaResponse['medias'] = rawMedias.map((media) => {
 			let image: GetMediaResponse['medias'][0]['image'];

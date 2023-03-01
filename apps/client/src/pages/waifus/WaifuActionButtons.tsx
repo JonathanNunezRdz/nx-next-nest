@@ -12,11 +12,11 @@ interface WaifuActionButtonsProps {
 	waifuId: Waifu['id'];
 }
 
-const WaifuActionButtons = ({
+function WaifuActionButtons({
 	isLoggedIn,
 	waifuId,
 	waifuIsOwn,
-}: WaifuActionButtonsProps) => {
+}: WaifuActionButtonsProps) {
 	// rtk hooks
 	const dispatch = useAppDispatch();
 
@@ -60,6 +60,6 @@ const WaifuActionButtons = ({
 			</Box>
 		);
 	return null;
-};
+}
 
 export default WaifuActionButtons;

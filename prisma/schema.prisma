@@ -23,9 +23,11 @@ model User {
   hash      String
   email     String @unique
 
-  image      UserImage?
-  knownMedia KnownMedia[]
-  waifus     Waifu[]
+  image          UserImage?
+  knownMedia     KnownMedia[]
+  waifus         Waifu[]
+  outgoingTrades Trade[]      @relation("sender")
+  incomingTrades Trade[]      @relation("recipient")
 }
 
 model UserImage {
@@ -100,6 +102,11 @@ model Waifu {
   user    User        @relation(references: [id], fields: [userId])
   userId  String
 
+  wantedTrade    Trade?  @relation(references: [id], fields: [wantedTradeId], name: "wanted")
+  wantedTradeId  String?
+  offeredTrade   Trade?  @relation(references: [id], fields: [offeredTradeId], name: "offered")
+  offeredTradeId String?
+
   @@unique([name, mediaId])
 }
 
@@ -111,6 +118,23 @@ model WaifuImage {
   imageId String @unique
 
   @@id([waifuId, imageId])
+}
+
+model Trade {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  endedAt DateTime?
+  status  TradeStatus @default(pending)
+
+  sender      User   @relation(references: [id], fields: [senderId], name: "sender")
+  senderId    String
+  recipient   User   @relation(references: [id], fields: [recipientId], name: "recipient")
+  recipientId String
+
+  wantedWaifus  Waifu[] @relation("wanted")
+  offeredWaifus Waifu[] @relation("offered")
 }
 
 enum MediaType {
@@ -140,4 +164,10 @@ enum ImageFormat {
   png
   svg
   webp
+}
+
+enum TradeStatus {
+  pending
+  declined
+  accepted
 }

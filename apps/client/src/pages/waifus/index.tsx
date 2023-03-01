@@ -21,22 +21,24 @@ import {
 } from '@client/src/store/waifu';
 import { getAllWaifusAction } from '@client/src/store/waifu/actions';
 import { GetAllWaifusDto } from '@nx-next-nest/types';
+import { NextSeo } from 'next-seo';
 import { useCallback, useEffect } from 'react';
 
 import WaifuCard from './WaifuCard';
 import WaifuFilterOptions from './WaifuFilterOptions';
 
-const Waifus = () => {
+function Waifus() {
+	// rtk hooks
 	const dispatch = useAppDispatch();
-	const { isLoggedIn } = useAppSelector(selectAuth);
 	const user = useAppSelector(selectUser);
-
 	const waifus = useAppSelector(selectWaifus);
+	const { isLoggedIn } = useAppSelector(selectAuth);
+	const getWaifuStatus = useAppSelector(selectWaifuStatus);
 	const { totalWaifus, ...appliedFilters } = useAppSelector(
 		selectWaifuAppliedFilters
 	);
-	const getWaifuStatus = useAppSelector(selectWaifuStatus);
 
+	// use-pagination hook
 	const { pages, pagesCount, currentPage, isDisabled, setCurrentPage } =
 		usePagination({
 			total: totalWaifus,
@@ -51,6 +53,7 @@ const Waifus = () => {
 			},
 		});
 
+	// functions
 	const handleGetWaifus = useCallback(
 		(options: GetAllWaifusDto) => {
 			setCurrentPage(options.page);
@@ -68,13 +71,16 @@ const Waifus = () => {
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 	};
 
+	// react hooks
 	useEffect(() => {
 		handleGetWaifus(appliedFilters);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [handleGetWaifus]);
 
+	// render
 	return (
 		<Body h>
+			<NextSeo title='waifus' />
 			<VStack w='full' spacing='4'>
 				<Box w='full'>
 					<HStack spacing='4'>
@@ -143,6 +149,6 @@ const Waifus = () => {
 			</VStack>
 		</Body>
 	);
-};
+}
 
 export default Waifus;

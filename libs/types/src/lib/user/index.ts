@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { RequestStatus } from '../common';
 import { GetAllUsersResponse, GetUserResponse } from './user.response';
 
@@ -20,3 +21,28 @@ export interface UserState {
 		data: GetAllUsersResponse;
 	} & RequestStatus;
 }
+
+export const prismaSelectUser = Prisma.validator<Prisma.UserArgs>()({
+	select: {
+		id: true,
+		createdAt: true,
+		updatedAt: true,
+		alias: true,
+		firstName: true,
+		lastName: true,
+		uid: true,
+		email: true,
+		image: {
+			select: {
+				image: {
+					select: {
+						id: true,
+						format: true,
+					},
+				},
+			},
+		},
+	},
+});
+
+export type PrismaUserResponse = Prisma.UserGetPayload<typeof prismaSelectUser>;

@@ -3,6 +3,13 @@
 	"sourceRoot": "apps/server/src",
 	"projectType": "application",
 	"targets": {
+		"migrate-db": {
+			"executor": "nx:run-commands",
+			"options": {
+				"command": "npx prisma migrate dev --schema=../../prisma/schema.prisma --name={args.name}",
+				"cwd": "apps/server"
+			}
+		},
 		"prisma-studio": {
 			"executor": "nx:run-commands",
 			"options": {
@@ -25,12 +32,24 @@
 				}
 			}
 		},
+		"start-db": {
+			"executor": "nx:run-commands",
+			"options": {
+				"commands": ["docker compose up dev-db -d", "sleep 1"],
+				"cwd": "apps/server",
+				"parallel": false
+			},
+			"configurations": {
+				"production": {
+					"commands": ["echo READY"]
+				}
+			},
+			"dependsOn": ["remove-db"]
+		},
 		"prepare-db": {
 			"executor": "nx:run-commands",
 			"options": {
 				"commands": [
-					"docker compose up dev-db -d",
-					"sleep 1",
 					"npx prisma migrate deploy --schema=../../prisma/schema.prisma"
 				],
 				"parallel": false,
@@ -44,14 +63,12 @@
 				},
 				"hard": {
 					"commands": [
-						"docker compose up dev-db -d",
-						"sleep 1",
 						"npx prisma migrate deploy --schema=../../prisma/schema.prisma",
 						"npx prisma db seed"
 					]
 				}
 			},
-			"dependsOn": ["remove-db"]
+			"dependsOn": ["start-db"]
 		},
 		"build": {
 			"executor": "@nrwl/node:webpack",
