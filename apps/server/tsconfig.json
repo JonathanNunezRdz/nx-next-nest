@@ -10,7 +10,8 @@
 		"isolatedModules": true,
 		"resolveJsonModule": true,
 		"esModuleInterop": true,
-		"strict": true
+		"strict": true,
+		"strictPropertyInitialization": false
 	},
 	"exclude": [
 		"jest.config.ts",

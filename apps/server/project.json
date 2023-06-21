@@ -37,7 +37,8 @@
 			"options": {
 				"commands": ["docker compose up dev-db -d", "sleep 1"],
 				"cwd": "apps/server",
-				"parallel": false
+				"parallel": false,
+				"color": true
 			},
 			"configurations": {
 				"production": {

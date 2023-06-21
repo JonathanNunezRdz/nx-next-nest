@@ -109,15 +109,13 @@ function Media() {
 					<MediaFilterOptions getMedia={handleGetMedia} />
 				</Box>
 
-				<Box alignSelf='start'>
-					<CustomPagination
-						pages={pages}
-						pagesCount={pagesCount}
-						currentPage={currentPage}
-						isDisabled={isDisabled}
-						onPageChange={handleChangePage}
-					/>
-				</Box>
+				<CustomPagination
+					pages={pages}
+					pagesCount={pagesCount}
+					currentPage={currentPage}
+					isDisabled={isDisabled}
+					onPageChange={handleChangePage}
+				/>
 
 				<Box w='full'>
 					<SimpleGrid columns={{ sm: 2, md: 3 }} spacing='4'>
@@ -138,15 +136,13 @@ function Media() {
 					</SimpleGrid>
 				</Box>
 
-				<Box alignSelf='start'>
-					<CustomPagination
-						pages={pages}
-						pagesCount={pagesCount}
-						currentPage={currentPage}
-						isDisabled={isDisabled}
-						onPageChange={handleChangePage}
-					/>
-				</Box>
+				<CustomPagination
+					pages={pages}
+					pagesCount={pagesCount}
+					currentPage={currentPage}
+					isDisabled={isDisabled}
+					onPageChange={handleChangePage}
+				/>
 			</VStack>
 		</Body>
 	);

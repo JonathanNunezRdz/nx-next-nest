@@ -188,11 +188,11 @@ export class TradeService {
 
 		const trades = await Promise.all(
 			rawTrades.map<Promise<TradeResponse>>(async (trade) => {
-				const wantedWaifus = trade.wantedWaifus.map(
-					this.prisma.transformPrismaWaifuToWaifuResponse
+				const wantedWaifus = trade.wantedWaifus.map((waifu) =>
+					this.prisma.transformPrismaWaifuToWaifuResponse(waifu)
 				);
-				const offeredWaifus = trade.offeredWaifus.map(
-					this.prisma.transformPrismaWaifuToWaifuResponse
+				const offeredWaifus = trade.offeredWaifus.map((waifu) =>
+					this.prisma.transformPrismaWaifuToWaifuResponse(waifu)
 				);
 				return {
 					...trade,

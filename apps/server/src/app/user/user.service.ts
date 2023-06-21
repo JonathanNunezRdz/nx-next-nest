@@ -5,8 +5,8 @@ import {
 	EditUserService,
 	GetAllUsersResponse,
 	GetUserResponse,
-	prismaSelectUser,
 	UserResponse,
+	prismaSelectUser,
 } from '@nx-next-nest/types';
 // import type { ImageFormat, Prisma, PrismaPromise } from '@prisma/client';
 import { User } from '@prisma/client';
@@ -34,7 +34,7 @@ export class UserService {
 		private storage: StorageService
 	) {}
 
-	async renameImagesToIds() {
+	renameImagesToIds() {
 		// const mediaTypes: MediaType[] = ['anime', 'manga', 'videogame'];
 
 		// const promises: Promise<any>[] = [];
@@ -806,8 +806,8 @@ export class UserService {
 		const rawUsers = await this.prisma.user.findMany({
 			...prismaSelectUser,
 		});
-		const users: GetAllUsersResponse = rawUsers.map<UserResponse>(
-			this.prisma.transformPrismaUserToUserResponse
+		const users: GetAllUsersResponse = rawUsers.map<UserResponse>((user) =>
+			this.prisma.transformPrismaUserToUserResponse(user)
 		);
 		return users;
 	}

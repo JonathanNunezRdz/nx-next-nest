@@ -13,9 +13,9 @@ import {
 	GetAllWaifusResponse,
 	GetEditWaifuResponse,
 	GetEditWaifuService,
+	WaifuResponse,
 	prismaSelectWaifu,
 	prismaWaifuFindManyInput,
-	WaifuResponse,
 } from '@nx-next-nest/types';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { createWaifuImage, upsertWaifuImage } from '@server/src/utils';
@@ -39,8 +39,8 @@ export class WaifuService {
 		});
 		const rawWaifus = await this.prisma.waifu.findMany(input);
 
-		const waifus = rawWaifus.map<WaifuResponse>(
-			this.prisma.transformPrismaWaifuToWaifuResponse
+		const waifus = rawWaifus.map<WaifuResponse>((waifu) =>
+			this.prisma.transformPrismaWaifuToWaifuResponse(waifu)
 		);
 
 		return { waifus, totalWaifus };

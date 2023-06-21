@@ -1,34 +1,6 @@
 {
-	"parser": "@typescript-eslint/parser",
-	"parserOptions": {
-		"project": ["./tsconfig.json"],
-		"tsconfigRootDir": "apps/server",
-		"sourceType": "module"
-	},
-	"plugins": ["@typescript-eslint"],
-	"extends": [
-		"plugin:@typescript-eslint/recommended",
-		"plugin:prettier/recommended",
-		"../../.eslintrc.json"
-	],
-	"root": false,
-	"env": {
-		"node": true,
-		"jest": true
-	},
-	"rules": {
-		"@typescript-eslint/interface-name-prefix": "off",
-		"@typescript-eslint/explicit-function-return-type": "off",
-		"@typescript-eslint/explicit-module-boundary-types": "off",
-		"@typescript-eslint/no-explicit-any": "off",
-		"prettier/prettier": [
-			"error",
-			{
-				"endOfLine": "auto",
-				"useTabs": true
-			}
-		]
-	},
+	"extends": ["prettier", "../../.eslintrc.json"],
+	"ignorePatterns": ["jest.config.ts", "test/*"],
 	"overrides": [
 		{
 			"files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
@@ -36,12 +8,23 @@
 		},
 		{
 			"files": ["*.ts", "*.tsx"],
+			"extends": [
+				"plugin:@typescript-eslint/eslint-recommended",
+				"plugin:@typescript-eslint/recommended",
+				"plugin:@typescript-eslint/recommended-requiring-type-checking"
+			],
+			"parser": "@typescript-eslint/parser",
+			"parserOptions": {
+				"project": ["./tsconfig.json"],
+				"tsconfigRootDir": "apps/server",
+				"sourceType": "module"
+			},
+			"plugins": ["@typescript-eslint"],
 			"rules": {}
 		},
 		{
 			"files": ["*.js", "*.jsx"],
 			"rules": {}
 		}
-	],
-	"ignorePatterns": ["jest.config.ts", "test/*"]
+	]
 }
