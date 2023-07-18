@@ -36,4 +36,7 @@
     -   [?] dto
     -   [?] controller
     -   [?] service
--   [ ] Delete waifu
+-   [?] Delete waifu
+    -   [?] dto
+    -   [?] controller
+    -   [?] service
