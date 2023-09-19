@@ -58,35 +58,40 @@ const MediaCard = ({ media, ownId, isLoggedIn }: MediaCardProps) => {
 				<KnownBy users={media.knownBy} ownId={ownId} />
 			</Box>
 			<Box bg='teal.600' borderRadius='md' p='2'>
-				<Box>
-					<List>
-						{hasWaifus ? (
-							media.waifus.map((waifu) => (
-								<ListItem key={waifu.id}>{waifu.name}</ListItem>
-							))
-						) : (
-							<ListItem>No waifus</ListItem>
-						)}
-					</List>
-				</Box>
+				<VStack alignItems='start'>
+					<Box>
+						<Text fontWeight='bold'>waifus</Text>
+						<List>
+							{hasWaifus ? (
+								media.waifus.map((waifu) => (
+									<ListItem key={waifu.id}>
+										{waifu.name}
+									</ListItem>
+								))
+							) : (
+								<ListItem>no waifus</ListItem>
+							)}
+						</List>
+					</Box>
 
-				<LinkBox>
-					<NextLink
-						href={{
-							pathname: '/media/waifus',
-							query: {
-								mediaTitle: media.title,
-							},
-						}}
-						passHref
-					>
-						<LinkOverlay>
-							<Button size='sm' width='full'>
-								view/add waifus
-							</Button>
-						</LinkOverlay>
-					</NextLink>
-				</LinkBox>
+					<LinkBox w='full'>
+						<NextLink
+							href={{
+								pathname: '/media/waifus',
+								query: {
+									mediaId: media.id,
+								},
+							}}
+							passHref
+						>
+							<LinkOverlay>
+								<Button size='sm' width='full'>
+									view all waifus
+								</Button>
+							</LinkOverlay>
+						</NextLink>
+					</LinkBox>
+				</VStack>
 			</Box>
 		</Box>
 	);

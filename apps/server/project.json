@@ -1,4 +1,5 @@
 {
+	"name": "server",
 	"$schema": "../../node_modules/nx/schemas/project-schema.json",
 	"sourceRoot": "apps/server/src",
 	"projectType": "application",
@@ -54,31 +55,25 @@
 			"dependsOn": ["remove-db"]
 		},
 		"build": {
-			"executor": "@nrwl/node:webpack",
+			"executor": "@nx/webpack:webpack",
 			"outputs": ["{options.outputPath}"],
 			"options": {
+				"target": "node",
+				"compiler": "tsc",
 				"outputPath": "dist/apps/server",
 				"main": "apps/server/src/main.ts",
 				"tsConfig": "apps/server/tsconfig.json",
-				"assets": ["apps/server/src/assets"]
+				"assets": ["apps/server/src/assets"],
+				"isolatedConfig": true,
+				"webpackConfig": "apps/server/webpack.config.js"
 			},
 			"configurations": {
-				"production": {
-					"optimization": true,
-					"extractLicenses": true,
-					"inspect": false,
-					"fileReplacements": [
-						{
-							"replace": "apps/server/src/environments/environment.ts",
-							"with": "apps/server/src/environments/environment.prod.ts"
-						}
-					]
-				}
+				"production": {}
 			},
 			"dependsOn": ["prepare-db"]
 		},
 		"serve": {
-			"executor": "@nrwl/node:node",
+			"executor": "@nx/js:node",
 			"options": {
 				"buildTarget": "server:build"
 			},

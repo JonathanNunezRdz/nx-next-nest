@@ -17,14 +17,11 @@ import {
 	KnowMediaResponse,
 	KnowMediaService,
 } from '@nx-next-nest/types';
-import { User } from '@prisma/client';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
-
+import { Prisma, User } from '@prisma/client';
 import {
 	createMediaImage,
 	editMediaImage,
 	editMediaKnownAt,
-	formatImageFileName,
 } from '../../utils';
 import { PrismaService } from '../prisma/prisma.service';
 import { StorageService } from '../storage/storage.service';
@@ -132,11 +129,13 @@ export class MediaService {
 		const medias: GetMediaResponse['medias'] = rawMedias.map((media) => {
 			let image: GetMediaResponse['medias'][0]['image'];
 			if (media.image) {
-				const imagePath = formatImageFileName(
-					media.id,
-					media.image.image.format
-				);
-				image = { src: this.storage.getFile(imagePath) };
+				image = {
+					src: this.storage.getFirebaseImageString(
+						media.title,
+						media.type,
+						media.image.image.format
+					),
+				};
 			}
 
 			return {
@@ -224,11 +223,13 @@ export class MediaService {
 
 		let image: GetEditMediaResponse['image'];
 		if (media.image) {
-			const imagePath = formatImageFileName(
-				media.id,
-				media.image.image.format
-			);
-			image = { src: this.storage.getFile(imagePath) };
+			image = {
+				src: this.storage.getFirebaseImageString(
+					media.title,
+					media.type,
+					media.image.image.format
+				),
+			};
 		}
 
 		return {
@@ -237,6 +238,132 @@ export class MediaService {
 			type: media.type,
 			knownAt: knownAt.knownAt,
 			image,
+		};
+	}
+
+	async getMediaWaifus(
+		dto: GetMediaWaifusService
+	): Promise<GetMediaWaifusResponse> {
+		const { id, waifuDto } = dto;
+		const { name, level, users } = waifuDto;
+
+		const rawMedia = await this.prisma.media.findUnique({
+			where: {
+				id,
+			},
+			include: {
+				waifus: {
+					where: {
+						name,
+						level: {
+							in: level,
+						},
+						userId: {
+							in: users,
+						},
+					},
+					include: {
+						image: {
+							include: {
+								image: {
+									select: {
+										format: true,
+									},
+								},
+							},
+						},
+						user: {
+							select: {
+								alias: true,
+							},
+						},
+					},
+					orderBy: {
+						createdAt: 'desc',
+					},
+				},
+				image: {
+					include: {
+						image: {
+							select: {
+								format: true,
+							},
+						},
+					},
+				},
+				knownBy: {
+					include: {
+						user: {
+							select: {
+								id: true,
+								alias: true,
+								image: {
+									include: {
+										image: {
+											select: {
+												id: true,
+												format: true,
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+					orderBy: {
+						knownAt: 'asc',
+					},
+				},
+			},
+		});
+
+		if (!rawMedia) throw new NotFoundException('media not found');
+
+		let image: GetMediaWaifusResponse['media']['image'];
+
+		if (rawMedia.image) {
+			image = {
+				src: this.storage.getFirebaseImageString(
+					rawMedia.title,
+					rawMedia.type,
+					rawMedia.image.image.format
+				),
+			};
+		}
+
+		const waifus: GetMediaWaifusResponse['media']['waifus'] =
+			rawMedia.waifus.map((waifu) => {
+				let image: GetMediaWaifusResponse['media']['waifus'][0]['image'];
+				if (waifu.image) {
+					image = {
+						src: this.storage.getFirebaseImageString(
+							waifu.name,
+							'waifu',
+							waifu.image.image.format
+						),
+					};
+				}
+				return {
+					...waifu,
+					image,
+				};
+			});
+
+		return {
+			media: {
+				...rawMedia,
+				knownBy: rawMedia.knownBy.map((user) => {
+					return {
+						...user,
+						user: {
+							id: user.user.id,
+							alias: user.user.alias,
+						},
+					};
+				}),
+				waifus,
+				image,
+			},
 		};
 	}
 
@@ -308,14 +435,13 @@ export class MediaService {
 			let image: CreateMediaResponse['image'];
 
 			if (rawMedia.image && dto.imageFile) {
-				const imageFileName = formatImageFileName(
-					rawMedia.id,
-					rawMedia.image.image.format
-				);
+				// TODO: connect to firebase and upload image
 				image = {
 					src: await this.storage.uploadFile(
 						dto.imageFile,
-						imageFileName
+						rawMedia.title,
+						rawMedia.type,
+						rawMedia.image.image.format
 					),
 				};
 			}
@@ -337,7 +463,7 @@ export class MediaService {
 
 			return media;
 		} catch (error) {
-			if (error instanceof PrismaClientKnownRequestError) {
+			if (error instanceof Prisma.PrismaClientKnownRequestError) {
 				if (error.code === 'P2002')
 					throw new ForbiddenException(
 						`title: '${title}' is already in use`
@@ -417,12 +543,12 @@ export class MediaService {
 		let image: KnowMediaResponse['image'];
 
 		if (rawMedia.image) {
-			const imageFileName = formatImageFileName(
-				rawMedia.id,
-				rawMedia.image.image.format
-			);
 			image = {
-				src: this.storage.getFile(imageFileName),
+				src: this.storage.getFirebaseImageString(
+					rawMedia.title,
+					rawMedia.type,
+					rawMedia.image.image.format
+				),
 			};
 		}
 
@@ -457,6 +583,8 @@ export class MediaService {
 				id: mediaId,
 			},
 			select: {
+				title: true,
+				type: true,
 				image: {
 					select: {
 						image: {
@@ -530,23 +658,26 @@ export class MediaService {
 
 		let image: EditMediaResponse['image'];
 
+		// TODO: update code to make changes to firebase instead
 		if (imageFile && rawMedia.image) {
 			// originalMedia did have an image before
 			if (oldMedia.image) {
 				// delete old image
-				const deleteImageFileName = formatImageFileName(
-					rawMedia.id,
+				const deleteImageFileName = this.storage.getFirebaseImageString(
+					oldMedia.title,
+					oldMedia.type,
 					oldMedia.image.image.format
 				);
 				await this.storage.deleteFile(deleteImageFileName);
 			}
 			// upload new image
-			const imageFileName = formatImageFileName(
-				rawMedia.id,
-				rawMedia.image.image.format
-			);
 			image = {
-				src: await this.storage.uploadFile(imageFile, imageFileName),
+				src: await this.storage.uploadFile(
+					imageFile,
+					rawMedia.title,
+					rawMedia.type,
+					rawMedia.image.image.format
+				),
 			};
 		}
 
@@ -593,6 +724,8 @@ export class MediaService {
 			},
 			select: {
 				id: true,
+				title: true,
+				type: true,
 				image: {
 					select: {
 						image: {
@@ -613,9 +746,18 @@ export class MediaService {
 
 		console.log('deleted media');
 
+		// TODO: update code to make changes in firebase instead
 		if (deletedMedia.image) {
-			const deleteImageFileName = formatImageFileName(
-				deletedMedia.id,
+			await this.prisma.image.delete({
+				where: {
+					id: deletedMedia.image.image.id,
+				},
+			});
+			console.log('deleted prisma image');
+
+			const deleteImageFileName = this.storage.getFirebaseImageString(
+				deletedMedia.title,
+				deletedMedia.type,
 				deletedMedia.image.image.format
 			);
 			await this.storage.deleteFile(deleteImageFileName);

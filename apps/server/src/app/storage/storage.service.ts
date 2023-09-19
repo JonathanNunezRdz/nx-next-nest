@@ -1,52 +1,55 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import ImageKit from 'imagekit';
+import { ImageFormat, MediaType } from '@prisma/client';
+import { cert, initializeApp } from 'firebase-admin/app';
+import { getStorage } from 'firebase-admin/storage';
 import 'multer';
-
-// TODO: move/copy images from firebase to imageKit
+import serviceAccount from './serviceAccountKey.json';
 
 @Injectable()
 export class StorageService {
-	private readonly imageKit: ImageKit;
+	private readonly bucket;
 
 	constructor(config: ConfigService) {
-		this.imageKit = new ImageKit({
-			publicKey: 'public_A7N6XWKGXgakPLZBrM1FvYdRS7s=',
-			privateKey: config.get('IMAGE_KIT_PRIVATE_KEY') as string,
-			urlEndpoint: 'https://ik.imagekit.io/wiaimages',
+		const serviceAccountCred = serviceAccount;
+		const privateKey = config.get<string>('FIREBASE_PRIVATE_KEY');
+		if (typeof privateKey === 'undefined' || privateKey === '') {
+			throw new Error(
+				'firebase private key not found, be sure to define it in env'
+			);
+		}
+		serviceAccountCred.private_key = privateKey;
+		initializeApp({
+			credential: cert(JSON.stringify(serviceAccountCred)),
+			storageBucket: 'wia-web-app.appspot.com',
 		});
+		this.bucket = getStorage().bucket();
 	}
 
-	getFile(imageFileName: string): string {
-		// TODO: fix different folders
-		return this.imageKit.url({
-			path: `/v1/${imageFileName}`,
-			signed: true,
-			expireSeconds: 60,
-			transformation: [{ quality: 50 }, { width: 0.5 }],
-		});
+	getFirebaseImageString(
+		name: string,
+		type: MediaType | 'waifu' | 'user',
+		format: ImageFormat
+	) {
+		return `${type}_images/${encodeURIComponent(name)}.${format}`;
 	}
 
 	async uploadFile(
 		file: Express.Multer.File,
-		imageFileName: string
+		imageFileName: string,
+		type: MediaType | 'waifu' | 'user',
+		format: ImageFormat
 	): Promise<string> {
-		const res = await this.imageKit.upload({
-			file: file.buffer,
-			fileName: imageFileName,
-			folder: 'v1',
-			useUniqueFileName: false,
-		});
-		return this.getFile(res.name);
+		const fileName = this.getFirebaseImageString(
+			imageFileName,
+			type,
+			format
+		);
+		await this.bucket.file(fileName).save(file.buffer);
+		return fileName;
 	}
 
 	async deleteFile(imageFileName: string): Promise<void> {
-		const [file] = await this.imageKit.listFiles({
-			searchQuery: `name=${imageFileName}`,
-		});
-		if (file) {
-			await this.imageKit.deleteFile(file.fileId);
-			console.log('delete file:', file.fileId, file.filePath);
-		}
+		await this.bucket.file(imageFileName).delete();
 	}
 }

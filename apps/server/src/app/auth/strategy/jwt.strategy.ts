@@ -5,15 +5,17 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
-import { User } from '@prisma/client';
-import { PrismaClientValidationError } from '@prisma/client/runtime';
+import { Prisma, User } from '@prisma/client';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
 import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
-	constructor(config: ConfigService, private prisma: PrismaService) {
+	constructor(
+		config: ConfigService,
+		private prisma: PrismaService
+	) {
 		super({
 			jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
 			secretOrKey: config.get('JWT_SECRET'),
@@ -37,7 +39,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 
 			return user;
 		} catch (error) {
-			if (error instanceof PrismaClientValidationError) {
+			if (error instanceof Prisma.PrismaClientValidationError) {
 				throw new BadRequestException('JWT token invalid');
 			}
 			throw error;

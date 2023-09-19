@@ -12,16 +12,13 @@ import {
 	GetAllWaifusResponse,
 	GetEditWaifuResponse,
 	GetEditWaifuService,
-	GetMediaWaifusResponse,
-	GetMediaWaifusService,
+	GetWaifuNamesService,
+	prismaSelectWaifu,
 } from '@nx-next-nest/types';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
+import { Prisma } from '@prisma/client';
+import { createWaifuImage, upsertWaifuImage } from '@server/src/utils';
 
-import {
-	createWaifuImage,
-	formatImageFileName,
-	upsertWaifuImage,
-} from '../../utils';
+import { formatImageFileName } from '../../utils';
 import { PrismaService } from '../prisma/prisma.service';
 import { StorageService } from '../storage/storage.service';
 
@@ -231,11 +228,13 @@ export class WaifuService {
 		let image: GetEditWaifuResponse['image'];
 
 		if (rawWaifu.image) {
-			const imagePath = formatImageFileName(
-				rawWaifu.id,
-				rawWaifu.image.image.format
-			);
-			image = { src: this.storage.getFile(imagePath) };
+			image = {
+				src: this.storage.getFirebaseImageString(
+					rawWaifu.name,
+					'waifu',
+					rawWaifu.image.image.format
+				),
+			};
 		}
 
 		return {
@@ -246,6 +245,27 @@ export class WaifuService {
 			userId: rawWaifu.userId,
 			image,
 		};
+	}
+
+	/**
+	 * STATUS: incomplete
+	 *
+	 * Get waifu names to initiate a trade
+	 * @param {GetWaifuNamesService} dto object with filter options to get waifus
+	 */
+	async getWaifuNames(dto: GetWaifuNamesService) {
+		// continue with getting the waifus for a given name
+		const { name } = dto;
+
+		const waifuNames = await this.prisma.waifu.findMany({
+			where: {
+				name: {
+					contains: name,
+					mode: 'insensitive',
+				},
+			},
+			select: {},
+		});
 	}
 
 	// post services
@@ -296,53 +316,30 @@ export class WaifuService {
 						},
 					},
 				},
-				include: {
-					image: {
-						include: {
-							image: {
-								select: {
-									format: true,
-								},
-							},
-						},
-					},
-					media: {
-						select: {
-							title: true,
-							type: true,
-						},
-					},
-					user: {
-						select: {
-							alias: true,
-						},
-					},
-				},
+				select: prismaSelectWaifu.select,
 			});
 
 			let image: CreateWaifuResponse['image'];
 
 			if (rawWaifu.image && dto.imageFile) {
-				const imageFileName = formatImageFileName(
-					rawWaifu.id,
-					rawWaifu.image.image.format
-				);
 				image = {
 					src: await this.storage.uploadFile(
 						dto.imageFile,
-						imageFileName
+						rawWaifu.name,
+						'waifu',
+						rawWaifu.image.image.format
 					),
 				};
 			}
 
-			const waifu: CreateWaifuResponse = {
+			const waifu = {
 				...rawWaifu,
 				image,
 			};
 
 			return waifu;
 		} catch (error) {
-			if (error instanceof PrismaClientKnownRequestError) {
+			if (error instanceof Prisma.PrismaClientKnownRequestError) {
 				if (error.code === 'P2002')
 					throw new ForbiddenException(
 						`name: ${name} is already in this media`
@@ -367,6 +364,7 @@ export class WaifuService {
 				id: waifuId,
 			},
 			select: {
+				name: true,
 				userId: true,
 				image: {
 					select: {
@@ -424,20 +422,22 @@ export class WaifuService {
 			// oldWaifu did have an image before
 			if (oldWaifu.image) {
 				// delete old image
-				const deleteImageFileName = formatImageFileName(
-					rawWaifu.id,
+				const deleteImageFileName = this.storage.getFirebaseImageString(
+					oldWaifu.name,
+					'waifu',
 					oldWaifu.image.image.format
 				);
 				await this.storage.deleteFile(deleteImageFileName);
 			}
 
 			// upload new image
-			const imageFileName = formatImageFileName(
-				rawWaifu.id,
-				rawWaifu.image.image.format
-			);
 			image = {
-				src: await this.storage.uploadFile(imageFile, imageFileName),
+				src: await this.storage.uploadFile(
+					imageFile,
+					rawWaifu.name,
+					'waifu',
+					rawWaifu.image.image.format
+				),
 			};
 		}
 
@@ -450,4 +450,62 @@ export class WaifuService {
 	}
 
 	// delete services
+
+	async deleteWaifu(dto: DeleteWaifuDto): Promise<void> {
+		const { waifuId, userId } = dto;
+
+		const waifu = await this.prisma.waifu.findUnique({
+			where: {
+				id: waifuId,
+			},
+			select: {
+				userId: true,
+			},
+		});
+
+		if (!waifu) throw new NotFoundException('waifu not found');
+
+		if (waifu.userId !== userId)
+			throw new ForbiddenException('access to resources denied');
+
+		const deletedWaifu = await this.prisma.waifu.delete({
+			where: {
+				id: waifuId,
+			},
+			select: {
+				id: true,
+				name: true,
+				image: {
+					select: {
+						image: {
+							select: {
+								id: true,
+								format: true,
+							},
+						},
+					},
+				},
+			},
+		});
+
+		console.log('deleted waifu');
+
+		if (deletedWaifu.image) {
+			await this.prisma.image.delete({
+				where: {
+					id: deletedWaifu.image.image.id,
+				},
+			});
+
+			console.log('deleted prisma image');
+
+			const deleteImageFileName = this.storage.getFirebaseImageString(
+				deletedWaifu.name,
+				'waifu',
+				deletedWaifu.image.image.format
+			);
+			await this.storage.deleteFile(deleteImageFileName);
+			console.log('deleted waifu image');
+		}
+	}
 }

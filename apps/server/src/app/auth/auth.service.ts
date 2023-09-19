@@ -2,8 +2,7 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { SignInDto, SignUpDto } from '@nx-next-nest/types';
-import { User } from '@prisma/client';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
+import { Prisma, User } from '@prisma/client';
 import { hash, verify } from 'argon2';
 
 import { createUserImage } from '../../utils';
@@ -63,7 +62,7 @@ export class AuthService {
 
 			return this.signToken(user.id, user.email);
 		} catch (error) {
-			if (error instanceof PrismaClientKnownRequestError) {
+			if (error instanceof Prisma.PrismaClientKnownRequestError) {
 				if (error.code === 'P2002')
 					throw new ForbiddenException('credentials already in use');
 			}

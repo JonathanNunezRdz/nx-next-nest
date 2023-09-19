@@ -7,7 +7,7 @@ import type {
 	GetUserResponse,
 } from '@nx-next-nest/types';
 import type { ImageFormat, Prisma, PrismaPromise } from '@prisma/client';
-import { User } from '@prisma/client';
+import { MediaType, User, WaifuLevel } from '@prisma/client';
 // import { hash } from 'argon2';
 // import { applicationDefault, initializeApp } from 'firebase-admin/app';
 // import { getStorage } from 'firebase-admin/storage';
@@ -17,12 +17,12 @@ import { formatImageFileName, upsertUserImage } from '../../utils';
 import { PrismaService } from '../prisma/prisma.service';
 import { StorageService } from '../storage/storage.service';
 
-import animes from '../../../tmp/dumps/animes.json';
-import mangas from '../../../tmp/dumps/mangas.json';
-// import users from '../../../tmp/dumps/users.json';
-import { readdir } from 'fs/promises';
-import videogames from '../../../tmp/dumps/videogames.json';
-import waifus from '../../../tmp/dumps/waifus.json';
+import animes from '../../../tmp/dumps/main.animes.json';
+import mangas from '../../../tmp/dumps/main.mangas.json';
+// import users from '../../../tmp/dumps/main.users.json';
+// import { readdir } from 'fs/promises';
+import videogames from '../../../tmp/dumps/main.videogames.json';
+import waifus from '../../../tmp/dumps/main.waifus.json';
 
 @Injectable()
 export class UserService {
@@ -567,9 +567,7 @@ export class UserService {
 					knownBy: anime.watchedBy.map((user) => {
 						return {
 							uid: user.uid,
-							knownAt: new Date(
-								Number(user.date.$date.$numberLong)
-							),
+							knownAt: new Date(user.date.$date),
 						};
 					}),
 					image: { ...anime.image },
@@ -590,9 +588,7 @@ export class UserService {
 					knownBy: manga.readBy.map((user) => {
 						return {
 							uid: user.uid,
-							knownAt: new Date(
-								Number(user.date.$date.$numberLong)
-							),
+							knownAt: new Date(user.date.$date),
 						};
 					}),
 					image: { ...manga.image },
@@ -613,9 +609,7 @@ export class UserService {
 					knownBy: videogame.playedBy.map((user) => {
 						return {
 							uid: user.uid,
-							knownAt: new Date(
-								Number(user.date.$date.$numberLong)
-							),
+							knownAt: new Date(user.date.$date),
 						};
 					}),
 					image: { ...videogame.image },
@@ -645,8 +639,8 @@ export class UserService {
 			originalMedia[media.title].id = media.id;
 		});
 
-		const mediaPromises: PrismaPromise<any>[] = [];
-		const imagePromises: PrismaPromise<any>[] = [];
+		const mediaPromises: PrismaPromise<unknown>[] = [];
+		const imagePromises: PrismaPromise<unknown>[] = [];
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		Object.entries(originalMedia).forEach(([title, media]) => {
 			mediaPromises.push(
@@ -708,10 +702,28 @@ export class UserService {
 
 		const getWaifus = () => waifus;
 
+		type MediaTypeExt = '_anime' | '_manga' | '_videogame';
+		function assertMediaType(from: string): from is MediaType {
+			return ['anime', 'manga', 'videogame'].includes(from);
+		}
+		function assertFromString(from: string): MediaTypeExt {
+			if (assertMediaType(from)) {
+				return `_${from}`;
+			}
+			throw new Error(`not a valid media type ${JSON.stringify(from)}`);
+		}
+
 		const getMediaIdFromMediaOID = (
 			waifu: ReturnType<typeof getWaifus>[0]
 		) => {
-			return mediaByOID[waifu[`_${waifu.from}`].$oid];
+			const fromKey = assertFromString(waifu.from);
+			const mediaTypeFrom = waifu[fromKey];
+			if (typeof mediaTypeFrom !== 'undefined') {
+				return mediaByOID[mediaTypeFrom.$oid];
+			}
+			throw new Error(
+				`media id not found with OID ${JSON.stringify(waifu)}`
+			);
 		};
 
 		const createManyWaifus: Prisma.WaifuCreateManyInput[] = [];
@@ -723,7 +735,7 @@ export class UserService {
 			const createWaifu: Prisma.WaifuCreateManyInput = {
 				name: waifu.name,
 				since: parseDateFromOID(waifu._id.$oid),
-				level: WaifuLevels[waifu.type],
+				level: WaifuLevels[waifu.type as 1 | 2 | 3 | 4] as WaifuLevel,
 				mediaId: getMediaIdFromMediaOID(waifu),
 				userId: createdUsers[waifu.uid].id,
 				createdAt: parseDateFromOID(waifu._id.$oid),
@@ -767,7 +779,7 @@ export class UserService {
 					waifu.id;
 		});
 
-		const waifuImagePromises: PrismaPromise<any>[] = [];
+		const waifuImagePromises: PrismaPromise<unknown>[] = [];
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		Object.entries(createWaifuImage).forEach(([nameMediaId, props]) => {
 			waifuImagePromises.push(
@@ -933,18 +945,20 @@ export class UserService {
 
 		if (imageFile && rawUser.image) {
 			if (oldUser.image) {
-				const deleteImageFileName = formatImageFileName(
-					rawUser.id,
+				const deleteImageFileName = this.storage.getFirebaseImageString(
+					updatedUser.uid,
+					'user',
 					oldUser.image.image.format
 				);
 				await this.storage.deleteFile(deleteImageFileName);
 			}
-			const imageFileName = formatImageFileName(
-				rawUser.id,
-				rawUser.image.image.format
-			);
 			image = {
-				src: await this.storage.uploadFile(imageFile, imageFileName),
+				src: await this.storage.uploadFile(
+					imageFile,
+					updatedUser.uid,
+					'user',
+					updatedUser.image.image.format
+				),
 			};
 		}
 

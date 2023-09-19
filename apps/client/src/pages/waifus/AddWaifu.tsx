@@ -147,7 +147,17 @@ function AddWaifu() {
 
 						<HStack>
 							<LinkBox display='inline-flex'>
-								<NextLink href='/waifus' passHref>
+								<NextLink
+									href={
+										typeof mediaId === 'string'
+											? {
+													pathname: '/media/waifus',
+													query: { mediaId },
+											  }
+											: '/waifus'
+									}
+									passHref
+								>
 									<LinkOverlay>
 										<Button colorScheme='red'>
 											cancel

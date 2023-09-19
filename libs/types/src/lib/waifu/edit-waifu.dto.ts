@@ -23,3 +23,8 @@ export interface EditWaifuThunk {
 	editDto: EditWaifuDto;
 	imageFile?: File;
 }
+
+export interface GetWaifuNamesService {
+	userId: User['id'];
+	name: string;
+}

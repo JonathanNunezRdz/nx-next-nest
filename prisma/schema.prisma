@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["native", "debian-openssl-3.0.x"]
@@ -12,105 +9,112 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  alias     String
-  firstName String
-  lastName  String
-  uid       String @unique
-  hash      String
-  email     String @unique
-
-  image      UserImage?
-  knownMedia KnownMedia[]
-  waifus     Waifu[]
+  id             String       @id @default(uuid())
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  alias          String
+  firstName      String
+  uid            String       @unique
+  hash           String
+  email          String       @unique
+  lastName       String
+  knownMedia     KnownMedia[]
+  incomingTrades Trade[]      @relation("recipient")
+  outgoingTrades Trade[]      @relation("sender")
+  image          UserImage?
+  waifus         Waifu[]
 }
 
 model UserImage {
-  user   User   @relation(references: [id], fields: [userId])
-  userId String @unique
-
-  image   Image  @relation(references: [id], fields: [imageId])
+  userId  String @unique
   imageId String @unique
+  image   Image  @relation(fields: [imageId], references: [id])
+  user    User   @relation(fields: [userId], references: [id])
 
   @@id([userId, imageId])
 }
 
 model Image {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  format ImageFormat
-
-  user  UserImage?
-  media MediaImage?
-  waifu WaifuImage?
+  id        String      @id @default(uuid())
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  format    ImageFormat
+  media     MediaImage?
+  user      UserImage?
+  waifu     WaifuImage?
 }
 
 model MediaImage {
-  media   Media  @relation(references: [id], fields: [mediaId], onDelete: Cascade)
   mediaId String @unique
-
-  image   Image  @relation(references: [id], fields: [imageId])
   imageId String @unique
+  image   Image  @relation(fields: [imageId], references: [id])
+  media   Media  @relation(fields: [mediaId], references: [id], onDelete: Cascade)
 
   @@id([mediaId, imageId])
 }
 
 model Media {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  title String    @unique
-  type  MediaType
-
-  image   MediaImage?
-  knownBy KnownMedia[]
-  waifus  Waifu[]
+  id        String       @id @default(uuid())
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  title     String       @unique
+  type      MediaType
+  knownBy   KnownMedia[]
+  image     MediaImage?
+  waifus    Waifu[]
 }
 
 model KnownMedia {
-  user   User   @relation(fields: [userId], references: [id])
-  userId String
-
-  media   Media  @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  userId  String
   mediaId String
-
   knownAt DateTime
+  media   Media    @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  user    User     @relation(fields: [userId], references: [id])
 
   @@id([userId, mediaId])
 }
 
 model Waifu {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  name  String
-  level WaifuLevel
-  since DateTime
-
-  image   WaifuImage?
-  media   Media       @relation(references: [id], fields: [mediaId], onDelete: Cascade)
-  mediaId String
-  user    User        @relation(references: [id], fields: [userId])
-  userId  String
+  id             String      @id @default(uuid())
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  name           String
+  level          WaifuLevel
+  since          DateTime
+  mediaId        String
+  userId         String
+  offeredTradeId String?
+  wantedTradeId  String?
+  media          Media       @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  offeredTrade   Trade?      @relation("offered", fields: [offeredTradeId], references: [id])
+  user           User        @relation(fields: [userId], references: [id])
+  wantedTrade    Trade?      @relation("wanted", fields: [wantedTradeId], references: [id])
+  image          WaifuImage?
 
   @@unique([name, mediaId])
 }
 
 model WaifuImage {
-  waifu   Waifu  @relation(references: [id], fields: [waifuId], onDelete: Cascade)
   waifuId String @unique
-
-  image   Image  @relation(references: [id], fields: [imageId])
   imageId String @unique
+  image   Image  @relation(fields: [imageId], references: [id])
+  waifu   Waifu  @relation(fields: [waifuId], references: [id], onDelete: Cascade)
 
   @@id([waifuId, imageId])
+}
+
+model Trade {
+  id            String      @id @default(uuid())
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  endedAt       DateTime?
+  senderId      String
+  recipientId   String
+  status        TradeStatus @default(pending)
+  recipient     User        @relation("recipient", fields: [recipientId], references: [id])
+  sender        User        @relation("sender", fields: [senderId], references: [id])
+  offeredWaifus Waifu[]     @relation("offered")
+  wantedWaifus  Waifu[]     @relation("wanted")
 }
 
 enum MediaType {
